@@ -17,7 +17,25 @@ Lives here because its backend is this repo; it is otherwise a self-contained ap
 
 The app is **built and running**. The redesign (216×40 sliver, hover reveal, hold-to-confirm
 No-Show, three sizes, four data states, minimised chip, closed edge tab) is implemented.
-`flutter analyze` is clean and 28 tests pass.
+`flutter analyze` is clean and 32 tests pass.
+
+**Latest: the red "No Material widget found" panel is fixed.** Build against a live backend,
+sign in, and the reveal drew Flutter's red error box over the whole panel with a
+`RenderFlex overflowed by 99914 pixels` banner underneath it. Cause: `Scaffold` only wraps the
+route it is built in, so `home:`'s `Scaffold` covered the *first* screen and nothing else —
+`Get.offAll(() => const WidgetShell())` (sign_in.dart) pushes a **new route** holding the bare
+shell, with no `Material` above it. The size menu is a `PopupMenuButton` with a custom child,
+which Flutter builds as `Tooltip → InkWell → child`, and `InkWell` asserts
+`debugCheckHasMaterial`; the assert threw and the panel was replaced by the error widget, whose
+unbounded text then overflowed a Row by ~99,000px. That second number is a *cascade*, not a
+second bug — reverting the fix reproduces both in `test/material_ancestor_test.dart`. Fix:
+`GetMaterialApp(builder: …)` puts one transparent `Material` above the Navigator, so it covers
+every route, present and future. It only bit with the reveal open, because `_SizeMenu` lives in
+`_Reveal`, which is not in the tree at rest.
+
+Two more from the same session: `assets/chup-logo.svg` existed on disk but was missing from
+`pubspec.yaml`, so `SvgPicture` threw `Unable to load asset` and drew nothing; and the sign-in
+card now fits its window (see Still open for what that cost).
 
 Five fixes worth knowing about. Four are guarded by tests; the two that live in window
 setup are not, because a widget test has neither an OS window nor a `main()` to run —
@@ -97,13 +115,14 @@ made in CI — Smart App Control blocks Flutter's unsigned AOT compiler locally.
 
 ## Still open
 
-- **The sign-in card overflows by 12px.** At the spec's 260 × 271 (design/README.md §1) the
-  1px border and `padding: 14` leave the Column 241px, but its content needs 253 — the footer
-  line falls past the bottom and Flutter draws the overflow banner across it. It was 20px
-  before the window went frameless; that fix reclaimed 8 of it. The prototype sets
-  `overflow: hidden` on the same card, so it clips the same excess silently rather than
-  reporting it. Either the Flutter content is 12px taller than the prototype's, or the card
-  wants to be 283 — a design call, not a code guess.
+- **The sign-in card's height was a design call, and it was made without the designer.** The
+  spec says 260 × 271 (design/README.md §1); measured against real Segoe UI the card needs
+  260 × 312, so `kSignInHeight` is 312. Two things the spec's number predates: the logo was
+  not rendering when the sheet was written (it was missing from `pubspec`, so `SvgPicture`
+  drew nothing rather than its 28px), and the 271 was measured from the HTML mock rather than
+  from Segoe at these sizes. The height is guarded by `test/sign_in_fit_test.dart`, which
+  fails on 311 by 0.433px. **If the sign-in card should be 271 tall, that is a design
+  decision to make by cutting content — not by lowering the constant back.**
 - The 1150ms sign-in → widget morph and landing blink
 - The ten-step first-run tour in Bahasa Malaysia (script is in the `.dc.html`)
 - Sound coordination with the web app (local IPC — only one surface may own the sound)

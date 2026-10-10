@@ -19,7 +19,8 @@ Future<void> main() async {
   // Fixtures skip the sign-in card so the panel is reachable with no backend.
   final loggedIn = kMock || Api.instance.isLoggedIn;
   // Sign in is centred; the widget lives in its corner.
-  final start = loggedIn ? const Size(kWidgetWidth, 40) : const Size(260, 271);
+  final start =
+      loggedIn ? const Size(kWidgetWidth, 40) : const Size(kSignInWidth, kSignInHeight);
 
   final options = WindowOptions(
     size: start,
@@ -89,10 +90,26 @@ class ChupWidgetApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: cGreen700),
         tooltipTheme: const TooltipThemeData(preferBelow: false),
       ),
-      home: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: loggedIn ? const WidgetShell() : const SignInScreen(),
+      // A Material for every route, not just the first one.
+      //
+      // Scaffold builds a Material too, but Scaffold only wraps the route it
+      // is built in — `home:` covers the initial screen and nothing else.
+      // Signing in does `Get.offAll(() => const WidgetShell())` (sign_in.dart),
+      // which pushes a *new* route holding the bare shell with no Scaffold
+      // above it; signing out does the same in reverse to SignInScreen, whose
+      // TextFields assert the same invariant. The size menu is a
+      // PopupMenuButton with a custom child, which Flutter builds as an
+      // InkWell, and InkWell asserts `debugCheckHasMaterial` — so on the
+      // panel, immediately after every sign-in, the assert threw and the whole
+      // widget was replaced by Flutter's red error box.
+      //
+      // Transparent because the panel and the sign-in card both paint their
+      // own white: this is only ever the surface ink lands on.
+      builder: (context, child) => Material(
+        type: MaterialType.transparency,
+        child: child ?? const SizedBox.shrink(),
       ),
+      home: loggedIn ? const WidgetShell() : const SignInScreen(),
     );
   }
 }

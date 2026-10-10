@@ -485,6 +485,14 @@ class _SizeMenu extends StatelessWidget {
         } else if (v == 'signout') {
           await Api.instance.signOut();
           Get.offAll(() => const SignInScreen());
+          // The card is kSignInWidth x kSignInHeight and centred; the window
+          // is still the panel's 216 x 40 tucked into a screen corner. Without
+          // this the card renders inside the panel's window and overflows it
+          // by hundreds of pixels — the same class of bug as signing in, only
+          // on the way out.
+          await windowManager.setSize(
+              const Size(kSignInWidth, kSignInHeight));
+          await windowManager.center();
         }
       },
       itemBuilder: (_) => [

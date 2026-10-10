@@ -9,7 +9,7 @@ import '../core/queue_controller.dart';
 import 'shell.dart';
 import 'tokens.dart';
 
-/// 260 x 271, centred. Shown once per install.
+/// kSignInWidth x kSignInHeight, centred. Shown once per install.
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
 

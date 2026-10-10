@@ -20,6 +20,18 @@ const cWhite = Color(0xFFFFFFFF);
 const kFont = 'Segoe UI Variable Text';
 const kFontFallback = <String>['Segoe UI', 'system-ui'];
 
+/// The sign-in card's window. Shown once, centred, so it is the one size with
+/// no geometry of its own to protect — it only has to be big enough for the
+/// card.
+///
+/// The design sheet says 260 x 271. The 260 holds; the 271 was measured from
+/// the HTML mock rather than from Segoe UI at these sizes, and it predates the
+/// logo actually rendering (assets/chup-logo.svg was missing from pubspec, so
+/// SvgPicture drew nothing instead of its 28px). Measured against the real
+/// faces the card needs kSignInHeight, guarded by test/sign_in_fit_test.dart.
+const kSignInWidth = 260.0;
+const kSignInHeight = 312.0;
+
 /// Every figure ticks, so numerals must not jitter as they change width.
 const kTabular = <FontFeature>[FontFeature.tabularFigures()];
 
