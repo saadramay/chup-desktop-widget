@@ -1,0 +1,53 @@
+name: Build
+
+# Release builds cannot be produced on a machine with Smart App Control
+# enforced — SAC blocks Flutter's unsigned gen_snapshot.exe, which is the AOT
+# compiler every release build invokes. A hosted runner has no such policy, so
+# CI is where the shippable artifact comes from.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: API base URL to compile in
+        default: https://chup.online/api/v1/
+        required: true
+
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  release:
+    needs: check
+    if: github.event_name != 'pull_request'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Build release
+        run: >
+          flutter build windows --release
+          --dart-define=BASE_URL=${{ github.event.inputs.base_url || 'https://chup.online/api/v1/' }}
+      - name: Package
+        # The exe needs the DLLs and data folder beside it — ship the folder.
+        run: Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath chup-widget-windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chup-widget-windows
+          path: chup-widget-windows.zip
+          retention-days: 30

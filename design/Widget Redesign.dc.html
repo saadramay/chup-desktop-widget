@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/chup-design-system-db59f91d-527e-4584-b59a-6eb7295f8495/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/chup-design-system-db59f91d-527e-4584-b59a-6eb7295f8495/tokens/colors.css">
+<link rel="stylesheet" href="_ds/chup-design-system-db59f91d-527e-4584-b59a-6eb7295f8495/tokens/typography.css">
+<link rel="stylesheet" href="_ds/chup-design-system-db59f91d-527e-4584-b59a-6eb7295f8495/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/chup-design-system-db59f91d-527e-4584-b59a-6eb7295f8495/components/flag/fig-tokens.css">
+<link rel="stylesheet" href="_ds/chup-design-system-db59f91d-527e-4584-b59a-6eb7295f8495/components/flag/fig-typography.css">
+<link rel="stylesheet" href="_ds/chup-design-system-db59f91d-527e-4584-b59a-6eb7295f8495/styles.css">
+<script src="_ds/chup-design-system-db59f91d-527e-4584-b59a-6eb7295f8495/_ds_bundle.js"></script>
+<style>
+  body { margin: 0; background: #f7f7f6; }
+  a { color: #115934; text-decoration: none; }
+  a:hover { color: #f26522; }
+  input { font-family: inherit; font-size: inherit; color: inherit; }
+  input::placeholder { color: #9a9a9a; }
+  @keyframes chupSweep { 0% { transform: translateX(-60px); } 100% { transform: translateX(240px); } }
+
+  @keyframes bellIn { from { opacity: 0; transform: scale(0.45); } to { opacity: 1; transform: scale(1); } }
+  @keyframes bellRing {
+    0%, 100% { transform: rotate(0deg); }
+    8% { transform: rotate(15deg); }
+    20% { transform: rotate(-13deg); }
+    32% { transform: rotate(10deg); }
+    44% { transform: rotate(-8deg); }
+    56% { transform: rotate(5deg); }
+    68% { transform: rotate(-3deg); }
+    80% { transform: rotate(1deg); }
+  }
+  @keyframes bellWave { 0% { opacity: 0.55; transform: scale(0.7); } 100% { opacity: 0; transform: scale(1.7); } }
+</style>
+</helmet>
+
+<section id="3a" data-screen-label="3a First-run tour" style="font-family: var(--font-display); padding: 56px 56px 40px; display: flex; flex-direction: column; gap: 28px; align-items: flex-start;">
+
+  <div style="display: flex; flex-direction: column; gap: 14px; max-width: 760px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #ffffff; background: #115934; padding: 3px 7px; border-radius: 3px;">3a</span>
+      <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: #115934;">TURN 3</span>
+      <span style="height: 1px; width: 40px; background: #ebebeb;"></span>
+      <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f;">FIRST RUN &mdash; TEN STEPS ON <a href="#2a">2a</a></span>
+    </div>
+    <h1 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; color: #0c6e3c; text-transform: uppercase;">Nothing to read, one thing to watch</h1>
+    <p style="margin: 0; font-size: 13px; line-height: 1.5; font-weight: 500; color: #1d1d1d; text-align: justify; text-wrap: pretty;">A 216px sliver cannot explain itself from the inside, and a first-time doctor has three states they will never find on their own: the hover reveal, the action's second and third faces, and the two sizes that hold the list. So the tour does not describe the widget &mdash; it <em>drives</em> it. Each step puts the panel into the exact state it is talking about and rings a hairline round the one region in question, so every claim is the live thing rather than a picture of it. The card sits in the opposite corner of the screen from the widget and never covers it. Ten steps, a skip on every one, and a closing card for the three lines that appear on their own. It runs once per install; afterwards <em>Help</em> in the &#8943; menu, under the three sizes, starts it again from step one. The copy is short because a doctor reading it is between patients, and it speaks to them directly as <em>anda</em> &mdash; the institutional third person Chup's documents use is right for a policy brief and wrong for a person being shown a button. It is written in Bahasa Malaysia rather than translated into it: no sentence is an English sentence with Malay words in it, and nothing measures the widget at the doctor in pixels. Function names keep their English, because that is what is printed on the button they are being told to press. <em>Alert</em>, <em>End Visit</em>, <em>No-Show</em>, <em>Help</em>, <em>Sign out</em>, the three sizes, <em>NOW</em> and the three self-appearing lines are quoted verbatim rather than translated, and the industry's English stays English too &mdash; <em>queue</em>, <em>token</em>, <em>grip</em>, <em>reveal</em>, <em>undo</em>, <em>WhatsApp</em> &mdash; exactly as Chup's own Malay documents keep <em>behavior engine</em> and <em>auto-retiming</em>. The table below is the shipped script; this page around it stays English as the record of why.</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; width: 760px; border: 1px solid #ebebeb; border-radius: 6px; overflow: hidden; background: #ffffff;">
+    <sc-for list="{{ tourSpecD }}" as="s" hint-placeholder-count="11">
+      <div style="display: flex; align-items: flex-start; gap: 0; border-top: 1px solid #ebebeb;">
+        <span style="width: 42px; flex: none; padding: 9px 8px; box-sizing: border-box; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; color: #115934; border-right: 1px solid #ebebeb;">{{ s.no }}</span>
+        <span style="width: 136px; flex: none; padding: 9px 10px; box-sizing: border-box; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; line-height: 1.4; color: #115934; border-right: 1px solid #ebebeb;">{{ s.lab }}</span>
+        <div style="flex: 1; min-width: 0; padding: 9px 12px; display: flex; flex-direction: column; gap: 3px;">
+          <span style="font-size: 12px; font-weight: 800; color: #1d1d1d; line-height: 1.3;">{{ s.t }}</span>
+          <span style="font-size: 11.5px; font-weight: 500; color: #4f4f4f; line-height: 1.45; text-wrap: pretty;">{{ s.b }}</span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 10px; border-top: 1px solid #ebebeb; padding-top: 12px; width: 760px;">
+    <button onClick="{{ tourStartD }}" style="height: 28px; border: 0; background: #115934; border-radius: 4px; padding: 0 13px; font-family: var(--font-display); font-size: 10px; font-weight: 800; letter-spacing: 0.07em; color: #ffffff; cursor: pointer;" style-hover="background: #0d4728;">PLAY THE TOUR</button>
+    <span style="font-size: 11px; font-weight: 500; color: #4f4f4f;">It runs on the panel in <a href="#2a">2a</a>, below &mdash; or press <em>Sign in</em> in that panel's review row to watch the whole first run, card and all.</span>
+  </div>
+
+</section>
+
+<section style="font-family: var(--font-display); padding: 56px 56px 40px; display: flex; flex-direction: column; gap: 32px; align-items: flex-start;">
+
+  <div style="display: flex; flex-direction: column; gap: 14px; max-width: 760px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: #115934;">TURN 2</span>
+      <span style="height: 1px; width: 40px; background: #ebebeb;"></span>
+      <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f;">A SMALLER FLOOR &mdash; <a href="#1a">1a</a> BECOMES MEDIUM</span>
+    </div>
+    <h1 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; color: #0c6e3c; text-transform: uppercase;">Next at rest, now on hover</h1>
+    <p style="margin: 0; font-size: 13px; line-height: 1.5; font-weight: 500; color: #1d1d1d; text-align: justify; text-wrap: pretty;">The patient in the room is in the room &mdash; the consultant is looking at them. What the overlay is for is the person on the other side of the door, so at rest the sliver shows <em>next</em>: shortened name, position in the session, appointment time and how long they have already been waiting. Moving the cursor onto the panel reveals <em>now</em> above it, at roughly double the resting size &mdash; the patient being seen under their full name, their position and how long the consultation has run. Moving it onto the action instead does <em>not</em> resize the panel: the button cannot move out from under the cursor, and the two lines swap in place to name the person that press will affect, so Alert reads out the patient it is about to notify before it is sent. The wait meter is the widget's bottom edge at all three sizes, costing 2px rather than a row &mdash; and that whole bottom band, next line and action and meter, holds still while Medium and Large grow the queue upward above it. Size runs 216 &times; 40 / 128 / 208: one width, three depths, against today's 284 &times; 208 / 316 / 476.</p>
+    <div style="display: flex; gap: 28px; padding-top: 4px;">
+      <div style="display: flex; flex-direction: column; gap: 3px;">
+        <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">TODAY</span>
+        <span style="font-size: 15px; font-weight: 800; color: #1d1d1d;">284 &times; 208</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 3px;">
+        <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">NEW SMALL</span>
+        <span style="font-size: 15px; font-weight: 800; color: #115934;">216 &times; 40</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 3px;">
+        <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">AREA REMOVED</span>
+        <span style="font-size: 15px; font-weight: 800; color: #115934;">85%</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 3px;">
+        <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">AGAINST <a href="#1a">1a</a></span>
+        <span style="font-size: 15px; font-weight: 800; color: #1d1d1d;">8,640 PX&sup2; &middot; 42%</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="2a" data-screen-label="2a Sliver" style="display: flex; flex-direction: column; gap: 12px; width: 520px;">
+    <div style="display: flex; align-items: baseline; gap: 10px;">
+      <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #ffffff; background: #115934; padding: 3px 7px; border-radius: 3px;">2a</span>
+      <span style="font-size: 15px; font-weight: 800; color: #1d1d1d; text-transform: uppercase; letter-spacing: -0.01em;">Sliver</span>
+      <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #f26522;">LOCKED &middot; HOVER IT</span>
+    </div>
+
+    <div style="position: relative; width: 520px; height: 448px; background: #f1f2f3; border: 1px solid #ebebeb; border-radius: 4px; overflow: hidden;">
+      <div style="height: 26px; background: #e8eaeb; display: flex; align-items: center; gap: 6px; padding: 0 10px;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #d3d7d9;"></span>
+        <span style="width: 44px; height: 7px; border-radius: 2px; background: #d3d7d9;"></span>
+        <span style="width: 30px; height: 7px; border-radius: 2px; background: #dde0e2;"></span>
+        <span style="font-size: 7.5px; font-weight: 800; letter-spacing: 0.1em; color: #a9aeb1; margin-left: auto;">HOSPITAL SYSTEM &mdash; STAND-IN</span>
+      </div>
+      <div style="display: flex; height: 422px;">
+        <div style="width: 104px; border-right: 1px solid #e4e6e8; padding: 12px 10px; display: flex; flex-direction: column; gap: 9px;">
+          <span style="height: 7px; width: 60px; border-radius: 2px; background: #dcdfe1;"></span>
+          <span style="height: 7px; width: 74px; border-radius: 2px; background: #e2e5e7;"></span>
+          <span style="height: 7px; width: 48px; border-radius: 2px; background: #e2e5e7;"></span>
+          <span style="height: 7px; width: 68px; border-radius: 2px; background: #e2e5e7;"></span>
+          <span style="height: 7px; width: 40px; border-radius: 2px; background: #e2e5e7;"></span>
+        </div>
+        <div style="flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+          <span style="height: 10px; width: 150px; border-radius: 2px; background: #d8dbdd;"></span>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+            <span style="height: 44px; border-radius: 3px; background: #e9ebec;"></span>
+            <span style="height: 44px; border-radius: 3px; background: #e9ebec;"></span>
+            <span style="height: 44px; border-radius: 3px; background: #e9ebec;"></span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 7px;">
+            <span style="height: 7px; width: 100%; border-radius: 2px; background: #e4e7e9;"></span>
+            <span style="height: 7px; width: 92%; border-radius: 2px; background: #e4e7e9;"></span>
+            <span style="height: 7px; width: 96%; border-radius: 2px; background: #e4e7e9;"></span>
+            <span style="height: 7px; width: 62%; border-radius: 2px; background: #e4e7e9;"></span>
+          </div>
+        </div>
+      </div>
+
+      <sc-if value="{{ bootCardD }}">
+        <div style="position: absolute; left: 130px; top: 102px; width: 260px; height: 271px; box-sizing: border-box; background: #ffffff; border: 1px solid #ebebeb; border-radius: 8px; overflow: hidden; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #1d1d1d; z-index: 6; box-shadow: 0 14px 34px rgba(0,0,0,0.15);" ref="{{ morphRefD }}">
+          <div ref="{{ morphSignRefD }}" style="position: absolute; left: 0; top: 0; width: 258px; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 9px;">
+            <img src="assets/chup-logo.svg" alt="chup" style="width: 74px; height: auto; display: block;">
+            <div style="display: flex; flex-direction: column; gap: 1px;">
+              <span style="font-size: 13px; font-weight: 800; letter-spacing: -0.01em;">Chup Desktop Widget</span>
+              <span style="font-size: 10.5px; font-weight: 500; color: #4f4f4f;">Sign in to follow your queue</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 3px;">
+              <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f;">EMAIL</span>
+              <div style="height: 30px; box-sizing: border-box; border: 1px solid #ebebeb; border-radius: 6px; padding: 0 9px; font-size: 11.5px; font-weight: 500; display: flex; align-items: center;">doctor@clinic.com</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 3px;">
+              <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f;">PASSWORD</span>
+              <div style="height: 30px; box-sizing: border-box; border: 1px solid #ebebeb; border-radius: 6px; padding: 0 9px; font-size: 11.5px; font-weight: 500; letter-spacing: 0.14em; display: flex; align-items: center;">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 7px; margin-top: 2px;">
+              <span style="width: 13px; height: 13px; flex: none; border-radius: 3px; border: 1px solid #115934; background: #115934; display: flex; align-items: center; justify-content: center;">
+                <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="#ffffff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1.3 4.2 3 5.9 6.7 2.2"></path></svg>
+              </span>
+              <span style="font-size: 10px; font-weight: 700; color: #1d1d1d;">Stay signed in on this computer</span>
+            </div>
+            <button onClick="{{ bootSignD }}" style="height: 34px; border: 0; border-radius: 6px; background: #115934; color: #ffffff; font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: 0.03em; cursor: pointer; margin-top: 1px;" style-hover="background: #0d4728;" style-active="transform: translateY(0.5px);">{{ bootLabelD }}</button>
+          </div>
+          <div ref="{{ morphLineRefD }}" style="position: absolute; left: 0; bottom: 0; width: 214px; pointer-events: none; opacity: 0;">
+            <div style="height: 36px; display: flex; align-items: stretch; gap: 6px;">
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 1px; padding-left: 9px;">
+                <div style="display: flex; align-items: baseline; gap: 6px; min-width: 0;">
+                  <span style="font-size: 11.5px; font-weight: 600; color: #1d1d1d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">{{ nxtNamD }}</span>
+                  <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 0.03em; font-variant-numeric: tabular-nums; color: #4f4f4f; white-space: nowrap;">{{ nxtPosD }}</span>
+                </div>
+                <div style="display: flex; align-items: baseline; gap: 6px; min-width: 0;">
+                  <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: #1d1d1d; white-space: nowrap;">{{ nxtAtD }}</span>
+                  <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; color: #4f4f4f; white-space: nowrap; margin-left: auto;">{{ nxtWaitShortD }}</span>
+                </div>
+              </div>
+              <div style="width: 82px; flex: none; margin: 2px 2px 2px 0; border-radius: 6px; background: #f26522; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; letter-spacing: 0.05em;">ALERT</div>
+            </div>
+            <div style="height: 3px; display: flex;">
+              <span style="width: {{ gwND }}; background: #115934;"></span>
+              <span style="width: {{ rwND }}; background: #e03127;"></span>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ miniOffD }}">
+        <div onClick="{{ restoreD }}" title="Restore the widget" style="position: absolute; right: {{ rgtD }}; bottom: {{ botD }}; width: 44px; height: 44px; box-sizing: border-box; background: #ffffff; border: 1px solid #ebebeb; border-radius: 8px; overflow: hidden; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; cursor: pointer; user-select: none; display: flex; flex-direction: column;" style-hover="border-color: #cfd1d4;">
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;">
+            <span style="font-size: 15px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; color: {{ miniColD }};">{{ miniNumD }}</span>
+            <span style="font-size: 6.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f;">{{ miniLabD }}</span>
+          </div>
+          <div style="height: 2px; display: flex;">
+            <span style="width: {{ gwND }}; background: #115934;"></span>
+            <span style="width: {{ rwND }}; background: #e03127;"></span>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ shutOffD }}">
+        <div onClick="{{ restoreD }}" title="Chup is still running &mdash; click to reopen" style="position: absolute; right: 0px; bottom: {{ botD }}; width: 5px; height: 34px; background: #115934; border-radius: 3px 0 0 3px; cursor: pointer;" style-hover="width: 9px; background: #0c6e3c;"></div>
+      </sc-if>
+      <sc-if value="{{ liveD }}" hint-placeholder-val="{{ true }}">
+      <div onMouseEnter="{{ enterD }}" onMouseLeave="{{ leaveD }}" ref="{{ panelRefD }}" style="position: absolute; right: {{ rgtD }}; bottom: {{ botD }}; width: 216px; box-sizing: border-box; background: #ffffff; border: 1px solid #ebebeb; border-radius: 8px; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #1d1d1d; cursor: default; user-select: none;">
+        <sc-if value="{{ openD }}">
+                <div style="box-sizing: border-box; display: flex; flex-direction: column; gap: 2px; padding: 6px 4px 8px 9px; border-bottom: 1px solid #ebebeb; border-radius: 7px 7px 0 0; box-shadow: {{ hlNowD }};">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.09em; color: #115934; white-space: nowrap;">{{ revLabelD }}</span>
+                    <span style="flex: 1;"></span>
+                    <span style="display: flex; gap: 1px; flex: none; border-radius: 4px; box-shadow: {{ hlCtlD }};">
+                      <span onMouseDown="{{ dragStartD }}" title="Drag to move the widget" style="width: 20px; height: 20px; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: #4f4f4f; cursor: {{ curD }};" style-hover="background: #edf7f3; color: #115934;">
+                        <svg width="9" height="13" viewBox="0 0 9 13" fill="currentColor"><circle cx="2" cy="2" r="1.1"></circle><circle cx="7" cy="2" r="1.1"></circle><circle cx="2" cy="6.5" r="1.1"></circle><circle cx="7" cy="6.5" r="1.1"></circle><circle cx="2" cy="11" r="1.1"></circle><circle cx="7" cy="11" r="1.1"></circle></svg>
+                      </span>
+                      <button title="Open the full queue in Chup" style="width: 20px; height: 20px; border: 0; background: transparent; border-radius: 3px; color: #4f4f4f; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;" style-hover="background: #edf7f3; color: #115934;">
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M9.5 7.2v2.1a1 1 0 0 1-1 1H2.7a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h2.1"></path><path d="M7.4 1.7h3v3"></path><path d="M10.4 1.7 5.9 6.2"></path></svg>
+                      </button>
+                      <button onClick="{{ toggleMenuD }}" style="width: 20px; height: 20px; border: 0; background: transparent; border-radius: 3px; font-size: 13px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #edf7f3; color: #115934;">&#8943;</button>
+                      <button onClick="{{ miniOnD }}" title="Minimise to the corner" style="width: 20px; height: 20px; border: 0; background: transparent; border-radius: 3px; font-size: 13px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #edf7f3; color: #115934;">&ndash;</button>
+                      <button onClick="{{ shutOnD }}" title="Close to the screen edge" style="width: 20px; height: 20px; border: 0; background: transparent; border-radius: 3px; font-size: 13px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #f9e9e8; color: #e03127;">&times;</button>
+                    </span>
+                  </div>
+                  <sc-if value="{{ servingD }}" hint-placeholder-val="{{ true }}">
+                  <span style="font-size: 19px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; color: #1d1d1d; text-wrap: pretty;">{{ namD }}</span>
+                  <div style="display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap;">
+                    <span style="font-size: 15px; font-weight: 800; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: #0c6e3c;">{{ tokD }}</span>
+                    <span style="font-size: 12px; font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: #4f4f4f;">{{ posD }}</span>
+                    <span style="font-size: 12px; font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: {{ svColD }};">&middot; {{ servShortD }}</span>
+                  </div>
+                  <div style="height: 2px; display: flex; margin-top: 1px;">
+                    <span style="width: {{ svGwD }}; background: #115934;"></span>
+                    <span style="width: {{ svRwD }}; background: #e03127;"></span>
+                  </div>
+                  <sc-if value="{{ isCalledD }}">
+                    <button onMouseDown="{{ hsD }}" onMouseUp="{{ heD }}" onMouseLeave="{{ nsLeaveD }}" style="position: relative; overflow: hidden; margin: 5px 5px 0 0; height: 24px; border: 1px solid #ebebeb; background: #ffffff; border-radius: 4px; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 0 8px; box-shadow: {{ hlNoShowD }};">
+                      <span style="position: absolute; left: 0; top: 0; bottom: 0; width: {{ pctD }}; background: rgba(224,49,39,0.13);"></span>
+                      <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #e03127; position: relative;">NO-SHOW</span>
+                      <span style="font-size: 8.5px; font-weight: 700; letter-spacing: 0.05em; color: #4f4f4f; position: relative;">HOLD</span>
+                      <span style="flex: 1;"></span>
+                      <span style="font-size: 8.5px; font-weight: 700; color: #4f4f4f; position: relative; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;">{{ nxtNamD }}</span>
+                    </button>
+                  </sc-if>
+                  </sc-if>
+                </div>
+              </sc-if>
+              <sc-if value="{{ servingD }}" hint-placeholder-val="{{ true }}">
+              <sc-if value="{{ hasUpD }}">
+                <div style="padding: 3px 9px 4px; height: {{ rowsHD }}; box-sizing: border-box; border-bottom: 1px solid #ebebeb; box-shadow: {{ hlListD }};">
+                  <sc-for list="{{ upD }}" as="p" hint-placeholder-count="0">
+                    <div style="height: 20px; box-sizing: border-box; border-top: 1px solid #ebebeb; display: flex; align-items: center; gap: 6px;">
+                      <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: #4f4f4f; white-space: nowrap; flex: none;">{{ p.atShort }}</span>
+                      <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.03em; font-variant-numeric: tabular-nums; color: #0c6e3c; white-space: nowrap; flex: none;">{{ p.t }}</span>
+                      <span style="font-size: 10.5px; color: #1d1d1d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; font-weight: {{ p.nwt }}; opacity: {{ p.nop }};">{{ p.n }}</span>
+                      <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; flex: none; color: {{ p.wcol }};">{{ p.wshort }}</span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ endMarkD }}">
+                    <div style="height: 20px; box-sizing: border-box; border-top: 1px solid #ebebeb; display: flex; align-items: center; justify-content: center;">
+                      <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.1em; color: #4f4f4f;">END OF SESSION</span>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+              <div style="height: 36px; display: flex; align-items: stretch; gap: 6px;">
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 1px; padding-left: 9px; border-radius: 3px; box-shadow: {{ hlNextD }};">
+                  <sc-if value="{{ plainAlertD }}" hint-placeholder-val="{{ true }}">
+                    <div style="display: flex; align-items: baseline; gap: 6px; min-width: 0;">
+                      <span style="font-size: 11.5px; font-weight: 600; color: #1d1d1d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">{{ nxtNamD }}</span>
+                      <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 0.03em; font-variant-numeric: tabular-nums; color: #4f4f4f; white-space: nowrap;">{{ nxtPosD }}</span>
+                    </div>
+                    <div style="display: flex; align-items: baseline; gap: 6px; min-width: 0;">
+                      <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: #1d1d1d; white-space: nowrap;">{{ nxtAtD }}</span>
+                      <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; color: #4f4f4f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; margin-left: auto;">{{ nxtWaitShortD }}</span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ plainCalledD }}">
+                    <div style="display: flex; align-items: baseline; gap: 6px; min-width: 0;">
+                      <span style="font-size: 11.5px; font-weight: 600; color: #1d1d1d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">{{ nxtNamD }}</span>
+                      <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 0.03em; font-variant-numeric: tabular-nums; color: #4f4f4f; white-space: nowrap;">{{ nxtPosD }}</span>
+                    </div>
+                    <div style="display: flex; align-items: baseline; gap: 6px; min-width: 0;">
+                      <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: #1d1d1d; white-space: nowrap;">{{ nxtAtD }}</span>
+                      <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.05em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; margin-left: auto; color: {{ calledColD }};">{{ calledAgoD }}</span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ prevAlertD }}">
+                    <div style="display: flex; align-items: baseline; gap: 5px; min-width: 0;">
+                      <span style="font-size: 11.5px; font-weight: 600; color: #1d1d1d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;">{{ nxtFullD }}</span>
+                    </div>
+                    <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: #4f4f4f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;">{{ nxtD }} &middot; {{ nxtWaitShortD }}</span>
+                  </sc-if>
+                  <sc-if value="{{ prevEndD }}">
+                    <div style="display: flex; align-items: baseline; gap: 5px; min-width: 0;">
+                      <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.07em; color: #115934; white-space: nowrap;">CLOSE</span>
+                      <span style="font-size: 11px; font-weight: 600; color: #1d1d1d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;">{{ shortD }}</span>
+                    </div>
+                    <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: #4f4f4f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;">{{ tokD }} &middot; {{ waiPastShortD }}</span>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ isAlertD }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ onAlertD }}" onMouseEnter="{{ btnEnterD }}" onMouseLeave="{{ btnLeaveD }}" style="position: relative; width: 82px; height: 36px; flex: none; border: 0; border-radius: 0 {{ radD }} 0 0; background: #f26522; color: #ffffff; font-family: inherit; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: {{ hlActD }};" style-hover="background: #dd5717;">
+                    <sc-if value="{{ wordD }}" hint-placeholder-val="{{ true }}">
+                      <span>ALERT</span>
+                    </sc-if>
+                    <sc-if value="{{ bellD }}">
+                      <svg width="18" height="18" viewBox="0 0 16 16" style="animation: bellIn 0.18s ease-out; transform-origin: 8px 3px;">
+                        <path d="M4.1 10.9V7.1a3.9 3.9 0 0 1 7.8 0v3.8l1.1 1.5H3L4.1 10.9Z" fill="#ffffff"></path>
+                        <path d="M6.5 13.3a1.7 1.7 0 0 0 3 0" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" fill="none"></path>
+                        <path d="M8 2.1V3.2" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" fill="none"></path>
+                      </svg>
+                    </sc-if>
+                    <sc-if value="{{ ringingD }}">
+                      <span style="position: absolute; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid #ffffff; animation: bellWave 0.9s ease-out;"></span>
+                      <svg width="18" height="18" viewBox="0 0 16 16" style="animation: bellRing 0.55s ease-in-out 2; transform-origin: 8px 3px;">
+                        <path d="M4.1 10.9V7.1a3.9 3.9 0 0 1 7.8 0v3.8l1.1 1.5H3L4.1 10.9Z" fill="#ffffff"></path>
+                        <path d="M6.5 13.3a1.7 1.7 0 0 0 3 0" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" fill="none"></path>
+                        <path d="M8 2.1V3.2" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" fill="none"></path>
+                      </svg>
+                    </sc-if>
+                  </button>
+                </sc-if>
+                <sc-if value="{{ isCalledD }}">
+                  <button onClick="{{ onEndD }}" onMouseEnter="{{ btnEnterD }}" onMouseLeave="{{ btnLeaveD }}" style="width: 82px; height: 36px; flex: none; border: 0; border-radius: 0 {{ radD }} 0 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; cursor: pointer; box-shadow: {{ hlActD }};" style-hover="background: #0d4728;">END VISIT</button>
+                </sc-if>
+              </div>
+              <sc-if value="{{ meterOn }}" hint-placeholder-val="{{ true }}">
+                <div style="height: 2px; background: #ebebeb; display: flex; border-radius: 0 0 7px 7px; overflow: hidden; box-shadow: {{ hlMeterD }};">
+                  <span style="width: {{ gwND }}; background: #115934;"></span>
+                  <span style="width: {{ rwND }}; background: #e03127;"></span>
+                </div>
+              </sc-if>
+              </sc-if>
+        <sc-if value="{{ emptyD }}">
+          <div style="height: {{ stateHD }}; display: flex; flex-direction: column; justify-content: flex-end;">
+            <div style="height: 38px; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">NO ONE IN THE QUEUE</span>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ offlineD }}">
+          <div style="height: {{ stateHD }}; display: flex; flex-direction: column; justify-content: flex-end;">
+            <div style="height: 38px; display: flex; align-items: center; justify-content: center; gap: 5px;">
+              <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.06em; color: #e03127;">CANNOT REACH CHUP</span>
+              <span style="font-size: 8.5px; font-weight: 700; letter-spacing: 0.05em; color: #4f4f4f;">{{ readAgoD }}</span>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ loadingD }}">
+          <div style="height: {{ stateHD }}; display: flex; flex-direction: column; justify-content: flex-end; position: relative; overflow: hidden; border-radius: 0 0 7px 7px;">
+            <div style="height: 38px; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">READING THE QUEUE</span>
+            </div>
+            <span style="position: absolute; left: 0; bottom: 0; width: 50px; height: 1px; background: #115934; animation: chupSweep 1.1s linear infinite;"></span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ menuOpenD }}">
+          <div style="position: absolute; bottom: {{ menuBotD }}; top: {{ menuTopD }}; right: 6px; width: 148px; background: #ffffff; border: 1px solid #ebebeb; border-radius: 6px; overflow: hidden; z-index: 5;">
+            <sc-if value="{{ isSD }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ setSD }}" style="width: 100%; height: 26px; border: 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;">SMALL &middot; 216&times;40</button>
+            </sc-if>
+            <sc-if value="{{ notSD }}">
+              <button onClick="{{ setSD }}" style="width: 100%; height: 26px; border: 0; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SMALL &middot; 216&times;40</button>
+            </sc-if>
+            <sc-if value="{{ isMD }}">
+              <button onClick="{{ setMD }}" style="width: 100%; height: 26px; border: 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;">MEDIUM &middot; 216&times;128</button>
+            </sc-if>
+            <sc-if value="{{ notMD }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ setMD }}" style="width: 100%; height: 26px; border: 0; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">MEDIUM &middot; 216&times;128</button>
+            </sc-if>
+            <sc-if value="{{ isLD }}">
+              <button onClick="{{ setLD }}" style="width: 100%; height: 26px; border: 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;">LARGE &middot; 216&times;208</button>
+            </sc-if>
+            <sc-if value="{{ notLD }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ setLD }}" style="width: 100%; height: 26px; border: 0; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">LARGE &middot; 216&times;208</button>
+            </sc-if>
+            <button onClick="{{ tourStartD }}" style="width: 100%; height: 26px; border: 0; border-top: 1px solid #ebebeb; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">HELP</button>
+            <button style="width: 100%; height: 26px; border: 0; border-top: 1px solid #ebebeb; background: #ffffff; color: #4f4f4f; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SIGN OUT</button>
+          </div>
+        </sc-if>
+      </div>
+      </sc-if>
+      <sc-if value="{{ tourOnD }}">
+        <div style="position: absolute; left: 14px; bottom: 14px; width: 236px; box-sizing: border-box; background: #ffffff; border: 1px solid #ebebeb; border-radius: 8px; padding: 11px 12px 10px; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; gap: 7px;">
+          <sc-if value="{{ tourStepsOnD }}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; align-items: center; gap: 7px;">
+              <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.1em; color: #115934;">KALI PERTAMA</span>
+              <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #9a9a9a; font-variant-numeric: tabular-nums;">{{ tourNoD }} / 10</span>
+            </div>
+            <div style="display: flex; gap: 2px;">
+              <sc-for list="{{ tourDotsD }}" as="s" hint-placeholder-count="10">
+                <span style="height: 2px; flex: 1; background: {{ s.c }};"></span>
+              </sc-for>
+            </div>
+          </sc-if>
+          <span style="font-size: 12.5px; font-weight: 700; color: #1d1d1d; line-height: 1.25; text-wrap: pretty;">{{ tourTitleD }}</span>
+          <span style="font-size: 10.5px; font-weight: 400; color: #4f4f4f; line-height: 1.45; text-wrap: pretty;">{{ tourBodyD }}</span>
+          <div style="display: flex; align-items: center; gap: 6px; padding-top: 2px;">
+            <sc-if value="{{ tourStepsOnD }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ tourSkipD }}" style="border: 0; background: transparent; padding: 0; font-family: inherit; font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f; cursor: pointer;" style-hover="color: #1d1d1d;">LANGKAU</button>
+            </sc-if>
+            <span style="flex: 1;"></span>
+            <sc-if value="{{ tourBackD }}">
+              <button onClick="{{ tourPrevD }}" style="height: 24px; border: 1px solid #ebebeb; background: #ffffff; border-radius: 4px; padding: 0 10px; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">KEMBALI</button>
+            </sc-if>
+            <button onClick="{{ tourNextD }}" style="height: 24px; border: 0; background: #115934; border-radius: 4px; padding: 0 12px; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.06em; color: #ffffff; cursor: pointer;" style-hover="background: #0d4728;">{{ tourNextLabelD }}</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #ebebeb; padding-top: 10px;">
+      <div style="display: flex; gap: 18px;">
+        <span style="font-size: 11px; font-weight: 800; color: #1d1d1d;">S 216 &times; 40</span>
+        <span style="font-size: 11px; font-weight: 700; color: #4f4f4f;">M 216 &times; 128 &middot; L 216 &times; 208 &middot; 120 / 208 / 288 over the panel, unchanged over the action</span>
+
+        <span style="font-size: 11px; font-weight: 800; color: #115934;">&minus;85% / &minus;69% / &minus;67%</span>
+      </div>
+      <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">The resting panel is about the door, not the room: who is next, their position in the session, when they were due and how long they have already waited &mdash; the four facts that decide whether to press Alert. The bottom-edge meter tracks that same person, so a mostly red edge means the next patient is far past the twenty-minute limit. The consultation in progress moves to the reveal, at roughly double the resting type: <em>NOW</em>, the patient's full name unabbreviated on as many lines as it needs, then the token, their position and how long they have been in the room, with its own 2px meter beneath. The room gets a meter because the door has one, but not the same threshold: twenty minutes waiting is a failure, twenty minutes in consultation is often the job. The serving meter runs against the default consultation length Chup already holds per clinic per doctor, so a room that has overrun reads red without anyone having to remember that doctor's number. Only the resting line shortens names, because it has 90px for one: <em>Rahman Sitompul</em> becomes <em>Rahman S.</em> The action target is 82 &times; 36 and never moves &mdash; the panel only grows when the cursor is somewhere else. Medium and Large change one thing and inherit everything else: the width never moves off 216, and the queue extends <em>upward</em> as 20px rows of queue token, full name and minutes waited, red past twenty. Twenty is one flat figure for the whole queue rather than a per-patient estimate &mdash; it is the threshold the backend already wires, and a single number the whole clinic shares is one a doctor can hold in their head. Upward matters. The bottom 38px &mdash; next patient, action, meter &mdash; is identical paper at all three sizes and sits the same distance from the screen corner, so Alert is in the same place whether the panel is 40px or 208px tall, and growing the panel never walks the target away from the cursor. Everything a size buys is added at the far end, in the same direction the hover reveal opens. The rows are the patient list, so they identify rather than summarise: the appointment time, the token because that is what is called out and what reaches the patient's phone, the name in full at 109px, and the minutes already waited. Four facts per 20px row, ordered for a list rather than for a single line: the time is the spine, so it leads, and the name gives up the left edge it holds at rest. What the row shares with the resting line is the pair of numbers, not the arrangement &mdash; time against minutes waited, at opposite ends of the row. The list starts where the queue starts: the top row is the next patient in line, the same person the action band below is about, set in ink while everyone behind them steps back to 72%. Nothing is skipped, so the row order is the calling order. Two numbers per row is the point of the list: the time a patient was promised against the minutes they have actually waited, red once past their expected wait &mdash; so a column of red is a session that has slipped, and the gap between the two columns is how far. The rows drop the meridiem the resting line spells out in full: every patient in one session shares it, so <em>3.45 PM</em> is established once at the bottom and the list can spend those 13px on names instead. Four rows at Medium, eight at Large &mdash; a session of ten seen whole; when it has drained past that, the last slot says so rather than sitting blank. That marker is what replaces <em>See all queue</em>: there is nowhere further to go. The window height is fixed per size, so the panel never resizes under the cursor &mdash; and that holds when there is nothing to show: an empty queue, a failed poll or a first read keeps Large at 208 and puts its one line in the same bottom 38px the action occupies, with empty paper above. Those three states used to be a dead end. They carried no title bar, so a doctor whose queue had drained could not move the widget, resize it, reach <em>Help</em> or close it. The reveal now belongs to the panel rather than to the patient: hover in any state and the controls are there, under <em>CHUP</em> instead of <em>NOW</em> when there is no consultation to name. The &#8943; menu is the one thing allowed to change direction: it needs 136px of headroom and the drag clamp only reserves the reveal's, so near the top of the screen it opens downward instead of clipping. It can do that because it is chrome &mdash; flipping the action band would move the target, which is the one thing that must never happen. Alert is the one place with motion: the word becomes a bell under the cursor, and pressing it rings the bell once with a single expanding ring before the button turns over, so the notification is confirmed as sent without a toast or a line of copy. What it turns over to is <em>End Visit</em>, not No-Show &mdash; because the common case after a call is that the patient walks in, and the resting line picks up <em>CALLED 1M</em> in green in place of the raw wait, since once someone has been called the useful number is how long since the call. It counts up, and at five minutes &mdash; the grace a called patient gets &mdash; it turns red. The bottom edge follows it: while a patient is called the meter stops tracking their wait and tracks the grace window instead, because that is now the thing being waited on, filling green to five minutes and red past it. Nothing pops up and nothing demands a decision; the panel just goes from green to red at the edge and in the line, and a doctor glancing at the corner knows the patient probably is not coming. That is what No-Show is for, and it is one hover away. <em>(In the mock one minute is two seconds, so every duration in the panel is watchable: the wait against the twenty-minute limit, the minutes since a call, the time served, and how stale the last poll is. All four run off one clock &mdash; appointment times are the only fixed numbers, because an appointment is a promise, not a measurement. The seeded waits drift four minutes and then hold: this is a moment in a session, not a simulation of an afternoon, and left to climb they would eventually turn every row red and leave the panel with nothing to signal with. Time served is capped the same way and for the same reason &mdash; it opens inside the clinic default, crosses it about eight seconds in, and holds a minute over; uncapped it read as a three-hour consultation and the green half of the serving meter was never reachable at all. Press <em>End Visit</em> to watch a fresh room climb from zero. Only staleness and the minutes since a call run uncapped, because both reset on their own.)</em> That leaves No-Show as what it actually is: the exception. It lives in the reveal, under the token, a hairline button in red that only exists while a patient is called and carries their name so there is no doubt who is being marked absent. Hold it &mdash; 0.55s, the fill sweeping red &mdash; because there is no undo. The old widget had this backwards: Alert led only to No-Show, so the sole way to move the queue on was to mark somebody absent, and <em>End Visit</em> was unreachable. Now the button at rest is always the outcome you expect, and the outcome you dread costs a hover and a hold. <strong style="font-weight: 800;">Moving it:</strong> the grip at the head of the reveal is the handle &mdash; the only place the cursor turns, so nothing else on the panel pretends to be draggable. Press it and the panel follows the cursor, clamped to the screen so it cannot be dragged off, and clamped with the reveal's height reserved so it can never park somewhere <em>now</em> and the window controls would open past the top of the screen. It sits first in the cluster, next to the button that hands the queue over to the full Chup web app when the sliver is not enough. Try it in the stand-in screen above. <strong style="font-weight: 800;">Flagging it:</strong> Chup has no icon set, so the bell, the grip and the open-in-Chup arrow are additions drawn from primitives, not matched to a public icon library.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 5px; border-top: 1px solid #ebebeb; padding-top: 9px;">
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f; width: 42px;">FIRST RUN</span>
+        <button onClick="{{ replayBoot }}" style="border: 1px solid #f26522; background: #f26522; border-radius: 3px; font-family: inherit; font-size: 9px; font-weight: 800; letter-spacing: 0.06em; color: #ffffff; padding: 5px 9px; cursor: pointer; white-space: nowrap; flex: none;" style-hover="background: #dd5717;">&#9654; PLAY FIRST RUN</button>
+        <button onClick="{{ tourStartD }}" style="border: 1px solid #115934; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 9px; font-weight: 800; letter-spacing: 0.06em; color: #115934; padding: 5px 9px; cursor: pointer; white-space: nowrap; flex: none;" style-hover="background: #edf7f3;">TOUR ONLY</button>
+        <button onClick="{{ toggleMute }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 5px 9px; cursor: pointer; white-space: nowrap; flex: none;" style-hover="background: #edf7f3; color: #115934;">{{ muteLabel }}</button>
+        <span style="font-size: 8.5px; font-weight: 700; color: #4f4f4f;">card morphs, lands, blinks three times</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f; width: 42px;">SIZE</span>
+        <button onClick="{{ setSD }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SMALL 216&times;40</button>
+        <button onClick="{{ setMD }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">MEDIUM 216&times;128</button>
+        <button onClick="{{ setLD }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">LARGE 216&times;208</button>
+        <span style="font-size: 8.5px; font-weight: 700; color: #9a9a9a;">in the widget itself, this lives under &#8943;</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f; width: 42px;">ACTION</span>
+        <button onClick="{{ actAD }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">ALERT</button>
+        <button onClick="{{ actND }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">CALLED</button>
+        <span style="font-size: 8.5px; font-weight: 700; color: #9a9a9a;">hover the sliver to reveal <em>now</em></span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f; width: 42px;">STATE</span>
+        <button onClick="{{ dSD }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SERVING</button>
+        <button onClick="{{ dED }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">EMPTY</button>
+        <button onClick="{{ dOD }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">OFFLINE</button>
+        <button onClick="{{ dLD }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">LOADING</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section style="font-family: var(--font-display); padding: 16px 56px 80px; display: flex; flex-direction: column; gap: 40px; align-items: flex-start;">
+
+  <div style="display: flex; flex-direction: column; gap: 14px; max-width: 760px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: #115934;">TURN 1</span>
+      <span style="height: 1px; width: 40px; background: #ebebeb;"></span>
+      <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f;">THREE WAYS TO BE SMALL</span>
+    </div>
+    <h1 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; color: #0c6e3c; text-transform: uppercase;">Overlay, not a window</h1>
+    <p style="margin: 0; font-size: 13px; line-height: 1.5; font-weight: 500; color: #1d1d1d; text-align: justify; text-wrap: pretty;">The current panel spends 59,072 px&sup2; of a consultant's clinical screen on a title bar, an avatar circle and a link that only resizes itself. All three layouts below drop the chrome entirely — the window is its own drag handle, and minimise, close and the size menu appear only under the cursor — and spend the pixels won back on the one fact the product exists to fix: how long this patient has actually waited against how long they should have. Each answers the upcoming queue differently. Every panel is live: click the action to advance the state machine, hold No-Show to commit it.</p>
+    <div style="display: flex; gap: 28px; padding-top: 4px;">
+      <div style="display: flex; flex-direction: column; gap: 3px;">
+        <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">TODAY</span>
+        <span style="font-size: 15px; font-weight: 800; color: #1d1d1d;">284 &times; 208</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 3px;">
+        <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">SMALLEST HERE</span>
+        <span style="font-size: 15px; font-weight: 800; color: #115934;">284 &times; 72</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 3px;">
+        <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">AREA REMOVED</span>
+        <span style="font-size: 15px; font-weight: 800; color: #115934;">65%</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 3px;">
+        <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">CLAMP TO CHANGE</span>
+        <span style="font-size: 15px; font-weight: 800; color: #a82d2d;">260 &times; 180</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start;">
+
+    <div id="1a" data-screen-label="1a Signal strip" style="display: flex; flex-direction: column; gap: 12px; width: 520px;">
+      <div style="display: flex; align-items: baseline; gap: 10px;">
+        <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #ffffff; background: #115934; padding: 3px 7px; border-radius: 3px;">1a</span>
+        <span style="font-size: 15px; font-weight: 800; color: #1d1d1d; text-transform: uppercase; letter-spacing: -0.01em;">Signal strip</span>
+        <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.07em; color: #f26522;">RECOMMENDED</span>
+      </div>
+
+      <div style="position: relative; width: 520px; height: 340px; background: #f1f2f3; border: 1px solid #ebebeb; border-radius: 4px; overflow: hidden;">
+        <div style="height: 26px; background: #e8eaeb; display: flex; align-items: center; gap: 6px; padding: 0 10px;">
+          <span style="width: 7px; height: 7px; border-radius: 50%; background: #d3d7d9;"></span>
+          <span style="width: 44px; height: 7px; border-radius: 2px; background: #d3d7d9;"></span>
+          <span style="width: 30px; height: 7px; border-radius: 2px; background: #dde0e2;"></span>
+          <span style="font-size: 7.5px; font-weight: 800; letter-spacing: 0.1em; color: #a9aeb1; margin-left: auto;">HOSPITAL SYSTEM &mdash; STAND-IN</span>
+        </div>
+        <div style="display: flex; height: 314px;">
+          <div style="width: 104px; border-right: 1px solid #e4e6e8; padding: 12px 10px; display: flex; flex-direction: column; gap: 9px;">
+            <span style="height: 7px; width: 60px; border-radius: 2px; background: #dcdfe1;"></span>
+            <span style="height: 7px; width: 74px; border-radius: 2px; background: #e2e5e7;"></span>
+            <span style="height: 7px; width: 48px; border-radius: 2px; background: #e2e5e7;"></span>
+            <span style="height: 7px; width: 68px; border-radius: 2px; background: #e2e5e7;"></span>
+            <span style="height: 7px; width: 40px; border-radius: 2px; background: #e2e5e7;"></span>
+          </div>
+          <div style="flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+            <span style="height: 10px; width: 150px; border-radius: 2px; background: #d8dbdd;"></span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+              <span style="height: 44px; border-radius: 3px; background: #e9ebec;"></span>
+              <span style="height: 44px; border-radius: 3px; background: #e9ebec;"></span>
+              <span style="height: 44px; border-radius: 3px; background: #e9ebec;"></span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 7px;">
+              <span style="height: 7px; width: 100%; border-radius: 2px; background: #e4e7e9;"></span>
+              <span style="height: 7px; width: 92%; border-radius: 2px; background: #e4e7e9;"></span>
+              <span style="height: 7px; width: 96%; border-radius: 2px; background: #e4e7e9;"></span>
+              <span style="height: 7px; width: 62%; border-radius: 2px; background: #e4e7e9;"></span>
+            </div>
+          </div>
+        </div>
+
+        <div onMouseEnter="{{ enterA }}" onMouseLeave="{{ leaveA }}" style="position: absolute; right: 12px; bottom: 12px; width: 284px; box-sizing: border-box; background: #ffffff; border: 1px solid #ebebeb; border-radius: 8px; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #1d1d1d; cursor: default;">
+          <sc-if value="{{ servingA }}" hint-placeholder-val="{{ true }}">
+            <div style="height: 70px; box-sizing: border-box; padding: 8px; display: flex; gap: 8px; align-items: stretch;">
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px;">
+                <div style="display: flex; align-items: center; height: 12px;">
+                  <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #115934;">NOW SERVING</span>
+                  <span style="margin-left: auto; position: relative; display: flex; align-items: center;">
+                    <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #4f4f4f;">{{ cntA }}</span>
+                    <span style="position: absolute; right: -3px; top: -4px; display: flex; gap: 1px; background: #ffffff; padding: 1px 2px; opacity: {{ chromeA }}; transition: opacity 0.12s;">
+                      <button onClick="{{ toggleMenuA }}" style="width: 19px; height: 19px; border: 0; background: transparent; border-radius: 3px; font-size: 12px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #edf7f3; color: #115934;">&#8943;</button>
+                      <button style="width: 19px; height: 19px; border: 0; background: transparent; border-radius: 3px; font-size: 12px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #edf7f3; color: #115934;">&ndash;</button>
+                      <button style="width: 19px; height: 19px; border: 0; background: transparent; border-radius: 3px; font-size: 12px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #f9e9e8; color: #e03127;">&times;</button>
+                    </span>
+                  </span>
+                </div>
+                <div style="display: flex; align-items: baseline; gap: 7px; min-width: 0;">
+                  <span style="font-size: 18px; font-weight: 800; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap;">{{ tokA }}</span>
+                  <span style="font-size: 11.5px; font-weight: 600; color: #1d1d1d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;">{{ namA }}</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 3px;">
+                  <sc-if value="{{ meterOn }}" hint-placeholder-val="{{ true }}">
+                    <div style="height: 3px; border-radius: 2px; background: #ebebeb; display: flex; overflow: hidden;">
+                      <span style="width: {{ gwA }}; background: #115934;"></span>
+                      <span style="width: {{ rwA }}; background: #e03127;"></span>
+                    </div>
+                  </sc-if>
+                  <div style="display: flex; gap: 4px; align-items: baseline;">
+                    <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.05em; color: {{ wcolA }};">{{ waiA }}</span>
+                    <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.05em; color: #4f4f4f;">WAITED &middot; {{ expA }}</span>
+                  </div>
+                </div>
+              </div>
+              <sc-if value="{{ isAlertA }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ onAlertA }}" style="width: 86px; border: 0; border-radius: 6px; background: #f26522; color: #ffffff; font-family: inherit; font-size: 11.5px; font-weight: 800; letter-spacing: 0.05em; cursor: pointer;" style-hover="background: #dd5717;" style-active="transform: translateY(0.5px);">ALERT</button>
+              </sc-if>
+              <sc-if value="{{ isNoA }}">
+                <button onMouseDown="{{ hsA }}" onMouseUp="{{ heA }}" onMouseLeave="{{ heA }}" style="position: relative; overflow: hidden; width: 86px; border: 0; border-radius: 6px; background: #e03127; color: #ffffff; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" style-active="transform: translateY(0.5px);">
+                  <span style="position: absolute; left: 0; top: 0; bottom: 0; width: {{ pctA }}; background: rgba(255,255,255,0.3);"></span>
+                  <span style="font-size: 11.5px; font-weight: 800; letter-spacing: 0.05em; position: relative;">NO-SHOW</span>
+                  <sc-if value="{{ holdHint }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-size: 7.5px; font-weight: 700; letter-spacing: 0.09em; color: rgba(255,255,255,0.75); position: relative;">HOLD TO CONFIRM</span>
+                  </sc-if>
+                </button>
+              </sc-if>
+              <sc-if value="{{ isEndA }}">
+                <button onClick="{{ onEndA }}" style="width: 86px; border: 0; border-radius: 6px; background: #115934; color: #ffffff; font-family: inherit; font-size: 11.5px; font-weight: 800; letter-spacing: 0.05em; cursor: pointer;" style-hover="background: #0d4728;" style-active="transform: translateY(0.5px);">END VISIT</button>
+              </sc-if>
+            </div>
+            <sc-if value="{{ hasUpA }}">
+              <div style="padding: 0 8px 4px;">
+                <sc-for list="{{ upA }}" as="p" hint-placeholder-count="0">
+                  <div style="height: 22px; box-sizing: border-box; border-top: 1px solid #ebebeb; display: flex; align-items: center; gap: 7px;">
+                    <span style="font-size: 10px; font-weight: 800; font-variant-numeric: tabular-nums; color: #1d1d1d; white-space: nowrap;">{{ p.t }}</span>
+                    <span style="font-size: 10.5px; font-weight: 500; color: #4f4f4f; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1;">{{ p.n }}</span>
+                    <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; white-space: nowrap; color: {{ p.wcol }};">{{ p.wt }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </sc-if>
+          <sc-if value="{{ emptyA }}">
+            <div style="height: 44px; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">NO ONE IN THE QUEUE</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ offlineA }}">
+            <div style="height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;">
+              <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 0.06em; color: #e03127;">CANNOT REACH CHUP</span>
+              <span style="font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; color: #4f4f4f;">QUEUE LAST READ 14:32 &middot; RETRYING</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ loadingA }}">
+            <div style="height: 44px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-radius: 8px;">
+              <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">READING THE QUEUE</span>
+              <span style="position: absolute; left: 0; bottom: 0; width: 60px; height: 1px; background: #115934; animation: chupSweep 1.1s linear infinite;"></span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ menuOpenA }}">
+            <div style="position: absolute; bottom: calc(100% + 4px); right: 8px; width: 118px; background: #ffffff; border: 1px solid #ebebeb; border-radius: 6px; overflow: hidden; z-index: 5;">
+              <sc-if value="{{ isSA }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ setSA }}" style="width: 100%; height: 26px; border: 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;">SMALL</button>
+              </sc-if>
+              <sc-if value="{{ notSA }}">
+                <button onClick="{{ setSA }}" style="width: 100%; height: 26px; border: 0; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SMALL</button>
+              </sc-if>
+              <sc-if value="{{ isMA }}">
+                <button onClick="{{ setMA }}" style="width: 100%; height: 26px; border: 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;">MEDIUM</button>
+              </sc-if>
+              <sc-if value="{{ notMA }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ setMA }}" style="width: 100%; height: 26px; border: 0; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">MEDIUM</button>
+              </sc-if>
+              <sc-if value="{{ isLA }}">
+                <button onClick="{{ setLA }}" style="width: 100%; height: 26px; border: 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;">LARGE</button>
+              </sc-if>
+              <sc-if value="{{ notLA }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ setLA }}" style="width: 100%; height: 26px; border: 0; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">LARGE</button>
+              </sc-if>
+              <button style="width: 100%; height: 26px; border: 0; border-top: 1px solid #ebebeb; background: #ffffff; color: #4f4f4f; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SIGN OUT</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #ebebeb; padding-top: 10px;">
+        <div style="display: flex; gap: 18px;">
+          <span style="font-size: 11px; font-weight: 800; color: #1d1d1d;">284 &times; 72</span>
+          <span style="font-size: 11px; font-weight: 700; color: #4f4f4f;">M 284 &times; 164 &middot; L 284 &times; 252</span>
+          <span style="font-size: 11px; font-weight: 800; color: #115934;">&minus;65% AREA</span>
+        </div>
+        <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">One line of instrument. Token, name, minutes waited against the twenty-minute limit, and an action block tall enough to hit without looking. At Small the queue is a number only &mdash; <strong style="font-weight: 800;">8 WAITING</strong> &mdash; which is all a doctor mid-consultation can act on. Parks along a screen edge where it covers a status bar, not content.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 5px; border-top: 1px solid #ebebeb; padding-top: 9px;">
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f; width: 42px;">ACTION</span>
+          <button onClick="{{ actAA }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">ALERT</button>
+          <button onClick="{{ actNA }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">NO-SHOW</button>
+          <button onClick="{{ actEA }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">END VISIT</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f; width: 42px;">STATE</span>
+          <button onClick="{{ dSA }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SERVING</button>
+          <button onClick="{{ dEA }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">EMPTY</button>
+          <button onClick="{{ dOA }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">OFFLINE</button>
+          <button onClick="{{ dLA }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">LOADING</button>
+          <span style="font-size: 8.5px; font-weight: 700; color: #9a9a9a;">size lives in the &#8943; menu on hover</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="1b" data-screen-label="1b Stacked ledger" style="display: flex; flex-direction: column; gap: 12px; width: 520px;">
+      <div style="display: flex; align-items: baseline; gap: 10px;">
+        <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #ffffff; background: #115934; padding: 3px 7px; border-radius: 3px;">1b</span>
+        <span style="font-size: 15px; font-weight: 800; color: #1d1d1d; text-transform: uppercase; letter-spacing: -0.01em;">Stacked ledger</span>
+      </div>
+
+      <div style="position: relative; width: 520px; height: 340px; background: #f1f2f3; border: 1px solid #ebebeb; border-radius: 4px; overflow: hidden;">
+        <div style="height: 26px; background: #e8eaeb; display: flex; align-items: center; gap: 6px; padding: 0 10px;">
+          <span style="width: 7px; height: 7px; border-radius: 50%; background: #d3d7d9;"></span>
+          <span style="width: 44px; height: 7px; border-radius: 2px; background: #d3d7d9;"></span>
+          <span style="width: 30px; height: 7px; border-radius: 2px; background: #dde0e2;"></span>
+          <span style="font-size: 7.5px; font-weight: 800; letter-spacing: 0.1em; color: #a9aeb1; margin-left: auto;">HOSPITAL SYSTEM &mdash; STAND-IN</span>
+        </div>
+        <div style="display: flex; height: 314px;">
+          <div style="width: 104px; border-right: 1px solid #e4e6e8; padding: 12px 10px; display: flex; flex-direction: column; gap: 9px;">
+            <span style="height: 7px; width: 60px; border-radius: 2px; background: #dcdfe1;"></span>
+            <span style="height: 7px; width: 74px; border-radius: 2px; background: #e2e5e7;"></span>
+            <span style="height: 7px; width: 48px; border-radius: 2px; background: #e2e5e7;"></span>
+            <span style="height: 7px; width: 68px; border-radius: 2px; background: #e2e5e7;"></span>
+            <span style="height: 7px; width: 40px; border-radius: 2px; background: #e2e5e7;"></span>
+          </div>
+          <div style="flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+            <span style="height: 10px; width: 150px; border-radius: 2px; background: #d8dbdd;"></span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+              <span style="height: 44px; border-radius: 3px; background: #e9ebec;"></span>
+              <span style="height: 44px; border-radius: 3px; background: #e9ebec;"></span>
+              <span style="height: 44px; border-radius: 3px; background: #e9ebec;"></span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 7px;">
+              <span style="height: 7px; width: 100%; border-radius: 2px; background: #e4e7e9;"></span>
+              <span style="height: 7px; width: 92%; border-radius: 2px; background: #e4e7e9;"></span>
+              <span style="height: 7px; width: 96%; border-radius: 2px; background: #e4e7e9;"></span>
+              <span style="height: 7px; width: 62%; border-radius: 2px; background: #e4e7e9;"></span>
+            </div>
+          </div>
+        </div>
+
+        <div onMouseEnter="{{ enterB }}" onMouseLeave="{{ leaveB }}" style="position: absolute; right: 12px; bottom: 12px; width: 256px; box-sizing: border-box; background: #ffffff; border: 1px solid #ebebeb; border-radius: 8px; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #1d1d1d; cursor: default;">
+          <span style="position: absolute; top: 5px; right: 5px; display: flex; gap: 1px; z-index: 4; opacity: {{ chromeB }}; transition: opacity 0.12s;">
+            <button onClick="{{ toggleMenuB }}" style="width: 19px; height: 19px; border: 0; background: transparent; border-radius: 3px; font-size: 12px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #edf7f3; color: #115934;">&#8943;</button>
+            <button style="width: 19px; height: 19px; border: 0; background: transparent; border-radius: 3px; font-size: 12px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #edf7f3; color: #115934;">&ndash;</button>
+            <button style="width: 19px; height: 19px; border: 0; background: transparent; border-radius: 3px; font-size: 12px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #f9e9e8; color: #e03127;">&times;</button>
+          </span>
+          <sc-if value="{{ servingB }}" hint-placeholder-val="{{ true }}">
+            <div style="padding: 8px; display: flex; flex-direction: column; gap: 3px;">
+              <div style="display: flex; align-items: baseline; gap: 7px; min-width: 0; padding-right: 62px;">
+                <span style="font-size: 19px; font-weight: 800; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap;">{{ tokB }}</span>
+                <span style="font-size: 11.5px; font-weight: 600; color: #1d1d1d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;">{{ namB }}</span>
+              </div>
+              <sc-if value="{{ meterOn }}" hint-placeholder-val="{{ true }}">
+                <div style="height: 3px; border-radius: 2px; background: #ebebeb; display: flex; overflow: hidden; margin-top: 2px;">
+                  <span style="width: {{ gwB }}; background: #115934;"></span>
+                  <span style="width: {{ rwB }}; background: #e03127;"></span>
+                </div>
+              </sc-if>
+              <div style="display: flex; gap: 4px; align-items: baseline;">
+                <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.05em; color: {{ wcolB }};">{{ waiB }}</span>
+                <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.05em; color: #4f4f4f;">WAITED &middot; {{ expB }}</span>
+              </div>
+              <sc-if value="{{ isAlertB }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ onAlertB }}" style="height: 34px; margin-top: 5px; border: 0; border-radius: 6px; background: #f26522; color: #ffffff; font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: 0.05em; cursor: pointer;" style-hover="background: #dd5717;" style-active="transform: translateY(0.5px);">ALERT</button>
+              </sc-if>
+              <sc-if value="{{ isNoB }}">
+                <button onMouseDown="{{ hsB }}" onMouseUp="{{ heB }}" onMouseLeave="{{ heB }}" style="position: relative; overflow: hidden; height: 34px; margin-top: 5px; border: 0; border-radius: 6px; background: #e03127; color: #ffffff; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;" style-active="transform: translateY(0.5px);">
+                  <span style="position: absolute; left: 0; top: 0; bottom: 0; width: {{ pctB }}; background: rgba(255,255,255,0.3);"></span>
+                  <span style="font-size: 12px; font-weight: 800; letter-spacing: 0.05em; position: relative;">NO-SHOW</span>
+                  <sc-if value="{{ holdHint }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-size: 8px; font-weight: 700; letter-spacing: 0.09em; color: rgba(255,255,255,0.75); position: relative;">HOLD TO CONFIRM</span>
+                  </sc-if>
+                </button>
+              </sc-if>
+              <sc-if value="{{ isEndB }}">
+                <button onClick="{{ onEndB }}" style="height: 34px; margin-top: 5px; border: 0; border-radius: 6px; background: #115934; color: #ffffff; font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: 0.05em; cursor: pointer;" style-hover="background: #0d4728;" style-active="transform: translateY(0.5px);">END VISIT</button>
+              </sc-if>
+            </div>
+            <sc-if value="{{ hasUpB }}">
+              <div style="padding: 0 8px 4px;">
+                <sc-for list="{{ upB }}" as="p" hint-placeholder-count="1">
+                  <div style="height: 22px; box-sizing: border-box; border-top: 1px solid #ebebeb; display: flex; align-items: center; gap: 7px;">
+                    <span style="font-size: 10px; font-weight: 800; font-variant-numeric: tabular-nums; color: #1d1d1d; white-space: nowrap;">{{ p.t }}</span>
+                    <span style="font-size: 10.5px; font-weight: 500; color: #4f4f4f; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1;">{{ p.n }}</span>
+                    <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; white-space: nowrap; color: {{ p.wcol }};">{{ p.wt }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </sc-if>
+          <sc-if value="{{ emptyB }}">
+            <div style="height: 52px; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">NO ONE IN THE QUEUE</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ offlineB }}">
+            <div style="height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;">
+              <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 0.06em; color: #e03127;">CANNOT REACH CHUP</span>
+              <span style="font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; color: #4f4f4f;">QUEUE LAST READ 14:32 &middot; RETRYING</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ loadingB }}">
+            <div style="height: 52px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-radius: 8px;">
+              <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">READING THE QUEUE</span>
+              <span style="position: absolute; left: 0; bottom: 0; width: 60px; height: 1px; background: #115934; animation: chupSweep 1.1s linear infinite;"></span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ menuOpenB }}">
+            <div style="position: absolute; bottom: calc(100% + 4px); right: 6px; width: 118px; background: #ffffff; border: 1px solid #ebebeb; border-radius: 6px; overflow: hidden; z-index: 5;">
+              <sc-if value="{{ isSB }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ setSB }}" style="width: 100%; height: 26px; border: 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;">SMALL</button>
+              </sc-if>
+              <sc-if value="{{ notSB }}">
+                <button onClick="{{ setSB }}" style="width: 100%; height: 26px; border: 0; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SMALL</button>
+              </sc-if>
+              <sc-if value="{{ isMB }}">
+                <button onClick="{{ setMB }}" style="width: 100%; height: 26px; border: 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;">MEDIUM</button>
+              </sc-if>
+              <sc-if value="{{ notMB }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ setMB }}" style="width: 100%; height: 26px; border: 0; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">MEDIUM</button>
+              </sc-if>
+              <sc-if value="{{ isLB }}">
+                <button onClick="{{ setLB }}" style="width: 100%; height: 26px; border: 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;">LARGE</button>
+              </sc-if>
+              <sc-if value="{{ notLB }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ setLB }}" style="width: 100%; height: 26px; border: 0; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">LARGE</button>
+              </sc-if>
+              <button style="width: 100%; height: 26px; border: 0; border-top: 1px solid #ebebeb; background: #ffffff; color: #4f4f4f; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SIGN OUT</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #ebebeb; padding-top: 10px;">
+        <div style="display: flex; gap: 18px;">
+          <span style="font-size: 11px; font-weight: 800; color: #1d1d1d;">256 &times; 134</span>
+          <span style="font-size: 11px; font-weight: 700; color: #4f4f4f;">M 256 &times; 200 &middot; L 256 &times; 288</span>
+          <span style="font-size: 11px; font-weight: 800; color: #115934;">&minus;42% AREA</span>
+        </div>
+        <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">Narrower than today and closer to the shipped shape. The action spans the full width, so it is the largest target of the three &mdash; the safest bet for gloves and trackpads. Buys back the least area, and pays for the next patient's name being visible at the smallest size.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 5px; border-top: 1px solid #ebebeb; padding-top: 9px;">
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f; width: 42px;">ACTION</span>
+          <button onClick="{{ actAB }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">ALERT</button>
+          <button onClick="{{ actNB }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">NO-SHOW</button>
+          <button onClick="{{ actEB }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">END VISIT</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f; width: 42px;">STATE</span>
+          <button onClick="{{ dSB }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SERVING</button>
+          <button onClick="{{ dEB }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">EMPTY</button>
+          <button onClick="{{ dOB }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">OFFLINE</button>
+          <button onClick="{{ dLB }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">LOADING</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="1c" data-screen-label="1c Token tile" style="display: flex; flex-direction: column; gap: 12px; width: 520px;">
+      <div style="display: flex; align-items: baseline; gap: 10px;">
+        <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #ffffff; background: #115934; padding: 3px 7px; border-radius: 3px;">1c</span>
+        <span style="font-size: 15px; font-weight: 800; color: #1d1d1d; text-transform: uppercase; letter-spacing: -0.01em;">Token tile</span>
+      </div>
+
+      <div style="position: relative; width: 520px; height: 340px; background: #f1f2f3; border: 1px solid #ebebeb; border-radius: 4px; overflow: hidden;">
+        <div style="height: 26px; background: #e8eaeb; display: flex; align-items: center; gap: 6px; padding: 0 10px;">
+          <span style="width: 7px; height: 7px; border-radius: 50%; background: #d3d7d9;"></span>
+          <span style="width: 44px; height: 7px; border-radius: 2px; background: #d3d7d9;"></span>
+          <span style="width: 30px; height: 7px; border-radius: 2px; background: #dde0e2;"></span>
+          <span style="font-size: 7.5px; font-weight: 800; letter-spacing: 0.1em; color: #a9aeb1; margin-left: auto;">HOSPITAL SYSTEM &mdash; STAND-IN</span>
+        </div>
+        <div style="display: flex; height: 314px;">
+          <div style="width: 104px; border-right: 1px solid #e4e6e8; padding: 12px 10px; display: flex; flex-direction: column; gap: 9px;">
+            <span style="height: 7px; width: 60px; border-radius: 2px; background: #dcdfe1;"></span>
+            <span style="height: 7px; width: 74px; border-radius: 2px; background: #e2e5e7;"></span>
+            <span style="height: 7px; width: 48px; border-radius: 2px; background: #e2e5e7;"></span>
+            <span style="height: 7px; width: 68px; border-radius: 2px; background: #e2e5e7;"></span>
+            <span style="height: 7px; width: 40px; border-radius: 2px; background: #e2e5e7;"></span>
+          </div>
+          <div style="flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+            <span style="height: 10px; width: 150px; border-radius: 2px; background: #d8dbdd;"></span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+              <span style="height: 44px; border-radius: 3px; background: #e9ebec;"></span>
+              <span style="height: 44px; border-radius: 3px; background: #e9ebec;"></span>
+              <span style="height: 44px; border-radius: 3px; background: #e9ebec;"></span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 7px;">
+              <span style="height: 7px; width: 100%; border-radius: 2px; background: #e4e7e9;"></span>
+              <span style="height: 7px; width: 92%; border-radius: 2px; background: #e4e7e9;"></span>
+              <span style="height: 7px; width: 96%; border-radius: 2px; background: #e4e7e9;"></span>
+              <span style="height: 7px; width: 62%; border-radius: 2px; background: #e4e7e9;"></span>
+            </div>
+          </div>
+        </div>
+
+        <div onMouseEnter="{{ enterC }}" onMouseLeave="{{ leaveC }}" style="position: absolute; right: 12px; bottom: 12px; width: 152px; box-sizing: border-box; background: #ffffff; border: 1px solid #ebebeb; border-radius: 8px; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #1d1d1d; cursor: default;">
+          <span style="position: absolute; top: 4px; right: 4px; display: flex; gap: 0px; z-index: 4; opacity: {{ chromeC }}; transition: opacity 0.12s;">
+            <button onClick="{{ toggleMenuC }}" style="width: 18px; height: 18px; border: 0; background: transparent; border-radius: 3px; font-size: 12px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #edf7f3; color: #115934;">&#8943;</button>
+            <button style="width: 18px; height: 18px; border: 0; background: transparent; border-radius: 3px; font-size: 12px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #edf7f3; color: #115934;">&ndash;</button>
+            <button style="width: 18px; height: 18px; border: 0; background: transparent; border-radius: 3px; font-size: 12px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #f9e9e8; color: #e03127;">&times;</button>
+          </span>
+          <sc-if value="{{ servingC }}" hint-placeholder-val="{{ true }}">
+            <div style="padding: 10px; display: flex; flex-direction: column;">
+              <span style="font-size: 28px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; color: #0c6e3c; font-variant-numeric: tabular-nums; text-align: center;">{{ tokC }}</span>
+              <span style="font-size: 10.5px; font-weight: 600; line-height: 1.25; color: #1d1d1d; text-align: center; height: 26px; overflow: hidden; margin-top: 2px;">{{ namC }}</span>
+              <sc-if value="{{ meterOn }}" hint-placeholder-val="{{ true }}">
+                <div style="height: 3px; border-radius: 2px; background: #ebebeb; display: flex; overflow: hidden; margin-top: 4px;">
+                  <span style="width: {{ gwC }}; background: #115934;"></span>
+                  <span style="width: {{ rwC }}; background: #e03127;"></span>
+                </div>
+              </sc-if>
+              <div style="display: flex; gap: 4px; align-items: baseline; justify-content: center; margin-top: 3px;">
+                <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.05em; color: {{ wcolC }};">{{ waiC }}</span>
+                <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.05em; color: #4f4f4f;">/ {{ expC }}</span>
+              </div>
+              <sc-if value="{{ isAlertC }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ onAlertC }}" style="height: 36px; margin-top: 8px; border: 0; border-radius: 6px; background: #f26522; color: #ffffff; font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: 0.05em; cursor: pointer;" style-hover="background: #dd5717;" style-active="transform: translateY(0.5px);">ALERT</button>
+              </sc-if>
+              <sc-if value="{{ isNoC }}">
+                <button onMouseDown="{{ hsC }}" onMouseUp="{{ heC }}" onMouseLeave="{{ heC }}" style="position: relative; overflow: hidden; height: 36px; margin-top: 8px; border: 0; border-radius: 6px; background: #e03127; color: #ffffff; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;" style-active="transform: translateY(0.5px);">
+                  <span style="position: absolute; left: 0; top: 0; bottom: 0; width: {{ pctC }}; background: rgba(255,255,255,0.3);"></span>
+                  <span style="font-size: 12px; font-weight: 800; letter-spacing: 0.05em; position: relative;">NO-SHOW</span>
+                  <sc-if value="{{ holdHint }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-size: 7.5px; font-weight: 700; letter-spacing: 0.09em; color: rgba(255,255,255,0.75); position: relative;">HOLD TO CONFIRM</span>
+                  </sc-if>
+                </button>
+              </sc-if>
+              <sc-if value="{{ isEndC }}">
+                <button onClick="{{ onEndC }}" style="height: 36px; margin-top: 8px; border: 0; border-radius: 6px; background: #115934; color: #ffffff; font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: 0.05em; cursor: pointer;" style-hover="background: #0d4728;" style-active="transform: translateY(0.5px);">END VISIT</button>
+              </sc-if>
+            </div>
+            <sc-if value="{{ hasUpC }}">
+              <div style="padding: 0 10px 4px;">
+                <sc-for list="{{ upC }}" as="p" hint-placeholder-count="0">
+                  <div style="height: 22px; box-sizing: border-box; border-top: 1px solid #ebebeb; display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 9.5px; font-weight: 800; font-variant-numeric: tabular-nums; color: #1d1d1d; white-space: nowrap;">{{ p.t }}</span>
+                    <span style="font-size: 10px; font-weight: 500; color: #4f4f4f; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1;">{{ p.first }}</span>
+                    <span style="font-size: 8.5px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; color: {{ p.wcol }};">{{ p.wt }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </sc-if>
+          <sc-if value="{{ emptyC }}">
+            <div style="height: 90px; display: flex; align-items: center; justify-content: center; padding: 0 14px;">
+              <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f; text-align: center; line-height: 1.4;">NO ONE IN THE QUEUE</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ offlineC }}">
+            <div style="height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 0 12px;">
+              <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 0.06em; color: #e03127; text-align: center; line-height: 1.35;">CANNOT REACH CHUP</span>
+              <span style="font-size: 8px; font-weight: 700; letter-spacing: 0.05em; color: #4f4f4f; text-align: center; line-height: 1.4;">LAST READ 14:32 &middot; RETRYING</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ loadingC }}">
+            <div style="height: 90px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-radius: 8px;">
+              <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; color: #4f4f4f;">READING QUEUE</span>
+              <span style="position: absolute; left: 0; bottom: 0; width: 50px; height: 1px; background: #115934; animation: chupSweep 1.1s linear infinite;"></span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ menuOpenC }}">
+            <div style="position: absolute; bottom: calc(100% + 4px); right: 6px; width: 112px; background: #ffffff; border: 1px solid #ebebeb; border-radius: 6px; overflow: hidden; z-index: 5;">
+              <sc-if value="{{ isSC }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ setSC }}" style="width: 100%; height: 26px; border: 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;">SMALL</button>
+              </sc-if>
+              <sc-if value="{{ notSC }}">
+                <button onClick="{{ setSC }}" style="width: 100%; height: 26px; border: 0; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SMALL</button>
+              </sc-if>
+              <sc-if value="{{ isMC }}">
+                <button onClick="{{ setMC }}" style="width: 100%; height: 26px; border: 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;">MEDIUM</button>
+              </sc-if>
+              <sc-if value="{{ notMC }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ setMC }}" style="width: 100%; height: 26px; border: 0; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">MEDIUM</button>
+              </sc-if>
+              <sc-if value="{{ isLC }}">
+                <button onClick="{{ setLC }}" style="width: 100%; height: 26px; border: 0; background: #115934; color: #ffffff; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;">LARGE</button>
+              </sc-if>
+              <sc-if value="{{ notLC }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ setLC }}" style="width: 100%; height: 26px; border: 0; background: #ffffff; color: #1d1d1d; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">LARGE</button>
+              </sc-if>
+              <button style="width: 100%; height: 26px; border: 0; border-top: 1px solid #ebebeb; background: #ffffff; color: #4f4f4f; font-family: inherit; font-size: 9.5px; font-weight: 800; letter-spacing: 0.07em; text-align: left; padding: 0 9px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SIGN OUT</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #ebebeb; padding-top: 10px;">
+        <div style="display: flex; gap: 18px;">
+          <span style="font-size: 11px; font-weight: 800; color: #1d1d1d;">152 &times; 148</span>
+          <span style="font-size: 11px; font-weight: 700; color: #4f4f4f;">M 152 &times; 240 &middot; L 152 &times; 328</span>
+          <span style="font-size: 11px; font-weight: 800; color: #115934;">&minus;62% AREA</span>
+        </div>
+        <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">The token as a 28px display figure &mdash; the one thing readable across a consulting room. Shows no queue at all at Small; the count only appears on hover with the controls. Squarest of the three, so it tucks into a corner without spanning anything, but long names cost two lines and it is the tightest fit for Malay full names.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 5px; border-top: 1px solid #ebebeb; padding-top: 9px;">
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f; width: 42px;">ACTION</span>
+          <button onClick="{{ actAC }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">ALERT</button>
+          <button onClick="{{ actNC }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">NO-SHOW</button>
+          <button onClick="{{ actEC }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">END VISIT</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f; width: 42px;">STATE</span>
+          <button onClick="{{ dSC }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">SERVING</button>
+          <button onClick="{{ dEC }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">EMPTY</button>
+          <button onClick="{{ dOC }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">OFFLINE</button>
+          <button onClick="{{ dLC }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">LOADING</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start; border-top: 1px solid #ebebeb; padding-top: 32px; width: 100%;">
+    <div style="display: flex; flex-direction: column; gap: 14px; width: 300px;">
+      <div style="display: flex; align-items: baseline; gap: 10px;">
+        <span style="font-size: 15px; font-weight: 800; color: #1d1d1d; text-transform: uppercase; letter-spacing: -0.01em;">Sign in</span>
+        <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #4f4f4f;">260 &times; 271</span>
+        <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #115934;">&minus;44%</span>
+      </div>
+      <sc-if value="{{ signMini }}">
+        <div onClick="{{ signRestore }}" title="Restore Chup" style="width: 44px; height: 44px; box-sizing: border-box; background: #ffffff; border: 1px solid #ebebeb; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;" style-hover="border-color: #cfd1d4;">
+          <img src="assets/mark/bubble.svg" alt="chup" style="width: 20px; height: auto; display: block;">
+        </div>
+      </sc-if>
+      <sc-if value="{{ signShut }}">
+        <div onClick="{{ signRestore }}" title="Chup is still running &mdash; click to reopen" style="width: 5px; height: 34px; background: #115934; border-radius: 0 3px 3px 0; cursor: pointer;" style-hover="width: 9px; background: #0c6e3c;"></div>
+      </sc-if>
+      <sc-if value="{{ signLive }}" hint-placeholder-val="{{ true }}">
+      <div style="width: 260px; background: #ffffff; border: 1px solid #ebebeb; border-radius: 8px; padding: 14px; box-sizing: border-box; position: relative; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #1d1d1d; display: flex; flex-direction: column; gap: 9px;">
+        <span style="position: absolute; top: 5px; right: 5px; display: flex; gap: 1px;">
+          <button onClick="{{ signMiniOn }}" title="Minimise to the corner" style="width: 19px; height: 19px; border: 0; background: transparent; border-radius: 3px; font-size: 12px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #edf7f3; color: #115934;">&ndash;</button>
+          <button onClick="{{ signShutOn }}" title="Close to the screen edge" style="width: 19px; height: 19px; border: 0; background: transparent; border-radius: 3px; font-size: 12px; line-height: 1; color: #4f4f4f; cursor: pointer; padding: 0;" style-hover="background: #f9e9e8; color: #e03127;">&times;</button>
+        </span>
+        <img src="assets/chup-logo.svg" alt="chup" style="width: 74px; height: auto; display: block;">
+        <div style="display: flex; flex-direction: column; gap: 1px;">
+          <span style="font-size: 13px; font-weight: 800; letter-spacing: -0.01em;">Chup Desktop Widget</span>
+          <sc-if value="{{ signForm }}" hint-placeholder-val="{{ true }}">
+            <span style="font-size: 10.5px; font-weight: 500; color: #4f4f4f;">Sign in to follow your queue</span>
+          </sc-if>
+        </div>
+        <sc-if value="{{ signDone }}">
+          <div style="display: flex; flex-direction: column; gap: 7px; padding: 4px 0 2px;">
+            <span style="font-size: 11.5px; font-weight: 700; line-height: 1.35; color: #115934;">Signed in as doctor@clinic.com</span>
+            <span style="font-size: 10px; font-weight: 500; line-height: 1.4; color: #4f4f4f;">The card now travels to the corner and becomes the widget. Watch it on the stand-in screen in <a href="#2a">2a</a>.</span>
+            <div style="height: 2px; background: #ebebeb; position: relative; overflow: hidden; margin-top: 2px;">
+              <span style="position: absolute; left: 0; top: 0; bottom: 0; width: 50px; background: #115934; animation: chupSweep 1.1s linear infinite;"></span>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ signForm }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; gap: 3px;">
+          <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f;">EMAIL</span>
+          <input type="email" defaultValue="doctor@clinic.com" style="height: 30px; box-sizing: border-box; border: 1px solid #ebebeb; border-radius: 6px; padding: 0 9px; font-size: 11.5px; font-weight: 500; outline-color: #115934;">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 3px;">
+          <div style="display: flex; align-items: baseline;">
+            <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f;">PASSWORD</span>
+            <button onClick="{{ togglePw }}" style="margin-left: auto; border: 0; background: transparent; padding: 0; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #115934; cursor: pointer;" style-hover="color: #f26522;">{{ pwLabel }}</button>
+          </div>
+          <input type="{{ pwType }}" defaultValue="••••••••" style="height: 30px; box-sizing: border-box; border: 1px solid #ebebeb; border-radius: 6px; padding: 0 9px; font-size: 11.5px; font-weight: 500; outline-color: #115934;">
+        </div>
+        <sc-if value="{{ signErr }}">
+          <span style="font-size: 10px; font-weight: 700; line-height: 1.35; color: #e03127;">Wrong email or password</span>
+        </sc-if>
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 2px;">
+          <button onClick="{{ toggleRem }}" style="display: flex; align-items: center; gap: 7px; border: 0; background: transparent; padding: 0; font-family: inherit; cursor: pointer; text-align: left;">
+            <span style="width: 13px; height: 13px; flex: none; border-radius: 3px; border: 1px solid {{ remBd }}; background: {{ remBg }}; display: flex; align-items: center; justify-content: center;">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="#ffffff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="opacity: {{ remOp }};"><path d="M1.3 4.2 3 5.9 6.7 2.2"></path></svg>
+            </span>
+            <span style="font-size: 10px; font-weight: 700; color: #1d1d1d;">Stay signed in on this computer</span>
+          </button>
+        </div>
+        <button onClick="{{ onSign }}" style="height: 34px; border: 0; border-radius: 6px; background: #115934; color: #ffffff; font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: 0.03em; cursor: pointer; margin-top: 1px;" style-hover="background: #0d4728;" style-active="transform: translateY(0.5px);">{{ signLabel }}</button>
+        <span style="font-size: 9px; font-weight: 500; line-height: 1.35; color: #4f4f4f; text-align: center;">{{ signFoot }}</span>
+        </sc-if>
+      </div>
+      </sc-if>
+      <div style="display: flex; align-items: center; gap: 8px; border-top: 1px solid #ebebeb; padding-top: 9px;">
+        <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; color: #4f4f4f;">TRY</span>
+        <button onClick="{{ failSign }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #a82d2d; padding: 4px 7px; cursor: pointer; white-space: nowrap;" style-hover="background: #fdf4f3;">WRONG PASSWORD</button>
+        <button onClick="{{ resetSign }}" style="border: 1px solid #ebebeb; background: #ffffff; border-radius: 3px; font-family: inherit; font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em; color: #1d1d1d; padding: 4px 7px; cursor: pointer;" style-hover="background: #edf7f3; color: #115934;">RESET</button>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; width: 440px;">
+      <span style="font-size: 15px; font-weight: 800; color: #1d1d1d; text-transform: uppercase; letter-spacing: -0.01em;">What changed, and why</span>
+      <div style="display: flex; flex-direction: column;">
+        <div style="display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #ebebeb;">
+          <span style="width: 104px; flex: none; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #115934;">NO TITLE BAR</span>
+          <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">Minimise, close and the &#8943; menu fade in on hover; the whole surface drags. Neither minimise nor close ever takes the widget off the screen: minimised it is a 44px chip holding the one number the resting line leads with, closed it is a 5px tab on the screen edge. An always-on-top tool has no tray to hide in, and a doctor who dismissed it mid-session would lose the queue. Recovers 28px of height and the logo's horizontal claim without losing a control.</p>
+        </div>
+        <div style="display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #ebebeb;">
+          <span style="width: 104px; flex: none; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #115934;">SIGN IN ONCE</span>
+          <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">One tick, on by default, and a footer line that states what the next launch will actually do rather than repeating the button. <em>Stay signed in</em> rather than <em>Remember me</em>, because remembering an email and never asking for a password again are different promises and only one of them is being made. A clinic tool that asks for a password at the start of every session gets left closed, so the tick is the design: sign in on the day the widget is installed and never again. <em>Sign out</em> lives in the &#8943; menu for the shared-workstation case, which is the honest trade &mdash; the risk moves to a control the doctor chooses, instead of a prompt they endure daily.</p>
+        </div>
+        <div style="display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #ebebeb;">
+          <span style="width: 104px; flex: none; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #115934;">STARTS ITSELF</span>
+          <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">A queue tool that has to be launched is a queue tool that is not running when the session starts &mdash; so startup is not a question the card asks. On first successful sign-in the installer registers Chup in the Windows startup list; the computer boots and the widget is already in the corner with the queue read. Nothing to tick, nothing to opt into, and one fewer decision on a card whose whole job is to be passed through once. Windows' own Startup Apps list is where it gets turned off, which is where a doctor's IT would look for it anyway. The sign-in card carries the same minimise and close as the panel, and they behave the same &mdash; a 44px chip, a 5px edge tab, both one click from back.</p>
+        </div>
+        <div style="display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #ebebeb;">
+          <span style="width: 104px; flex: none; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #115934;">ONE BOX, TWO JOBS</span>
+          <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">Signing in does not close a window and open another one. The card <em>is</em> the widget: 1.15 seconds on an eased curve, travelling to the corner it will live in and shrinking to the size it will be, sign-in fading out in the first quarter and the resting line arriving in the last third. It is driven by the Web Animations API rather than CSS, which is not a detail: the panel re-renders every second against the clock, and both a transition and a template-declared keyframe animation get rewritten out from under the compositor mid-flight &mdash; the first is cancelled, the second restarts from frame zero, and either way the box sits still and then jumps. An animation handed to the element belongs to the element, and finishes regardless of what renders around it. The landing blink is started the same way, from the render callback, so it cannot fire before the panel it decorates exists. Nothing appears and nothing disappears, so a doctor who has just typed a password never has to go looking for what it bought them &mdash; their eye is already on the box when it becomes the thing they will use all afternoon. It lands at exactly 216 &times; 40, twelve from each edge, and the tour opens on step one against the panel it just became. Press <em>Sign in</em> in the review row under <a href="#2a">2a</a> to watch it.</p>
+        </div>
+        <div style="display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #ebebeb;">
+          <span style="width: 104px; flex: none; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #115934;">LANDING</span>
+          <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">On contact the panel blinks three times and holds a green halo that decays over the next second and a half &mdash; long enough to say <em>this corner, this thing, from now on</em>, short enough that it is gone before the doctor's first patient matters. It fires once, on first run only. A widget that pulsed at the edge of vision during a consultation would be the exact failure the whole design is arguing against.</p>
+        </div>
+        <div style="display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #ebebeb;">
+          <span style="width: 104px; flex: none; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #a82d2d;">SOUND: DO NOT DOUBLE IT</span>
+          <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">The widget should <em>not</em> play the Alert or the long-wait sound while the Chup web app is open. Both surfaces watch the same queue, so both would fire on the same event a few hundred milliseconds apart &mdash; the doctor hears a stutter and learns to distrust it, and a doubled alert is worse than none. The rule that resolves it: <em>whichever surface is present owns the sound, and only one is ever present.</em> When the web app is open it keeps both sounds and the widget stays silent; when it is closed &mdash; which is most of the afternoon, and exactly why this widget exists &mdash; the widget takes them over unchanged. Nothing new to learn, and no clinic ever hears the same event twice. Note also that the widget can go further than the web app can: it is always visible, so <em>waited too long</em> is already being said in colour at the bottom edge. Sound is for what cannot be seen, which is why Alert &mdash; a message leaving for a patient's phone &mdash; deserves one and a slow queue mostly does not.</p>
+        </div>
+        <div style="display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #ebebeb;">
+          <span style="width: 104px; flex: none; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #115934;">FIRST-RUN SOUND</span>
+          <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">Three synthesised notes, no audio files: two falling as the card travels and shrinks, one brighter tick on contact, so the ear hears the same arc the eye does. It cannot clash with anything, because it plays once in the life of the install and only ever after the doctor pressed <em>Sign in</em>. <em>Sound on</em> in the review row silences it.</p>
+        </div>
+        <div style="display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #ebebeb;">
+          <span style="width: 104px; flex: none; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #115934;">WAIT METER</span>
+          <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">A 3px hairline: green up to twenty minutes, red for the overrun, with the unrounded figures beneath. Recognisable without reading &mdash; mostly red means this patient has been waiting far too long.</p>
+        </div>
+        <div style="display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #ebebeb;">
+          <span style="width: 104px; flex: none; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #115934;">SERVING BAND GONE</span>
+          <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">The green bar spent 26px saying what position already says. The token is now the largest element on the surface, which is the same claim made with type instead of fill.</p>
+        </div>
+        <div style="display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #ebebeb;">
+          <span style="width: 104px; flex: none; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #a82d2d;">HOLD TO CONFIRM</span>
+          <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">No-Show writes to production and marks a real person absent. A half-second hold with a fill sweep costs no pixels and no extra step for the other two actions, which stay single-click.</p>
+        </div>
+        <div style="display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #ebebeb;">
+          <span style="width: 104px; flex: none; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #115934;">SILENT UNTIL WRONG</span>
+          <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">No dot, no timestamp, no refresh. Polling only becomes visible when it fails &mdash; the offline state carries the time the queue was last read, so a stale number is never mistaken for a live one. First fetch reads <em>Reading the queue</em>, never <em>No one in the queue</em>.</p>
+        </div>
+        <div style="display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #ebebeb; border-bottom: 1px solid #ebebeb;">
+          <span style="width: 104px; flex: none; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; color: #115934;">NO ICONS</span>
+          <p style="margin: 0; font-size: 11.5px; line-height: 1.45; font-weight: 500; color: #1d1d1d; text-wrap: pretty;">The eye toggle becomes the word SHOW; the avatar circle is dropped; the tick in the size menu becomes an inverted green row. Chup has no icon set and a 152px window is the wrong place to invent one.</p>
+        </div>
+      </div>
+      <p style="margin: 4px 0 0; font-size: 11px; line-height: 1.5; font-weight: 500; color: #4f4f4f; text-wrap: pretty;">Open questions: <em>See all queue</em> is dropped from all three &mdash; if it should open the web queue rather than resize, it needs a home. Undo for No-Show is not drawn; the hold is the guard instead. And 1b and 1c go under the 260 &times; 180 clamp, which has to be lowered in the window manager first.</p>
+    </div>
+  </div>
+
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showWaitMeter&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;holdToConfirm&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;chromeAlwaysVisible&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Review&quot;}}">
+const QUEUE = [
+  { t: 'AD 123', n: 'Wan Nor Aisyah', w: 58, at: '2.45 PM', sv: 8 },
+  { t: 'AD 124', n: 'Rahman Sitompul', w: 42, at: '3.00 PM', sv: 45 },
+  { t: 'AD 126', n: 'Ahmad Abu', w: 40, at: '3.30 PM', sv: 12 },
+  { t: 'HF 024', n: 'Kawthar Falah', w: 26, at: '3.45 PM', sv: 6 },
+  { t: 'HF 025', n: 'Fatima Ameen Hani', w: 19, at: '4.00 PM', sv: 22 },
+  { t: 'HF 026', n: 'Jamaulddin Idris Khalifah Y', w: 11, at: '4.15 PM', sv: 15 },
+  { t: 'HF 027', n: 'Nurul Adlina', w: 7, at: '4.30 PM', sv: 9 },
+  { t: 'HF 028', n: 'Ridiana Kaidir', w: 6, at: '4.45 PM', sv: 31 },
+  { t: 'HF 029', n: 'Ahmad Danial', w: 4, at: '5.00 PM', sv: 5 },
+  { t: 'HF 030', n: 'Siti Zubaidah Aziz', w: 1, at: '5.15 PM', sv: 18 }
+];
+
+function shortName(n) {
+  if (n.length <= 11) return n;
+  const w = n.split(' ');
+  return w.length < 2 ? n : w[0] + ' ' + w[1][0] + '.';
+}
+const KEYS = ['a', 'b', 'c', 'd'];
+const RING = '0 0 0 1.5px #115934';
+const LIMIT = 20;
+// Default consultation length, set per clinic per doctor in Chup. The room's
+// limit is not the door's: 20 minutes waiting is a failure, 20 minutes in
+// consultation is often the job. Two meters, two thresholds, one language.
+const SERVE = 15;
+const GRACE = 5;
+const DRIFT = 4;
+const TOUR = [
+  { lab: 'Widget', t: 'Widget ini sentiasa di atas', b: 'Ia melekat di sudut skrin anda, di atas sistem hospital. Tiada apa perlu dibuka, tiada skrin perlu ditukar.', size: 'S' },
+  { lab: 'Baris utama', t: 'Baris ini pesakit seterusnya', b: 'Bukan yang sedang di dalam bilik. Nama dipendekkan, dan di sebelahnya kedudukan dia dalam sesi hari ini \u2014 ketiga daripada sepuluh.', size: 'S', hl: 'next' },
+  { lab: 'Dua nombor', t: 'Pukul berapa, dan berapa lama menunggu', b: 'Kiri: waktu temu janji dia. Kanan: sudah berapa minit dia menunggu. Beza antara dua ini kelewatan anda.', size: 'S', hl: 'next' },
+  { lab: 'Garis bawah', t: 'Garis bawah itu penantian dia', b: 'Hijau selagi penantian bawah 20 minit. Merah setiap minit selepas itu. Jika merahnya panjang, ada masalah.', size: 'S', hl: 'meter' },
+  { lab: 'NOW', t: 'Hala kursor ke panel untuk lihat NOW', b: 'Pesakit yang sedang diperiksa: nama penuh, token, dan sudah berapa minit dia di dalam bilik. Garis di bawahnya mengikut tempoh konsultasi lalai klinik anda \u2014 hijau selagi dalam tempoh, merah selepas itu.', size: 'S', open: true, hl: 'now' },
+  { lab: 'Alert', t: 'Alert memanggil pesakit seterusnya', b: 'Tekan sekali sahaja. Loceng berbunyi tanda WhatsApp sudah dihantar. Tiada notifikasi lain perlu ditutup.', size: 'S', act: 'alert', hl: 'act' },
+  { lab: 'End Visit', t: 'Selepas itu ia jadi End Visit', b: 'Apabila pesakit masuk, tekan End Visit untuk tamatkan lawatan dan naikkan queue. Baris tadi mula kira minit sejak dipanggil \u2014 hijau sehingga lima minit, selepas itu merah.', size: 'S', act: 'called', hl: 'act' },
+  { lab: 'No-Show', t: 'No-Show apabila pesakit tidak muncul', b: 'Ia tersembunyi dalam reveal, bukan di depan. Tahan butang, jangan ketik \u2014 sekali tertekan tiada undo.', size: 'S', act: 'called', open: true, hl: 'noshow' },
+  { lab: 'Senarai', t: 'Medium dan Large tunjuk senarai', b: 'Empat orang seterusnya, atau seluruh sesi. Setiap baris: waktu temu janji, token, nama penuh, minit menunggu. Yang merah sudah menunggu lebih 20 minit.', size: 'L', hl: 'list' },
+  { lab: 'Kawalan', t: 'Lima kawalan dalam reveal', b: 'Grip untuk mengalihkan widget, anak panah untuk buka queue penuh dalam Chup, kemudian saiz dan Help, Sign out, minimise, close. Minimise mengecilkan widget kepada satu nombor; close meninggalkan tab nipis di tepi skrin \u2014 klik untuk buka semula.', size: 'L', open: true, hl: 'ctl' },
+  { lab: 'Selepas itu', t: 'Itu sahaja', b: 'Tiga baris ini muncul sendiri apabila perlu: reading the queue semasa mula-mula dibuka, no one in the queue apabila sesi sudah habis, dan cannot reach Chup jika sambungan terputus.', size: 'L', done: true }
+];
+
+class Component extends DCLogic {
+  state = {
+    idx: { a: 1, b: 1, c: 1, d: 1 },
+    act: { a: 'alert', b: 'alert', c: 'alert', d: 'alert' },
+    size: { a: 'S', b: 'S', c: 'S', d: 'S' },
+    data: { a: 'serving', b: 'serving', c: 'serving', d: 'serving' },
+    menu: null, hover: null, hold: null, pct: 0, btn: null, ring: null,
+    pw: false, sign: 'idle', signWin: 'live', rem: true,
+    boot: 'live', bootBusy: false, mute: false,
+    pos: { r: 12, b: 12 }, dragging: false, tour: 0,
+    tick: 0,
+    svAt: { a: -12, b: -12, c: -12, d: -12 },
+    calledAt: { a: null, b: null, c: null, d: null },
+    offAt: { a: 0, b: 0, c: 0, d: 0 },
+    win: { a: 'live', b: 'live', c: 'live', d: 'live' }
+  };
+
+  // One clock drives every duration in the panel: minutes waited, time served,
+  // minutes since a call, and how stale the last poll is. 2s = 1 minute so the
+  // behaviour is watchable in the mock; ship it at 60s.
+  componentDidMount() {
+    this._tick = setInterval(() => this.setState(s => ({ tick: s.tick + 1 })), 2000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._t); clearTimeout(this._s); clearTimeout(this._r); clearInterval(this._tick);
+    (this._b || []).forEach(clearTimeout);
+    window.removeEventListener('mousemove', this._mm);
+    window.removeEventListener('mouseup', this._mu);
+  }
+
+  panelRef = React.createRef();
+  morphRef = React.createRef();
+  morphSignRef = React.createRef();
+  morphLineRef = React.createRef();
+
+  // The Web Animations API, not CSS. This component re-renders every second
+  // against the clock, and a template-driven `animation:` restarts from frame
+  // zero on every render — the box sits still, then jumps. An animation owned
+  // by the element survives re-render untouched.
+  play(ref, frames, opts) {
+    const el = ref.current;
+    if (!el || !el.animate) return null;
+    try { return el.animate(frames, opts); } catch (e) { return null; }
+  }
+
+  _mm = e => {
+    const d = this._drag;
+    if (!d || !this.panelRef.current) return;
+    // Reserve the reveal's height so the panel can never park where NOW,
+    // the window controls and the size menu would open into clipped space.
+    const s = this.state;
+    const open = this.props.chromeAlwaysVisible === true
+      || ((s.hover === 'd' && !s.btn) || s.menu === 'd');
+    const h = this.panelRef.current.offsetHeight + (open ? 0 : 112), W = 518, H = 446;
+    const r = Math.max(0, Math.min(W - 216, d.r - (e.clientX - d.x)));
+    const b = Math.max(0, Math.min(H - h, d.b - (e.clientY - d.y)));
+    this.setState({ pos: { r: r, b: b } });
+  };
+
+  _mu = () => {
+    this._drag = null;
+    this.setState({ dragging: false });
+    window.removeEventListener('mousemove', this._mm);
+    window.removeEventListener('mouseup', this._mu);
+  };
+
+  menuFlips() {
+    const el = this.panelRef.current;
+    if (!el) return false;
+    return 446 - this.state.pos.b - el.offsetHeight < 140;
+  }
+
+  startDrag(e) {
+    this._drag = { x: e.clientX, y: e.clientY, r: this.state.pos.r, b: this.state.pos.b };
+    this.setState({ dragging: true });
+    window.addEventListener('mousemove', this._mm);
+    window.addEventListener('mouseup', this._mu);
+    e.preventDefault();
+  }
+
+  alertPress(k) {
+    if (this.state.ring) return;
+    clearTimeout(this._r);
+    this.setState({ ring: k });
+    this._r = setTimeout(() => { this.setState({ ring: null }); this.startCalled(k); }, 900);
+  }
+
+  set(field, k, v) { this.setState(s => ({ [field]: Object.assign({}, s[field], { [k]: v }) })); }
+
+  // Two short synthesised tones — no asset files, and nothing plays unless the
+  // doctor pressed something. Both belong to first run only; the operational
+  // sounds stay with the web app so a queue event is never announced twice.
+  tone(freq, at, dur, gain) {
+    try {
+      if (this.state.mute) return;
+      const A = window.AudioContext || window.webkitAudioContext;
+      if (!A) return;
+      this._ac = this._ac || new A();
+      const t = this._ac.currentTime + at;
+      const o = this._ac.createOscillator(), g = this._ac.createGain();
+      o.type = 'sine'; o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(gain, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(this._ac.destination);
+      o.start(t); o.stop(t + dur + 0.02);
+    } catch (e) {}
+  }
+
+  // Three blinks on contact, then a halo that decays for a second and a half.
+  // Started from the setState callback so the panel is guaranteed mounted.
+  blink() {
+    const R = '0 0 0 3px rgba(17,89,52,0.55), 0 0 20px 5px rgba(17,89,52,0.32)';
+    const G = o => '0 0 0 0 rgba(17,89,52,0), 0 0 20px 5px rgba(17,89,52,' + o + ')';
+    this._blinkA = this.play(this.panelRef, [
+      { boxShadow: R, offset: 0 },    { boxShadow: G(0.30), offset: 0.10 },
+      { boxShadow: R, offset: 0.20 }, { boxShadow: G(0.26), offset: 0.30 },
+      { boxShadow: R, offset: 0.40 }, { boxShadow: G(0.22), offset: 0.50 },
+      { boxShadow: '0 0 0 0 rgba(17,89,52,0), 0 0 0 0 rgba(17,89,52,0)', offset: 1 }
+    ], { duration: 2600, easing: 'ease-out' });
+  }
+
+  runBoot() {
+    if (this.state.bootBusy || this.state.boot !== 'signin') return;
+    this.setState({ bootBusy: true });
+    // Travelling: two soft notes falling as the card shrinks. Landing: one
+    // brighter tick on contact, so the ear hears the same arc as the eye.
+    this.tone(523.25, 0.58, 0.18, 0.055);
+    this.tone(392.00, 1.04, 0.22, 0.050);
+    this.tone(783.99, 1.70, 0.28, 0.045);
+    this._b = [
+      setTimeout(() => this.setState({ boot: 'fly', bootBusy: false }), 460),
+      setTimeout(() => {
+        const D = 1150, E = 'cubic-bezier(0.45, 0.05, 0.2, 1)';
+        this.play(this.morphRef, [
+          { left: '130px', top: '102px', width: '260px', height: '271px', boxShadow: '0 14px 34px rgba(0,0,0,0.15)' },
+          { left: '292px', top: '396px', width: '216px', height: '40px', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }
+        ], { duration: D, easing: E, fill: 'both' });
+        this.play(this.morphSignRef, [
+          { opacity: 1, offset: 0 }, { opacity: 0, offset: 0.28 }, { opacity: 0, offset: 1 }
+        ], { duration: D, fill: 'both' });
+        this.play(this.morphLineRef, [
+          { opacity: 0, offset: 0 }, { opacity: 0, offset: 0.42 }, { opacity: 1, offset: 0.82 }, { opacity: 1, offset: 1 }
+        ], { duration: D, fill: 'both' });
+      }, 530),
+      setTimeout(() => this.setState(s => ({
+        boot: 'live', menu: null, hover: null, btn: null,
+        pos: { r: 12, b: 12 }, win: Object.assign({}, s.win, { d: 'live' })
+      }), () => this.blink()), 1700),
+      // The tour waits for the first blink. Arrive, then explain.
+      setTimeout(() => this.setState({ tour: 1 }), 2560)
+    ];
+  }
+
+  replayBoot() {
+    (this._b || []).forEach(clearTimeout);
+    this.setState(s => ({
+      boot: 'signin', bootBusy: false, tour: 0, menu: null, hover: null,
+      btn: null, pos: { r: 12, b: 12 }, size: Object.assign({}, s.size, { d: 'S' }),
+      win: Object.assign({}, s.win, { d: 'live' })
+    }));
+  }
+
+  startCalled(k) {
+    this.set('act', k, 'called');
+    this.set('calledAt', k, this.state.tick);
+  }
+
+  stopCalled(k) { this.set('calledAt', k, null); }
+
+  advance(k) {
+    this.setState(s => ({
+      calledAt: Object.assign({}, s.calledAt, { [k]: null }),
+      svAt: Object.assign({}, s.svAt, { [k]: s.tick }),
+      idx: Object.assign({}, s.idx, { [k]: (s.idx[k] + 1) % QUEUE.length }),
+      act: Object.assign({}, s.act, { [k]: 'alert' })
+    }));
+  }
+
+  holdStart(k) {
+    if (this.props.holdToConfirm === false) { this.advance(k); return; }
+    clearInterval(this._t);
+    const t0 = Date.now();
+    this.setState({ hold: k, pct: 0 });
+    this._t = setInterval(() => {
+      const p = Math.min(100, (Date.now() - t0) / 550 * 100);
+      if (p >= 100) { clearInterval(this._t); this.setState({ hold: null, pct: 0 }); this.advance(k); }
+      else this.setState({ pct: p });
+    }, 30);
+  }
+
+  holdEnd() { clearInterval(this._t); this.setState({ hold: null, pct: 0 }); }
+
+  doSign(outcome) {
+    if (this.state.sign === 'busy') return;
+    this.setState({ sign: 'busy' });
+    clearTimeout(this._s);
+    this._s = setTimeout(() => this.setState({ sign: outcome }), 780);
+  }
+
+  renderVals() {
+    const chromeAlways = this.props.chromeAlwaysVisible === true;
+    const v = {
+      meterOn: this.props.showWaitMeter !== false,
+      holdHint: this.props.holdToConfirm !== false,
+      pwType: this.state.pw ? 'text' : 'password',
+      pwLabel: this.state.pw ? 'HIDE' : 'SHOW',
+      signLabel: this.state.sign === 'busy' ? 'Signing in\u2026' : 'Sign in',
+      signErr: this.state.sign === 'error',
+      signDone: this.state.sign === 'done',
+      signForm: this.state.sign !== 'done',
+      onSign: () => this.doSign('done'),
+      failSign: () => { this.setState({ sign: 'idle' }); setTimeout(() => this.doSign('error'), 20); },
+      togglePw: () => this.setState({ pw: !this.state.pw }),
+      resetSign: () => this.setState({ sign: 'idle', pw: false, signWin: 'live' }),
+      replayBoot: () => this.replayBoot(),
+      toggleMute: () => this.setState({ mute: !this.state.mute }),
+      muteLabel: this.state.mute ? 'SOUND OFF' : 'SOUND ON',
+      signLive: this.state.signWin === 'live',
+      signMini: this.state.signWin === 'mini',
+      signShut: this.state.signWin === 'shut',
+      signMiniOn: () => this.setState({ signWin: 'mini' }),
+      signShutOn: () => this.setState({ signWin: 'shut' }),
+      signRestore: () => this.setState({ signWin: 'live' }),
+      toggleRem: () => this.setState({ rem: !this.state.rem }),
+      remBd: this.state.rem ? '#115934' : '#cfd1d4',
+      remBg: this.state.rem ? '#115934' : '#ffffff',
+      remOp: this.state.rem ? 1 : 0,
+      // Startup is not a choice on this card — the installer registers the
+      // widget with Windows on first sign-in. The footer only has to say what
+      // the next boot does, which is the part the doctor cares about.
+      signFoot: this.state.rem
+        ? 'Opens straight to your queue when this computer starts'
+        : 'Opens when this computer starts, and asks for your password'
+    };
+    KEYS.forEach(k => {
+      const K = k.toUpperCase();
+      const i = this.state.idx[k], p = QUEUE[i];
+      const T = (k === 'd' && this.state.tour) ? TOUR[this.state.tour - 1] : null;
+      const act = (T && T.act) ? T.act : this.state.act[k];
+      const size = T ? T.size : this.state.size[k];
+      const d = T ? 'serving' : this.state.data[k];
+      const n = k === 'd'
+        ? (size === 'S' ? 0 : (size === 'M' ? 4 : 8))
+        : (size === 'S' ? (k === 'b' ? 1 : 0) : (size === 'M' ? 4 : 8));
+      const tick = this.state.tick;
+      // Seeded waits drift for DRIFT minutes and then hold. The mock is a
+      // moment in a session, not a simulation of an afternoon: without the cap
+      // every row eventually passes the 20-minute limit and the red/green signal
+      // the whole design rests on saturates. Durations that reset on their own
+      // — time served, minutes since a call, staleness — run uncapped.
+      const drift = Math.min(tick, DRIFT);
+      const up = [];
+      const j0 = 1;
+      for (let j = j0; j < j0 + n && (k !== 'd' || i + j < QUEUE.length); j++) {
+        const q = QUEUE[(i + j) % QUEUE.length];
+        const qw = q.w + drift;
+        up.push({
+          t: q.t, n: q.n, first: q.n.split(' ')[0], nshort: shortName(q.n),
+          wt: qw + ' / ' + LIMIT, wshort: qw + 'M', at: q.at,
+          atShort: q.at.replace(/\s*(AM|PM)$/i, ''),
+          nwt: j === j0 ? 700 : 500, nop: j === j0 ? 1 : 0.72,
+          wcol: qw > LIMIT ? '#e03127' : '#4f4f4f'
+        });
+      }
+      const pw = p.w + drift;
+      // Serving is capped exactly like the waits, and for the same reason: the
+      // mock is a moment in a session. It opens inside the clinic default,
+      // crosses it while the reviewer watches, then holds a minute over.
+      // Uncapped it read as a three-hour consultation and the green half of
+      // the meter — the state the two-threshold argument rests on — was never
+      // reachable. Ending a visit reseeds it to zero, so a fresh room climbs.
+      const sv = Math.min(Math.max(0, tick - this.state.svAt[k]), SERVE + 1);
+      const tot = Math.max(pw, LIMIT) || 1;
+      const svTot = Math.max(sv, SERVE) || 1;
+      const nx = QUEUE[(i + 1) % QUEUE.length];
+      const nxw = nx.w + drift;
+      const nTot = Math.max(nxw, LIMIT) || 1;
+      // While a patient is called, the bottom edge stops tracking their wait
+      // and tracks the grace window instead — the thing now being waited on.
+      const cm = (T && T.act === 'called') ? 4
+        : (this.state.calledAt[k] === null ? 0 : tick - this.state.calledAt[k]);
+      const cTot = Math.max(cm, GRACE) || 1;
+      const called = act === 'called';
+      const win = (T ? 'live' : this.state.win[k]);
+      // Only the redesign panel has a first run in front of it.
+      const bootOk = k !== 'd' || this.state.boot === 'live';
+      const gN = called ? Math.min(cm, GRACE) / cTot * 100 : Math.min(nxw, LIMIT) / nTot * 100;
+      const rN = called ? Math.max(0, cm - GRACE) / cTot * 100 : Math.max(0, nxw - LIMIT) / nTot * 100;
+      const onBtn = this.state.btn === k;
+      const isOpen = T ? !!T.open
+        : (chromeAlways || ((this.state.hover === k && !onBtn) || this.state.menu === k));
+      Object.assign(v, {
+        ['hlNext' + K]: (T && T.hl === 'next') ? RING : 'none',
+        ['hlMeter' + K]: (T && T.hl === 'meter') ? RING : 'none',
+        ['hlAct' + K]: (T && T.hl === 'act') ? RING : 'none',
+        ['hlNow' + K]: (T && T.hl === 'now') ? RING : 'none',
+        ['hlList' + K]: (T && T.hl === 'list') ? RING : 'none',
+        ['hlCtl' + K]: (T && T.hl === 'ctl') ? RING : 'none',
+        ['tourOn' + K]: !!T,
+        ['tourStepsOn' + K]: !!T && !T.done,
+        ['tourNo' + K]: T ? ('0' + this.state.tour).slice(-2) : '',
+        ['tourTitle' + K]: T ? T.t : '',
+        ['tourBody' + K]: T ? T.b : '',
+        ['tourDots' + K]: TOUR.slice(0, 10).map((x, ix) => ({ c: ix < this.state.tour ? '#115934' : '#ebebeb' })),
+        ['tourBack' + K]: this.state.tour > 1,
+        ['tourNextLabel' + K]: (T && T.done) ? 'SELESAI' : 'LANJUT',
+        ['tourStart' + K]: () => this.setState(s => ({ tour: 1, menu: null, hover: null, btn: null, pos: { r: 12, b: 12 }, win: Object.assign({}, s.win, { d: 'live' }) })),
+        ['tourNext' + K]: () => this.setState(s => ({ tour: s.tour >= TOUR.length ? 0 : s.tour + 1 })),
+        ['tourPrev' + K]: () => this.setState(s => ({ tour: Math.max(1, s.tour - 1) })),
+        ['tourSkip' + K]: () => this.setState({ tour: 0 }),
+        ['tourSpec' + K]: TOUR.map((x, ix) => ({
+          no: ix === TOUR.length - 1 ? '\u2014' : ('0' + (ix + 1)).slice(-2),
+          lab: x.lab.toUpperCase(), t: x.t, b: x.b
+        })),
+        ['rad' + K]: (!isOpen && size === 'S') ? '7px' : '0px',
+        ['rowsH' + K]: size === 'M' ? '88px' : '168px',
+        ['pos' + K]: (i + 1) + '/' + QUEUE.length,
+        ['at' + K]: p.at,
+        ['short' + K]: shortName(p.n),
+        ['waiPast' + K]: pw + ' MINS WAITED',
+        ['readAgo' + K]: 'LAST READ ' + Math.max(0, tick - this.state.offAt[k]) + 'M AGO',
+        ['nxtNam' + K]: shortName(nx.n),
+        ['nxtFull' + K]: nx.n,
+        ['serv' + K]: 'SERVING ' + sv + ' MINS',
+        ['servShort' + K]: 'SERVING ' + sv + 'M',
+        ['svGw' + K]: (Math.min(sv, SERVE) / svTot * 100).toFixed(1) + '%',
+        ['svRw' + K]: (Math.max(0, sv - SERVE) / svTot * 100).toFixed(1) + '%',
+        ['svCol' + K]: sv > SERVE ? '#e03127' : '#4f4f4f',
+        ['nxtPos' + K]: (((i + 1) % QUEUE.length) + 1) + '/' + QUEUE.length,
+        ['gwN' + K]: gN.toFixed(1) + '%',
+        ['rwN' + K]: rN.toFixed(1) + '%',
+        ['nxtAt' + K]: nx.at,
+        ['nxtWait' + K]: nxw + ' MINS WAITING',
+        ['nxtWaitShort' + K]: nxw + 'M WAITING',
+        ['waiPastShort' + K]: pw + 'M WAITED',
+        ['plain' + K]: !onBtn,
+        ['plainAlert' + K]: !onBtn && act !== 'called',
+        ['plainCalled' + K]: !onBtn && act === 'called',
+        ['isCalled' + K]: act === 'called',
+        ['revLabel' + K]: d === 'serving' ? 'NOW' : 'CHUP',
+        // Minimise and close. Neither ever removes the widget from the screen:
+        // minimised it is the one number the resting line leads with, closed it
+        // is a 5px tab on the edge. An always-on-top tool has no tray to hide in.
+        ['live' + K]: win === 'live' && bootOk,
+        ['miniOff' + K]: win === 'mini' && bootOk,
+        ['shutOff' + K]: win === 'shut' && bootOk,
+        // The sign-in card and the resting widget are the same box. It travels
+        // to the corner it will live in and shrinks to the size it will be,
+        // so the doctor never has to find the thing they just signed into.
+        ['bootCard' + K]: !bootOk,
+        ['bootSign' + K]: () => this.runBoot(),
+        ['bootLabel' + K]: this.state.bootBusy ? 'Signing in\u2026' : 'Sign in',
+        ['morphRef' + K]: this.morphRef,
+        ['morphSignRef' + K]: this.morphSignRef,
+        ['morphLineRef' + K]: this.morphLineRef,
+        ['miniOn' + K]: () => this.set('win', k, 'mini'),
+        ['shutOn' + K]: () => this.set('win', k, 'shut'),
+        ['restore' + K]: () => this.set('win', k, 'live'),
+        ['miniNum' + K]: called ? cm : nxw,
+        ['miniCol' + K]: called ? (cm > GRACE ? '#e03127' : '#115934') : (nxw > LIMIT ? '#e03127' : '#115934'),
+        ['miniLab' + K]: called ? 'CALLED' : 'WAITED',
+        // The size menu needs ~136px of headroom. Near the top of the screen
+        // there isn't any, so it flips below the panel rather than clipping.
+        ['menuBot' + K]: this.menuFlips() ? 'auto' : 'calc(100% + 4px)',
+        ['menuTop' + K]: this.menuFlips() ? 'calc(100% + 4px)' : 'auto',
+        ['stateH' + K]: size === 'S' ? '38px' : (size === 'M' ? '126px' : '206px'),
+        ['calledAgo' + K]: 'CALLED ' + cm + 'M',
+        ['calledCol' + K]: cm > GRACE ? '#e03127' : '#115934',
+        ['nsLeave' + K]: () => this.holdEnd(),
+        ['hlNoShow' + K]: (T && T.hl === 'noshow') ? RING : 'none',
+        ['prevAlert' + K]: onBtn && act === 'alert',
+        ['prevNo' + K]: onBtn && act === 'noshow',
+        ['prevEnd' + K]: onBtn && (act === 'end' || act === 'called'),
+        ['btnEnter' + K]: () => { if (this._drag) return; this.setState({ btn: k }); },
+        ['btnLeave' + K]: () => this.setState(s => ({ btn: s.btn === k ? null : s.btn })),
+        ['noLeave' + K]: () => { this.holdEnd(); this.setState(s => ({ btn: s.btn === k ? null : s.btn })); },
+        ['tok' + K]: p.t,
+        ['nam' + K]: p.n,
+        ['wai' + K]: pw + ' MIN',
+        ['wsh' + K]: pw + '/' + LIMIT,
+        ['nxt' + K]: QUEUE[(i + 1) % QUEUE.length].t,
+        ['exp' + K]: LIMIT + ' TARGET',
+        ['gw' + K]: (Math.min(pw, LIMIT) / tot * 100).toFixed(1) + '%',
+        ['rw' + K]: (Math.max(0, pw - LIMIT) / tot * 100).toFixed(1) + '%',
+        ['wcol' + K]: pw > LIMIT ? '#e03127' : '#115934',
+        ['cnt' + K]: Math.max(0, QUEUE.length - 1 - i) + ' WAITING',
+        ['up' + K]: up,
+        ['hasUp' + K]: k === 'd' ? size !== 'S' : up.length > 0,
+        ['endMark' + K]: k === 'd' && size !== 'S' && up.length < n,
+        ['serving' + K]: d === 'serving',
+        ['empty' + K]: d === 'empty',
+        ['offline' + K]: d === 'offline',
+        ['loading' + K]: d === 'loading',
+        ['isAlert' + K]: act === 'alert',
+        ['isNo' + K]: act === 'noshow',
+        ['isEnd' + K]: act === 'end',
+        ['chrome' + K]: (chromeAlways || this.state.hover === k || this.state.menu === k) ? 1 : 0,
+        ['sliv' + K]: size === 'S',
+        ['strip' + K]: size !== 'S',
+        ['open' + K]: isOpen,
+        ['menuOpen' + K]: this.state.menu === k,
+        ['isS' + K]: size === 'S', ['notS' + K]: size !== 'S',
+        ['isM' + K]: size === 'M', ['notM' + K]: size !== 'M',
+        ['isL' + K]: size === 'L', ['notL' + K]: size !== 'L',
+        ['pct' + K]: (this.state.hold === k ? this.state.pct : 0) + '%',
+        ['onAlert' + K]: k === 'd' ? () => this.alertPress(k) : () => this.set('act', k, 'noshow'),
+        ['ringing' + K]: this.state.ring === k,
+        ['bell' + K]: onBtn && this.state.ring !== k,
+        ['word' + K]: !onBtn && this.state.ring !== k,
+        ['onEnd' + K]: () => this.advance(k),
+        ['hs' + K]: () => this.holdStart(k),
+        ['he' + K]: () => this.holdEnd(),
+        ['enter' + K]: () => this.setState({ hover: k }),
+        ['leave' + K]: () => { if (this._drag) return; this.setState(s => ({ hover: s.hover === k ? null : s.hover })); },
+        ['dragStart' + K]: e => this.startDrag(e),
+        ['rgt' + K]: this.state.pos.r + 'px',
+        ['bot' + K]: this.state.pos.b + 'px',
+        ['cur' + K]: this.state.dragging ? 'grabbing' : 'grab',
+        ['panelRef' + K]: this.panelRef,
+        ['toggleMenu' + K]: () => this.setState(s => ({ menu: s.menu === k ? null : k })),
+        ['setS' + K]: () => { this.set('size', k, 'S'); this.setState({ menu: null }); },
+        ['setM' + K]: () => { this.set('size', k, 'M'); this.setState({ menu: null }); },
+        ['setL' + K]: () => { this.set('size', k, 'L'); this.setState({ menu: null }); },
+        ['actA' + K]: () => { this.stopCalled(k); this.set('act', k, 'alert'); },
+        ['actN' + K]: () => k === 'd' ? this.startCalled(k) : this.set('act', k, 'noshow'),
+        ['actE' + K]: () => this.set('act', k, 'end'),
+        ['dS' + K]: () => this.set('data', k, 'serving'),
+        ['dE' + K]: () => this.set('data', k, 'empty'),
+        ['dO' + K]: () => { this.set('offAt', k, this.state.tick); this.set('data', k, 'offline'); },
+        ['dL' + K]: () => this.set('data', k, 'loading')
+      });
+    });
+    return v;
+  }
+}
+
+</script>
+</body>
+</html>
