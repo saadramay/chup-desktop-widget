@@ -130,8 +130,11 @@ action band, separated by a 1px `#ebebeb` border, radius 7px 7px 0 0.
 
 - Header row: label `NOW` 10px/800 `#115934` (or `CHUP` when there is no
   consultation), then the control cluster right-aligned.
-- Patient's **full name, unabbreviated**, 19px/700, wrapping to as many lines as
-  it needs. Only the resting line shortens names.
+- Patient's **full name, unabbreviated**, 19px/700, on **one line** with an ellipsis
+  (`maxLines: 1`). Only the resting line shortens names. The spec called for wrapping to as
+  many lines as it needs; the window's height is fixed by `kRevealHeight`, so a wrapped name
+  pushed NO-SHOW off the bottom of the panel — a three-line name measured 42px past it. One
+  line is the delivered behaviour.
 - Token `AD 126` 15px/800 `#0c6e3c`, position `3/10` 12px/800 `#4f4f4f`,
   `· SERVING 12M` 12px/800 — `#4f4f4f` under `SERVE`, `#e03127` over.
 - **2px serving meter** beneath, green to `SERVE`, red beyond.

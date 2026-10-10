@@ -117,7 +117,11 @@ void main() {
 
   /// Pumps the real shell at the exact window size `applyWindowGeometry`
   /// would ask for: `size.height + kRevealHeight`.
-  Future<void> pumpTallestReveal(WidgetTester tester, WidgetSize size) async {
+  Future<void> pumpTallestReveal(
+    WidgetTester tester,
+    WidgetSize size, {
+    String servingName = 'Ahmad Abu Ibrahim',
+  }) async {
     final c = _PanelHost();
     Get.put<QueueController>(c);
     c.size.value = size;
@@ -130,7 +134,7 @@ void main() {
 
     // Somebody in the room …
     c.serving.value = _visit(
-      name: 'Ahmad Abu Ibrahim',
+      name: servingName,
       state: 'SERVING',
       startedAt: DateTime(2026, 8, 1, 15, 30),
     );
@@ -165,13 +169,16 @@ void main() {
     await tester.pump();
   }
 
+  /// The reveal can only be measured in real font metrics; with flutter_test's
+  /// placeholder face it would pass on a broken constant.
+  void requireSegoe() => expect(segouiLoaded, isTrue,
+      reason: 'Segoe UI is needed to measure the reveal. This is a '
+          'Windows-only widget; install Segoe UI or run it on Windows.');
+
   for (final size in WidgetSize.values) {
     testWidgets('the tallest reveal fits at kRevealHeight (${size.name})',
         (tester) async {
-      expect(segouiLoaded, isTrue,
-          reason: 'Segoe UI is needed to measure the reveal. It is a '
-              'Windows-only widget; install Segoe UI or run this on Windows.');
-      if (!segouiLoaded) return;
+      requireSegoe();
 
       await pumpTallestReveal(tester, size);
 
@@ -181,4 +188,19 @@ void main() {
               '${size.height} + $kRevealHeight.');
     });
   }
+
+  testWidgets('a name too long for one line does not push NO-SHOW off',
+      (tester) async {
+    requireSegoe();
+
+    // Three lines if it were allowed to wrap — 42px past the bottom of the
+    // panel before the name was given maxLines.
+    await pumpTallestReveal(tester, WidgetSize.small,
+        servingName: 'Nurul Binti Abdul Rahman Al-Hafiz ibn Yusof Kamaruddin');
+
+    expect(tester.takeException(), isNull,
+        reason: 'the reveal name must stay on one line: the reveal height is '
+            'fixed by the window, so every extra line pushes the NO-SHOW '
+            'button off the bottom of the panel.');
+  });
 }

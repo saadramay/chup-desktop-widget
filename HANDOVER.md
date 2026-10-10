@@ -17,7 +17,7 @@ Lives here because its backend is this repo; it is otherwise a self-contained ap
 
 The app is **built and running**. The redesign (216×40 sliver, hover reveal, hold-to-confirm
 No-Show, three sizes, four data states, minimised chip, closed edge tab) is implemented.
-`flutter analyze` is clean and 23 tests pass.
+`flutter analyze` is clean and 24 tests pass.
 
 Two fixes worth knowing about, both guarded by tests:
 
@@ -31,6 +31,10 @@ Two fixes worth knowing about, both guarded by tests:
   **END VISIT** — the button that is never held — constructed its controller while being
   torn down and threw "Looking up a deactivated widget's ancestor is unsafe".
   `test/action_button_dispose_test.dart` covers it.
+- The reveal's patient name is `maxLines: 1` with an ellipsis. The reveal's height is fixed
+  by the window, so a name that wrapped pushed the NO-SHOW button off the bottom — measured
+  42px past it for a three-line name. The resting line has always shortened names; this
+  means the reveal ellipsises too once the name is wider than the panel.
 
 Verified against staging: sign-in through `user/auth/widget-login`, and both queue reads.
 Not yet verified end-to-end: the three actions, because staging's queue has been empty. That
@@ -73,12 +77,6 @@ made in CI — Smart App Control blocks Flutter's unsigned AOT compiler locally.
 
 ## Still open
 
-- **A long patient name overflows the reveal.** The big name in `_Reveal` has no `maxLines`,
-  so it wraps and the NO-SHOW button is pushed past the panel — measured 42px over at
-  `kRevealHeight = 118` for a three-line name (a two-line name is ~21px over). No fix
-  applied, because each option is a design call: ellipsise the reveal name (which
-  contradicts "full name, unabbreviated"), allow two lines and pay ~21px of permanent
-  window height for everyone, or measure the content and resize the window to suit.
 - The 1150ms sign-in → widget morph and landing blink
 - The ten-step first-run tour in Bahasa Malaysia (script is in the `.dc.html`)
 - Sound coordination with the web app (local IPC — only one surface may own the sound)

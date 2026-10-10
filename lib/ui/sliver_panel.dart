@@ -298,9 +298,15 @@ class _Reveal extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             if (s != null) ...[
-              // Full name, unabbreviated — only the resting line shortens.
+              // Full name — only the resting line shortens. One line, though:
+              // the reveal's height is fixed, so a name that wrapped to two
+              // lines would push the NO-SHOW button off the bottom of the
+              // panel (measured: 42px past it for a three-line name).
               Text(s.clientName,
-                  style: t(19, FontWeight.w700, height: 1.1, spacing: -0.19)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style:
+                      t(19, FontWeight.w700, height: 1.1, spacing: -0.19)),
               const SizedBox(height: 3),
               Row(
                 children: [
