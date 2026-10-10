@@ -5,7 +5,13 @@ import 'package:screen_retriever/screen_retriever.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// Height the hover reveal needs above the action band.
-const double kRevealHeight = 112;
+///
+/// Measured, not guessed: the tallest reveal (someone in the room AND someone
+/// called, so the NO-SHOW hold button is showing) needs 116px inside the
+/// shell's 1px border, and the shell's border takes 2 more. At 112 the reveal
+/// clipped the NO-SHOW button by exactly 6px — 118 is the smallest whole
+/// number that fits. Guarded by test/reveal_height_test.dart.
+const double kRevealHeight = 118;
 
 /// Resting distance from the right and bottom screen edges.
 const double kEdgeInset = 12;

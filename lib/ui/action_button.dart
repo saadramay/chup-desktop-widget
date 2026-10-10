@@ -36,21 +36,36 @@ class _ActionButtonState extends State<ActionButton>
     with TickerProviderStateMixin {
   static const _holdDuration = Duration(milliseconds: 550);
 
-  late final AnimationController _hold = AnimationController(
-    vsync: this,
-    duration: _holdDuration,
-  )..addStatusListener((s) {
-      if (s == AnimationStatus.completed) {
-        widget.onFire();
-        _hold.reset();
-      }
-    });
+  /// Built in [initState], never lazily.
+  ///
+  /// A `late final` field initialised at its declaration is only realised the
+  /// first time it is read — and `dispose()` reads them. So a button that was
+  /// never held (END VISIT: no one has been alerted) would construct its
+  /// AnimationController *during* dispose, which calls
+  /// `TickerProviderStateMixin.createTicker` on an already-deactivated element
+  /// and throws "Looking up a deactivated widget's ancestor is unsafe."
+  late final AnimationController _hold;
+  late final AnimationController _bell;
 
-  // The bell rings in place of a toast: nothing to read, nothing to dismiss.
-  late final AnimationController _bell = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 900),
-  );
+  @override
+  void initState() {
+    super.initState();
+    _hold = AnimationController(
+      vsync: this,
+      duration: _holdDuration,
+    )..addStatusListener((s) {
+        if (s == AnimationStatus.completed) {
+          widget.onFire();
+          _hold.reset();
+        }
+      });
+
+    // The bell rings in place of a toast: nothing to read, nothing to dismiss.
+    _bell = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+  }
 
   bool _hovered = false;
   bool _pressed = false;
