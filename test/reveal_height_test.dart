@@ -1,14 +1,12 @@
-import 'dart:io';
-
 import 'package:chup_widget/core/queue_controller.dart';
 import 'package:chup_widget/core/visit.dart';
 import 'package:chup_widget/core/window_anchor.dart';
 import 'package:chup_widget/ui/shell.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+
+import 'panel_harness.dart';
 
 // The reveal's height is not a round number anyone picked — it is however
 // much the tallest reveal needs, plus the shell's 1px border on each edge.
@@ -22,95 +20,13 @@ import 'package:get_storage/get_storage.dart';
 // metrics — with flutter_test's default square placeholder font the text is a
 // different height and the test would pass on a broken constant.
 
-/// The panel controller with everything that outlives a frame switched off.
-class _PanelHost extends QueueController {
-  /// Deliberately empty: the real `onInit` starts two periodic timers and
-  /// kicks off a poll at a backend. Neither belongs in a layout test — the
-  /// timers outlive the frame and the poll has nothing to reach.
-  @override
-  // ignore: must_call_super
-  void onInit() {}
-
-  /// The real one reaches for `screen_retriever` and `window_manager`, neither
-  /// of which exists on a test host. The window size is exercised by pumping at
-  /// `size.height + kRevealHeight`, which is exactly what it asks for.
-  @override
-  Future<void> applyWindowGeometry() async {}
-}
-
-const _fontDir = 'C:\\Windows\\Fonts';
-
-/// The faces the panel's `t()` helper actually asks for. `segoeuib` is reused
-/// for w800 because Segoe UI ships no heavier weight.
-final _faces = <String, Map<FontWeight, String>>{
-  'Segoe UI': {
-    FontWeight.w400: 'segoeui.ttf',
-    FontWeight.w500: 'segoeuisl.ttf',
-    FontWeight.w600: 'segoeuiz.ttf',
-    FontWeight.w700: 'segoeuib.ttf',
-    FontWeight.w800: 'segoeuib.ttf',
-  },
-  'Segoe UI Variable Text': {
-    FontWeight.w400: 'segoeui.ttf',
-    FontWeight.w500: 'segoeuisl.ttf',
-    FontWeight.w600: 'segoeuiz.ttf',
-    FontWeight.w700: 'segoeuib.ttf',
-    FontWeight.w800: 'segoeuib.ttf',
-  },
-};
-
-Future<bool> _loadSegoe() async {
-  if (!Directory(_fontDir).existsSync()) return false;
-  for (final family in _faces.entries) {
-    final loader = FontLoader(family.key);
-    for (final face in family.value.entries) {
-      final file = File('$_fontDir\\${face.value}');
-      if (!file.existsSync()) return false;
-      final bytes = file.readAsBytesSync();
-      loader.addFont(Future<ByteData>.value(ByteData.sublistView(bytes)));
-    }
-    await loader.load();
-  }
-  return true;
-}
-
-Visit _visit({
-  required String name,
-  String state = 'WAITING',
-  DateTime? calledAt,
-  DateTime? startedAt,
-}) =>
-    Visit(
-      id: name.hashCode,
-      token: 'AD 126',
-      clientName: name,
-      sortIndex: 3,
-      stateName: state,
-      arrivedAt: DateTime(2026, 8, 1, 15, 5),
-      appointmentAt: null,
-      calledAt: calledAt,
-      startedAt: startedAt,
-      isEndVisit: false,
-    );
-
 void main() {
   var segouiLoaded = false;
 
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
-
-    // GetStorage resolves its file through path_provider, which has no
-    // implementation on a test host.
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-            const MethodChannel('plugins.flutter.io/path_provider'),
-            (call) async =>
-                call.method == 'getApplicationDocumentsDirectory'
-                    ? Directory.systemTemp.path
-                    : null);
-
-    await GetStorage.init();
-    segouiLoaded = await _loadSegoe();
+    await initPanelStorage();
+    segouiLoaded = await loadSegoe();
   });
 
   tearDown(Get.reset);
@@ -122,7 +38,7 @@ void main() {
     WidgetSize size, {
     String servingName = 'Ahmad Abu Ibrahim',
   }) async {
-    final c = _PanelHost();
+    final c = PanelHost();
     Get.put<QueueController>(c);
     c.size.value = size;
     c.state.value = PanelState.serving;
@@ -133,14 +49,14 @@ void main() {
     c.now.value = DateTime(2026, 8, 1, 15, 45);
 
     // Somebody in the room …
-    c.serving.value = _visit(
+    c.serving.value = visit(
       name: servingName,
       state: 'SERVING',
       startedAt: DateTime(2026, 8, 1, 15, 30),
     );
 
     // … and somebody called, which is what puts NO-SHOW on the reveal.
-    final called = _visit(
+    final called = visit(
       name: 'Kawthar Falah Qandeel',
       calledAt: DateTime(2026, 8, 1, 15, 31),
     );
@@ -151,7 +67,7 @@ void main() {
     c.queue.value = <Visit>[
       called,
       for (var i = 0; i < size.rows + 1; i++)
-        _visit(name: 'Patient Number $i'),
+        visit(name: 'Patient Number $i'),
     ];
 
     await tester.pumpWidget(MaterialApp(
@@ -169,16 +85,10 @@ void main() {
     await tester.pump();
   }
 
-  /// The reveal can only be measured in real font metrics; with flutter_test's
-  /// placeholder face it would pass on a broken constant.
-  void requireSegoe() => expect(segouiLoaded, isTrue,
-      reason: 'Segoe UI is needed to measure the reveal. This is a '
-          'Windows-only widget; install Segoe UI or run it on Windows.');
-
   for (final size in WidgetSize.values) {
     testWidgets('the tallest reveal fits at kRevealHeight (${size.name})',
         (tester) async {
-      requireSegoe();
+      requireSegoe(segouiLoaded);
 
       await pumpTallestReveal(tester, size);
 
@@ -191,7 +101,7 @@ void main() {
 
   testWidgets('a name too long for one line does not push NO-SHOW off',
       (tester) async {
-    requireSegoe();
+    requireSegoe(segouiLoaded);
 
     // Three lines if it were allowed to wrap — 42px past the bottom of the
     // panel before the name was given maxLines.

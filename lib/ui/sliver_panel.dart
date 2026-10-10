@@ -53,7 +53,11 @@ class _RestingBand extends StatelessWidget {
     return Obx(() {
       final state = c.state.value;
       return SizedBox(
-        height: 40,
+        // 40 is the window; the shell's 1px border takes a pixel off each edge,
+        // so the band's own box is the 38 the design calls "the bottom 38px"
+        // (design/README.md). At 40 it claimed 2px more than the column had,
+        // even once the window itself was the right size.
+        height: 38,
         child: Column(
           children: [
             Expanded(

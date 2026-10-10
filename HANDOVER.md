@@ -17,9 +17,11 @@ Lives here because its backend is this repo; it is otherwise a self-contained ap
 
 The app is **built and running**. The redesign (216×40 sliver, hover reveal, hold-to-confirm
 No-Show, three sizes, four data states, minimised chip, closed edge tab) is implemented.
-`flutter analyze` is clean and 24 tests pass.
+`flutter analyze` is clean and 28 tests pass.
 
-Two fixes worth knowing about, both guarded by tests:
+Five fixes worth knowing about. Four are guarded by tests; the two that live in window
+setup are not, because a widget test has neither an OS window nor a `main()` to run —
+verify those by measuring `GetClientRect` against `GetWindowRect` in the running app.
 
 - `kRevealHeight` is **118**, not 112. The tallest reveal — somebody in the room *and*
   somebody called, which is when NO-SHOW shows — needs 116px inside the shell's 1px border;
@@ -35,6 +37,24 @@ Two fixes worth knowing about, both guarded by tests:
   by the window, so a name that wrapped pushed the NO-SHOW button off the bottom — measured
   42px past it for a three-line name. The resting line has always shortened names; this
   means the reveal ellipsises too once the name is wider than the panel.
+- `QueueController` is registered before `runApp`, not inside the window-ready callback.
+  `window_manager` types that callback `VoidCallback?` and invokes it as a bare
+  `callback();` — an async closure therefore runs only to its first `await` and hands back a
+  Future nobody awaits. `runApp` was building `WidgetShell`, which `Get.find`s the
+  controller, before `Get.put` ran: **every warm start with a stored token threw
+  "QueueController not found"** and left the window stuck on the error widget, since nothing
+  marked the shell dirty once the controller did arrive. Only a cold start (sign-in) worked,
+  which is why it went unnoticed.
+- The window is **frameless** and the resting band is **38**, not 40. Both were needed:
+  `titleBarStyle: TitleBarStyle.hidden` is *not* frameless — its `WM_NCCALCSIZE` handler
+  insets 8px on the left, right and bottom (commented "required for resizing the window",
+  window_manager #483), so `setBounds(216, 40)` produced a 200×32 view: 16px narrow, 8px
+  short, plus an 8px dead zone that swallowed the cursor. The band at 40 also claimed 2px the
+  column did not have at *any* size. Together they drew a red
+  "BOTTOM OVERFLOWED BY 10.0 PIXELS" banner across the lead meter. `setAsFrameless()` has to
+  come **after** `waitUntilReadyToShow`, or `SetTitleBarStyle` clears `is_frameless_` again.
+  `test/resting_band_test.dart` guards the 38 at all three sizes and goes red on 40; the
+  frameless half is verified by measuring the running app (both rects 216 × 40).
 
 Verified against staging: sign-in through `user/auth/widget-login`, and both queue reads.
 Not yet verified end-to-end: the three actions, because staging's queue has been empty. That
@@ -77,6 +97,13 @@ made in CI — Smart App Control blocks Flutter's unsigned AOT compiler locally.
 
 ## Still open
 
+- **The sign-in card overflows by 12px.** At the spec's 260 × 271 (design/README.md §1) the
+  1px border and `padding: 14` leave the Column 241px, but its content needs 253 — the footer
+  line falls past the bottom and Flutter draws the overflow banner across it. It was 20px
+  before the window went frameless; that fix reclaimed 8 of it. The prototype sets
+  `overflow: hidden` on the same card, so it clips the same excess silently rather than
+  reporting it. Either the Flutter content is 12px taller than the prototype's, or the card
+  wants to be 283 — a design call, not a code guess.
 - The 1150ms sign-in → widget morph and landing blink
 - The ten-step first-run tour in Bahasa Malaysia (script is in the `.dc.html`)
 - Sound coordination with the web app (local IPC — only one surface may own the sound)
