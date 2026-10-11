@@ -31,6 +31,7 @@ Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\chup_widget.exe
+SetupIconFile=..\windows\runner\resources\app_icon.ico
 ; Close a running widget before replacing its files.
 CloseApplications=force
 RestartApplications=no
