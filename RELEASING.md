@@ -37,10 +37,11 @@ Run `chup-widget-setup.exe`. It installs per user, without admin rights, to
 widget. The widget registers itself to start with Windows on sign-in; uninstalling
 removes that entry. Never change the installer's `AppId`.
 
-## Dry run
+## Test build
 
-Actions tab, **Release**, **Run workflow**, enter a version. Everything is built
-and attached to the run as an artifact; nothing is published and no widget sees it.
+Actions tab, **Release**, **Run workflow**, enter a version. It is published as a
+pre-release tagged `vX.Y.Z-test.N`, so the installer is a plain download on the
+Releases page. Installed widgets never update to a pre-release.
 
 ## Before the first real release
 

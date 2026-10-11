@@ -74,10 +74,29 @@ jobs:
             $ver = (Get-Item $exe).VersionInfo.ProductVersion
             $running = Get-Process chup_widget -ErrorAction SilentlyContinue | Where-Object { $_.Id -ne $first.Id }
           } until (($ver -like '1.0.1*' -and $running) -or (Get-Date) -gt $deadline)
-          Get-ChildItem $env:TEMP -Directory -Filter 'chup-widget-update-*' | ForEach-Object { "--- $($_.Name)"; Get-Content (Join-Path $_.FullName 'update.log') -ErrorAction SilentlyContinue }
+          foreach ($d in Get-ChildItem $env:TEMP -Directory -Filter 'chup-widget-update-*') {
+            "--- $($d.FullName)"
+            Get-ChildItem $d.FullName | ForEach-Object { "    $($_.Name) $($_.Length)" }
+            foreach ($l in 'launcher.log', 'update.log') {
+              $f = Join-Path $d.FullName $l
+              if (Test-Path $f) { "  [$l]"; Get-Content $f | ForEach-Object { "    $_" } } else { "  [$l] missing" }
+            }
+          }
+          "PowerShell processes: $(@(Get-Process powershell -ErrorAction SilentlyContinue).Count)"
           "Version on disk: $ver"
           "Running: $(@($running).Count) new process(es); old PID gone: $(-not (Get-Process -Id $first.Id -ErrorAction SilentlyContinue))"
-          if ($ver -notlike '1.0.1*') { throw 'The files were not replaced with 1.0.1' }
+          if ($ver -notlike '1.0.1*') {
+            # Diagnosis only: run the leftover script by hand to see whether the
+            # script or its launch is at fault. The step still fails.
+            $ps1 = Get-ChildItem $env:TEMP -Recurse -Filter update.ps1 -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($ps1) {
+              "--- running $($ps1.FullName) by hand"
+              powershell.exe -NoProfile -ExecutionPolicy Bypass -File $ps1.FullName 2>&1 | ForEach-Object { "    $_" }
+              Get-Content (Join-Path $ps1.DirectoryName 'update.log') -ErrorAction SilentlyContinue | ForEach-Object { "    log: $_" }
+              "Version after manual run: $((Get-Item $exe).VersionInfo.ProductVersion)"
+            }
+            throw 'The files were not replaced with 1.0.1'
+          }
           if (-not $running) { throw 'The widget was not restarted after the update' }
           "RESTARTED_PID=$(@($running)[0].Id)" | Out-File -FilePath $env:GITHUB_ENV -Append
 

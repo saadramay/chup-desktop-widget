@@ -4,15 +4,16 @@ name: Release
 # Installed widgets find the new release on their next check (launch, then
 # every 6 hours) and offer "Update to 1.2.0" in the menu.
 #
-# Run it by hand from the Actions tab for a dry run: everything is built and
-# attached to the run as an artifact, nothing is published.
+# Run it by hand from the Actions tab for a test build: it is published as a
+# pre-release (tag vX.Y.Z-test.N) so the installer is a plain download on the
+# Releases page. Installed widgets never update to pre-releases.
 on:
   push:
     tags: ['v*.*.*']
   workflow_dispatch:
     inputs:
       version:
-        description: Version to stamp on the dry-run build
+        description: Version to stamp on the test build
         default: 0.0.1
         required: true
 
@@ -96,10 +97,14 @@ jobs:
           dist\chup-widget-windows.zip dist\chup-widget-windows.zip.sha256 dist\chup-widget-setup.exe
           --title "Chup Widget $env:VERSION" --generate-notes
 
-      - name: Keep the dry-run build
+      - name: Publish a test pre-release
         if: env.PUBLISH != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: chup-widget-${{ env.VERSION }}-dry-run
-          path: dist
-          retention-days: 14
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "v$env:VERSION-test.${{ github.run_number }}"
+          dist\chup-widget-setup.exe dist\chup-widget-windows.zip dist\chup-widget-windows.zip.sha256
+          --prerelease --target ${{ github.sha }}
+          --title "Chup Widget $env:VERSION (test build ${{ github.run_number }})"
+          --notes "Test build from ${{ github.sha }}. Not offered to installed widgets.

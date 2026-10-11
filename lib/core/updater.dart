@@ -94,8 +94,9 @@ String updateScript({
 }) {
   String q(String s) => "'${s.replaceAll("'", "''")}'";
   return '''
-\$ErrorActionPreference = 'Stop'
 \$log = ${q(log)}
+Set-Content -Path \$log -Value 'script started'
+\$ErrorActionPreference = 'Stop'
 function Log(\$m) { Add-Content -Path \$log -Value ("{0:s} {1}" -f (Get-Date), \$m) }
 try {
   Log 'waiting for widget $pid to exit'
@@ -173,7 +174,15 @@ class Updater {
         log: '${dir.path}${Platform.pathSeparator}update.log',
       ),
     );
-    await Process.start('powershell.exe', [
+    // Through `cmd /c start /min`: a detached process has no console, and
+    // Windows PowerShell started without one can exit before running the
+    // script. `start` gives it a console of its own, minimised and hidden.
+    final launcher = File('${dir.path}${Platform.pathSeparator}launcher.log');
+    final p = await Process.start('cmd.exe', [
+      '/c',
+      'start',
+      '/min',
+      'powershell.exe',
       '-NoProfile',
       '-ExecutionPolicy',
       'Bypass',
@@ -182,5 +191,8 @@ class Updater {
       '-File',
       script.path,
     ], mode: ProcessStartMode.detached);
+    await launcher.writeAsString(
+      'widget pid $pid started cmd pid ${p.pid} for ${script.path}\n',
+    );
   }
 }
