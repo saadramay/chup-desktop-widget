@@ -30,15 +30,20 @@ void main() {
     await app.main();
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    // 1. Restart at Large: the window really is 208 tall and the panel draws.
+    // 1. Restart at Large: the window fits the Large panel's rows (the panel
+    //    sizes to its content, capped at 208) and the panel draws.
+    final c = Get.find<QueueController>();
+    expect(c.size.value, WidgetSize.large);
     final boot = await windowManager.getBounds();
     expect(boot.width, kWidgetWidth);
-    expect(boot.height, WidgetSize.large.height);
+    expect(boot.height, c.restingHeight);
+    expect(c.restingHeight, greaterThan(WidgetSize.small.height),
+        reason: 'the fixtures put people in the Large list');
+    expect(c.restingHeight, lessThanOrEqualTo(WidgetSize.large.height));
     expect(find.byType(SliverPanel), findsOneWidget);
     expect(tester.takeException(), isNull);
 
     // 2. Menu at Small: every item is visible inside the window.
-    final c = Get.find<QueueController>();
     await c.setSize(WidgetSize.small);
     await c.setRevealed(true);
     await tester.pumpAndSettle(const Duration(milliseconds: 500));
