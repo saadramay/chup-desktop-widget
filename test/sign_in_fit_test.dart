@@ -50,5 +50,5 @@ void main() {
         reason: 'the sign-in card overflows its $kSignInWidth x '
             '$kSignInHeight window. Raise kSignInHeight to the height the '
             'card actually needs: $e');
-  });
+  }, skip: noSegoe);
 }

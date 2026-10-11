@@ -105,7 +105,7 @@ void main() {
               'the rows take ${size.rows * size.rowHeight} — leaving '
               '${size.height - 2 - size.rows * size.rowHeight}px for the band, '
               'which design/README.md says is 38.');
-    });
+    }, skip: noSegoe);
   }
 
   testWidgets('the empty resting line fits the small window', (tester) async {
@@ -119,7 +119,7 @@ void main() {
         reason: 'NO ONE IN THE QUEUE does not fit the small window: 40px '
             'minus the shell border leaves 38px, which is exactly what the '
             'band needs — so anything more than 38 overflows.');
-  });
+  }, skip: noSegoe);
 
   // The line runs LEFT to RIGHT, and until now nothing pinned it down: the
   // headline sat at its natural width and the trailing clock was pushed out by
@@ -141,7 +141,7 @@ void main() {
               'than the ${kWidgetWidth}px band minus the shell border and the '
               '9px padding on each side. The two have to share one line, so '
               'one of them has to give.');
-    });
+    }, skip: noSegoe);
 
     testWidgets('the loading line fits its width (${size.name})',
         (tester) async {
@@ -151,6 +151,6 @@ void main() {
 
       expect(tester.takeException(), isNull,
           reason: '"READING THE QUEUE" does not fit the band.');
-    });
+    }, skip: noSegoe);
   }
 }

@@ -14,24 +14,24 @@
 > ### Built
 >
 > Resting sliver naming the *next* patient · hover reveal opening upward with the full name and
-> the five-control cluster · the action state machine (ALERT / END VISIT single click,
+> the five-control cluster · the action state machine (ALERT / START / END VISIT single click,
 > **NO-SHOW hold-to-confirm 550ms** with the patient's name on it) · wait and serving meters
 > against `LIMIT`/`SERVE`/`GRACE` · Small/Medium/Large growing upward with the bottom 38px
 > pinned · all four data states · minimised 44×44 chip · closed 5×34 edge tab · grip-only
-> dragging with position persisted · redesigned 260×271 sign-in with "stay signed in".
+> dragging with position persisted per display · sign-in with "stay signed in" · sign-in to
+> corner morph · first-run landing blink and the Bahasa Malaysia tour (Help replays it) ·
+> Windows startup registration on sign-in · "Open in Chup" to the web live queue · Quit.
 >
-> ### Not built yet
+> ### Not built
 >
-> | Deferred | Why |
+> | Item | Why |
 > |---|---|
-> | 1150ms sign-in → widget morph, landing blink | First-run polish; needs the panel mounted before it can animate |
-> | Ten-step Bahasa Malaysia tour | Its own piece of work; script is in the `.dc.html` |
-> | Sound + web-app coordination | Local IPC, not an endpoint |
-> | Windows startup registration | Installer work |
-> | "Open in Chup" target URL | Needs the web queue URL |
+> | Sound coordination with the web app | The widget makes no sound, so there is nothing to coordinate yet |
+> | Tour card in the opposite screen corner | Needs a second native window; it sits beside the panel instead |
 >
-> Anything driven by `called_at` or `serving.started_at` renders, but stays inert until the
-> backend exposes them — see `design/BACKEND-WIRING.md`.
+> `called_at` and `started_at` are used when the API sends them. Until it does, the widget
+> counts from when it first saw the alert or the consultation start; see
+> `design/BACKEND-WIRING.md`.
 
 A small always-on-top queue panel for consultants. It sits above whatever clinical system the
 doctor is working in and shows who is being served, who is next, and one action button.
@@ -45,14 +45,14 @@ sharing the same backend API. Nothing here is derived from that codebase.
 |---|---|
 | SERVING band | the queue token currently being served |
 | Current patient | token, name, and the time they should be seen |
-| One action | **Alert** → once alerted **No-Show** → when being seen **End Visit** |
+| One action | **Alert**, then **Start** once called, then **End Visit**. **No-Show** (hold) in the reveal while called |
 | Upcoming | the next patients, however many the current size shows |
 | Sizes | Small / Medium / Large from the "…" menu, remembered between sessions |
 
-The window is frameless and always-on-top. Drag it by its header. Closing exits the app —
-there is no tray icon yet, so hiding would strand it running with no way to restore it.
-The queue is polled every 10 seconds — it changes as reception registers patients, not when the
-consultant touches anything.
+The window is frameless and always-on-top. Drag it by the grip. Close tucks it into an edge
+tab; Quit in the menu exits. The queue is polled every 10 seconds, every 60 while closed, and
+backs off to 60 while the server is unreachable. A failed action shows its reason on the
+resting line for a few seconds. An expired session returns to sign-in.
 
 ## Running it
 
@@ -60,8 +60,8 @@ The base URL is supplied at build time, so no environment file ships beside the 
 
 | Environment | Base URL |
 |---|---|
-| **Production** (live clinics — the default) | `https://chup.online/api/v1/` |
-| **Staging** (safe to test against) | `https://chup.tech/api/v1/` |
+| **Production** (live clinics, the release-build default) | `https://chup.online/api/v1/` |
+| **Staging** (the debug-build default, safe to test against) | `https://chup.tech/api/v1/` |
 
 Test against staging — the actions write real queue state:
 
@@ -69,7 +69,7 @@ Test against staging — the actions write real queue state:
 flutter run -d windows --dart-define=BASE_URL=https://chup.tech/api/v1/
 ```
 
-Production build for clinics (the default URL, so the define is optional):
+Production build for clinics (the release default, so the define is optional):
 
 ```bash
 flutter build windows --release --dart-define=BASE_URL=https://chup.online/api/v1/
@@ -115,5 +115,6 @@ API-CONTRACT.md              every endpoint, verified against the backend
 flutter test
 ```
 
-Covers the 0/1 coercion, missing fields, and the Alert → No-Show → End Visit transitions,
-with no server required.
+Covers parsing (the integer `state`, booking times, 0/1 flags), the Alert, Start, End Visit
+sequence, positions, limits, polling backoff, session expiry, and layout. Layout tests need
+Segoe UI, so they skip on macOS and Linux and run in CI on Windows. No server required.

@@ -1,0 +1,113 @@
+diff -ru a/app/Http/Controllers/Api/User/Visits/VisitController.php b/app/Http/Controllers/Api/User/Visits/VisitController.php
+--- a/app/Http/Controllers/Api/User/Visits/VisitController.php	2026-10-11 09:12:38
++++ b/app/Http/Controllers/Api/User/Visits/VisitController.php	2026-10-11 09:13:03
+@@ -278,7 +278,9 @@
+             'subVisits' => function ($query) {
+                 return $query->select(['name', 'visit_id']);
+             }
+-        ])->setOrders([
++        ])->setAggregates(
++            $this->widgetAggregates($request)
++        )->setOrders([
+             'sort_index' => 'asc'
+         ])->setScopes(
+             $scopes
+@@ -286,7 +288,9 @@
+ 
+         return $this->apiResponse([
+             'error' => false,
+-            'data' => $visits
++            'data' => $request->boolean('widget')
++                ? $this->withWidgetLimits($visits, $this->widgetLimits())
++                : $visits
+         ]);
+     }
+ 
+@@ -347,6 +351,12 @@
+         ];
+     }
+ 
++    // Only the desktop widget (?widget=1) pays for these sub-selects; other clients get the unchanged payload.
++    private function widgetAggregates(Request $request): array
++    {
++        return $request->boolean('widget') ? $this->widgetTimestamps() : [];
++    }
++
+     /**
+      * The durations the widget colours its meters against.
+      *
+@@ -454,13 +464,15 @@
+             'subVisits' => function ($query) {
+                 return $query->select(['name', 'visit_id']);
+             }
+-        ])->setAggregates($this->widgetTimestamps())->setOrders([
++        ])->setAggregates($this->widgetAggregates($request))->setOrders([
+             'sort_index' => 'asc'
+         ])->setScopes($scopes)->findBy($findBy);
+ 
+         return $this->apiResponse([
+             'error' => false,
+-            'data' => $this->withWidgetLimits($visits, $this->widgetLimits())
++            'data' => $request->boolean('widget')
++                ? $this->withWidgetLimits($visits, $this->widgetLimits())
++                : $visits
+         ]);
+     }
+ 
+@@ -512,7 +524,7 @@
+             'subVisits' => function ($query) {
+                 return $query->select(['name', 'visit_id']);
+             }
+-        ])->setAggregates($this->widgetTimestamps())->setOrders([
++        ])->setAggregates($this->widgetAggregates($request))->setOrders([
+             'sort_index' => 'asc'
+         ])->setScopes($scopes)->findBy($findBy);
+ 
+@@ -520,7 +532,9 @@
+             'error' => false,
+             // This endpoint knows which visit is in the room, so it can
+             // resolve the real per-doctor consultation length from it.
+-            'data' => $this->withWidgetLimits($visits, $this->widgetLimits($visits))
++            'data' => $request->boolean('widget')
++                ? $this->withWidgetLimits($visits, $this->widgetLimits($visits))
++                : $visits
+         ]);
+     }
+ 
+diff -ru a/app/Models/Visit.php b/app/Models/Visit.php
+--- a/app/Models/Visit.php	2026-10-11 09:12:38
++++ b/app/Models/Visit.php	2026-10-11 09:13:03
+@@ -312,7 +312,7 @@
+             return null;
+         }
+ 
+-        return Carbon::parse($raw)->toIso8601String();
++        return \App\Support\Carbon::parse($raw)->toIso8601String();
+     }
+ 
+     public function getArrivedAtAttribute(): Carbon|null
+@@ -322,7 +322,7 @@
+         if (array_key_exists('arrived_at', $this->getAttributes())) {
+             $raw = $this->getAttributes()['arrived_at'];
+ 
+-            return $raw ? Carbon::parse($raw) : null;
++            return $raw ? \App\Support\Carbon::parse($raw) : null;
+         }
+ 
+         if ($this->relationLoaded('arrivedHistories')) {
+diff -ru a/app/Traits/FindAbleTrait.php b/app/Traits/FindAbleTrait.php
+--- a/app/Traits/FindAbleTrait.php	2026-10-11 09:12:38
++++ b/app/Traits/FindAbleTrait.php	2026-10-11 09:12:38
+@@ -183,6 +183,12 @@
+      */
+     public function processQuery($query, bool $count = false): mixed // Propose another name if you don't like it
+     {
++        // Consumed once: the repository is a singleton, so leftover aggregates would leak into the next caller.
++        foreach ($this->aggregates as [$method, $arguments]) {
++            $query->{$method}(...$arguments);
++        }
++        $this->aggregates = [];
++
+         $result = $this->applyFilter($query);
+ 
+         if ($this->useOrdering) {

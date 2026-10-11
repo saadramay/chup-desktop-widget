@@ -1,3 +1,5 @@
+import 'visit.dart';
+
 /// Fixture data, enabled with `--dart-define=MOCK=true`.
 ///
 /// This exists because the real staging queue is usually empty and two of the
@@ -25,7 +27,7 @@ class Mock {
     required String name,
     required int arrivedMinsAgo,
     int? appointmentInMins,
-    String state = 'WAITING',
+    String state = 'IN_QUEUE',
     int? calledMinsAgo,
     int? startedMinsAgo,
     int sortIndex = 1,
@@ -34,7 +36,11 @@ class Mock {
         'id': id,
         'token': token,
         'sort_index': sortIndex,
-        'state': {'id': 1, 'name': state, 'color': '#0c6e3c'},
+        // The enum integer, as the real API sends it.
+        'state': Visit.stateNames.entries
+            .firstWhere((e) => e.value == state,
+                orElse: () => const MapEntry(1, 'IN_QUEUE'))
+            .key,
         'client': {'name': name},
         'arrived_at': _ago(arrivedMinsAgo).toIso8601String(),
         if (appointmentInMins != null)

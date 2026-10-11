@@ -1,11 +1,17 @@
 import 'dart:async';
+import 'dart:math' as math;
 
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:window_manager/window_manager.dart';
 
+import '../ui/sign_in.dart';
+import '../ui/tokens.dart';
 import 'api.dart';
 import 'limits.dart';
 import 'mock.dart';
+import 'tour.dart';
 import 'visit.dart';
 import 'window_anchor.dart';
 
@@ -80,6 +86,31 @@ class QueueController extends GetxController {
 
   final busyAction = false.obs;
 
+  /// Short reason the last action failed, shown on the resting line for a few
+  /// seconds so a failed call never looks like a successful one.
+  final actionError = RxnString();
+
+  /// Paginator `total` of the waiting list, which can exceed the rows fetched.
+  final visitsTotal = 0.obs;
+
+  /// When this app first saw a visit called (`c:<id>`) or serving (`s:<id>`).
+  /// Stands in for `called_at` / `started_at` while the API does not send them.
+  final Map<String, DateTime> _observed = {};
+
+  /// 1-based tour step, 0 when the tour is not showing.
+  final tourStep = 0.obs;
+
+  /// True for the landing blink, first run only.
+  final blinking = false.obs;
+
+  TourStep? get tour =>
+      tourStep.value == 0 ? null : tourSteps[tourStep.value - 1];
+
+  int _failures = 0;
+  bool _refreshing = false;
+  bool _reclaimPending = false;
+  Timer? _errorTimer;
+
   /// Ticks every second so minute figures keep counting between polls.
   final now = DateTime.now().obs;
 
@@ -103,17 +134,18 @@ class QueueController extends GetxController {
   void onInit() {
     super.onInit();
     size.value = storedSize();
+    _loadObserved();
     _clock = Timer.periodic(const Duration(seconds: 1), (_) {
       now.value = DateTime.now();
     });
-    refreshNow();
-    _poll = Timer.periodic(const Duration(seconds: 10), (_) => refreshNow());
+    refreshNow().whenComplete(_schedulePoll);
   }
 
   @override
   void onClose() {
     _poll?.cancel();
     _clock?.cancel();
+    _errorTimer?.cancel();
     super.onClose();
   }
 
@@ -127,8 +159,10 @@ class QueueController extends GetxController {
 
   Future<void> setRevealed(bool v) async {
     if (revealed.value == v) return;
-    // Pinned open while the menu is up — see `menuOpen`.
+    // Pinned open while the menu is up — see `menuOpen` — and while a tour
+    // step is showing the reveal.
     if (!v && menuOpen.value) return;
+    if (!v && (tour?.open ?? false)) return;
     revealed.value = v;
     await applyWindowGeometry();
   }
@@ -136,7 +170,53 @@ class QueueController extends GetxController {
   /// Resizes the OS window to fit the current size plus, when open, the reveal —
   /// keeping the bottom edge pinned so the action band never moves.
   Future<void> applyWindowGeometry() async {
-    await WindowAnchor.instance.setSizeKeepingBottom(kWidgetWidth, windowHeight);
+    await WindowAnchor.instance.setSizeKeepingBottom(windowWidth, windowHeight);
+  }
+
+  /// The panel's width, plus room for the tour card to its left while the tour
+  /// runs. The right edge is anchored, so the panel itself never moves.
+  double get windowWidth =>
+      tour == null ? kWidgetWidth : kWidgetWidth + kTourGap + kTourCardWidth;
+
+  /// The panel's own height, which the window can exceed (menu, tour card).
+  double get panelHeight =>
+      size.value.height + (revealed.value ? kRevealHeight : 0.0);
+
+  // ---------------------------------------------------------------- tour
+
+  bool get firstRunCompleted => _box.read<bool>('first_run_completed') ?? false;
+
+  /// First run only: blink once, then open the tour 800ms after landing.
+  Future<void> landed() async {
+    if (firstRunCompleted || blinking.value || tourStep.value != 0) return;
+    blinking.value = true;
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+    if (!isClosed) await startTour();
+    await Future<void>.delayed(const Duration(milliseconds: 1800));
+    blinking.value = false;
+  }
+
+  Future<void> startTour() async {
+    presentation.value = Presentation.panel;
+    await goToTourStep(1);
+  }
+
+  Future<void> goToTourStep(int step) async {
+    if (step < 1 || step > tourSteps.length) return endTour();
+    tourStep.value = step;
+    final s = tourSteps[step - 1];
+    // Driven, not chosen: the stored size is restored when the tour ends.
+    size.value = s.size;
+    revealed.value = s.open;
+    await applyWindowGeometry();
+  }
+
+  Future<void> endTour() async {
+    tourStep.value = 0;
+    await _box.write('first_run_completed', true);
+    size.value = storedSize();
+    revealed.value = false;
+    await applyWindowGeometry();
   }
 
   /// The other half of the shell's guard: the shell draws nothing when the
@@ -149,7 +229,17 @@ class QueueController extends GetxController {
   /// window is here and it was not being called. The widget sat on the
   /// desktop transparent, ignoring the cursor, looking hung. Asked from the
   /// guard it resolves on the very next frame, and stops.
-  Future<void> reclaimGeometry() => applyWindowGeometry();
+  ///
+  /// Called from the shell's build, so it is deferred to after the frame and
+  /// coalesced: one request per frame, never a resize mid-build.
+  void reclaimGeometry() {
+    if (_reclaimPending) return;
+    _reclaimPending = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _reclaimPending = false;
+      await applyWindowGeometry();
+    });
+  }
 
   /// The height this presentation needs from the window, at the width above.
   ///
@@ -158,11 +248,10 @@ class QueueController extends GetxController {
   /// size menu is showing — that menu needs more room than the small reveal
   /// has and otherwise draws its last row off the bottom of the window.
   double get windowHeight {
-    final reveal = revealed.value ? kRevealHeight : 0.0;
-    final h = size.value.height + reveal;
-    return menuOpen.value && h < kSizeMenuWindowHeight
-        ? kSizeMenuWindowHeight
-        : h;
+    var h = panelHeight;
+    if (menuOpen.value && h < kSizeMenuWindowHeight) h = kSizeMenuWindowHeight;
+    if (tour != null && h < kTourCardHeight) h = kTourCardHeight;
+    return h;
   }
 
   /// Back to the panel, with the window already sized for it.
@@ -182,11 +271,14 @@ class QueueController extends GetxController {
   /// `GetWindowRect` against `GetClientRect` in the running app instead — the
   /// same way main()'s window setup is.
   Future<void> showPanel() async {
+    final wasClosed = presentation.value == Presentation.closed;
     try {
       await applyWindowGeometry();
     } finally {
       presentation.value = Presentation.panel;
     }
+    // Polling slows right down while closed; catch up the moment it reopens.
+    if (wasClosed) unawaited(refreshNow());
   }
 
   // ---------------------------------------------------------------- derived
@@ -210,7 +302,19 @@ class QueueController extends GetxController {
     return rest <= size.value.rows;
   }
 
-  int get sessionTotal => queue.length + (serving.value == null ? 0 : 1);
+  /// Everyone in the session: the patient in the room plus the whole waiting
+  /// list, not just the rows fetched.
+  int get sessionTotal =>
+      math.max(visitsTotal.value, queue.length) + (serving.value == null ? 0 : 1);
+
+  /// 1-based place in the session, counted the same way as [sessionTotal] so
+  /// the pair always reads sensibly (never "7/3").
+  int positionOf(Visit v) {
+    final offset = serving.value == null ? 0 : 1;
+    if (serving.value?.id == v.id) return 1;
+    final i = queue.indexWhere((q) => q.id == v.id);
+    return i < 0 ? offset + 1 : i + 1 + offset;
+  }
 
   /// Minutes the next patient has waited, or — once called — minutes since the
   /// call, because that is now the thing being waited on.
@@ -247,10 +351,13 @@ class QueueController extends GetxController {
   int get minutesSinceLastPoll => minutesSince(lastGoodPoll.value, now.value);
 
   /// The action the button offers right now. Exactly one, ever.
-  VisitAction get action =>
-      (called.value != null || serving.value != null)
-          ? VisitAction.endVisit
-          : VisitAction.alert;
+  /// The backend only ends a visit that is SERVING, so a called patient is
+  /// started first: ALERT, then START, then END VISIT.
+  VisitAction get action {
+    if (serving.value != null) return VisitAction.endVisit;
+    if (called.value != null) return VisitAction.start;
+    return VisitAction.alert;
+  }
 
   // ---------------------------------------------------------------- polling
 
@@ -262,48 +369,171 @@ class QueueController extends GetxController {
     return list.whereType<Map<String, dynamic>>().map(Visit.fromJson).toList();
   }
 
+  static int _total(Map<String, dynamic> res) {
+    final data = res['data'];
+    return data is Map && data['total'] is num ? (data['total'] as num).toInt() : 0;
+  }
+
+  /// `limits` sits beside the paginator keys, or at the top level.
+  static Map<String, dynamic>? _limits(Map<String, dynamic> res) {
+    final data = res['data'];
+    final l = (data is Map ? data['limits'] : null) ?? res['limits'];
+    return l is Map<String, dynamic> ? l : null;
+  }
+
+  // ---------------------------------------------------------------- observed
+
+  void _loadObserved() {
+    final raw = _box.read('observed');
+    if (raw is! Map) return;
+    raw.forEach((k, v) {
+      final t = DateTime.tryParse('$v');
+      if (t != null) _observed['$k'] = t;
+    });
+  }
+
+  /// Records [key] the first time it is seen, and returns when that was.
+  DateTime _seen(String key, DateTime now) => _observed.putIfAbsent(key, () => now);
+
+  /// Fills `called_at` / `started_at` from local observation when the API sent
+  /// none, and forgets visits that have left the queue.
+  ({Visit? serving, List<Visit> rows}) _withObserved(
+      Visit? serving, List<Visit> rows) {
+    final now = DateTime.now();
+    final keep = <String>{};
+    Visit? s;
+    if (serving != null) {
+      keep.add('s:${serving.id}');
+      s = serving.withObserved(startedAt: _seen('s:${serving.id}', now));
+    }
+    final out = [
+      for (final v in rows)
+        if (v.isCalled)
+          (() {
+            keep.add('c:${v.id}');
+            return v.withObserved(calledAt: _seen('c:${v.id}', now));
+          })()
+        else
+          v,
+    ];
+    _observed.removeWhere((k, _) => !keep.contains(k));
+    _box.write('observed',
+        _observed.map((k, v) => MapEntry(k, v.toIso8601String())));
+    return (serving: s, rows: out);
+  }
+
+  // ---------------------------------------------------------------- polling
+
+  /// 10s normally; 60s while closed to the edge tab; doubling from 10s up to
+  /// 60s while the server cannot be reached.
+  Duration get pollInterval {
+    if (state.value == PanelState.offline && _failures > 0) {
+      final s = 10 * math.pow(2, math.min(_failures - 1, 3));
+      return Duration(seconds: math.min(s.toInt(), 60));
+    }
+    if (presentation.value == Presentation.closed) {
+      return const Duration(seconds: 60);
+    }
+    return const Duration(seconds: 10);
+  }
+
+  void _schedulePoll() {
+    _poll?.cancel();
+    if (isClosed) return;
+    _poll = Timer(pollInterval, () async {
+      await refreshNow();
+      _schedulePoll();
+    });
+  }
+
+  /// Folds one poll's two responses into the panel's state.
+  @visibleForTesting
+  void applyResponses(
+      Map<String, dynamic> servingRes, Map<String, dynamic> visitsRes) {
+    final servingRows = _rows(servingRes);
+    final observed = _withObserved(
+        servingRows.isEmpty ? null : servingRows.first, _rows(visitsRes));
+
+    serving.value = observed.serving;
+    called.value = observed.rows.where((v) => v.isCalled).firstOrNull;
+    queue.value = observed.rows
+        .where((v) => !v.isNoShow && !v.isServing)
+        .toList()
+      ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex));
+    visitsTotal.value = _total(visitsRes);
+    // The serving endpoint resolves the doctor's own consult length, so it wins.
+    limits.value = Limits.fromJson(_limits(servingRes) ?? _limits(visitsRes));
+
+    _failures = 0;
+    lastGoodPoll.value = DateTime.now();
+    state.value = (serving.value == null && queue.isEmpty)
+        ? PanelState.empty
+        : PanelState.serving;
+  }
+
+  /// Counts a failed poll, for [pollInterval]'s backoff.
+  @visibleForTesting
+  void recordFailure() {
+    _failures++;
+    state.value = PanelState.offline;
+  }
+
   Future<void> refreshNow() async {
+    if (_refreshing || isClosed) return;
+    _refreshing = true;
     try {
       // `serving` looks like it should be a single object but is a paginated
       // list too — parsing it as an object yields a junk visit with id 0.
-      final servingRows = _rows(
-          kMock ? Mock.serving() : await Api.instance.get(Urls.serving));
-      final queueRows =
-          _rows(kMock ? Mock.visits() : await Api.instance.get(Urls.visits));
-
-      serving.value = servingRows.isEmpty ? null : servingRows.first;
-      called.value = queueRows.where((v) => v.isCalled).firstOrNull;
-      queue.value = queueRows
-          .where((v) => !v.isNoShow && !v.isServing)
-          .toList()
-        ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex));
-
-      lastGoodPoll.value = DateTime.now();
-      state.value = (serving.value == null && queue.isEmpty)
-          ? PanelState.empty
-          : PanelState.serving;
+      final servingRes =
+          kMock
+              ? Mock.serving()
+              : await Api.instance.get(Urls.serving, Urls.widgetQuery);
+      final visitsRes = kMock
+          ? Mock.visits()
+          : await Api.instance.get(Urls.visits, Urls.listQuery);
+      if (isClosed) return;
+      applyResponses(servingRes, visitsRes);
     } on ApiException catch (e) {
-      // A 401 means the token died; everything else is treated as unreachable
-      // so the panel degrades honestly rather than lying about the queue.
-      state.value = PanelState.offline;
-      if (e.statusCode == 401) Api.instance.token = null;
+      if (e.statusCode == 401) {
+        _refreshing = false;
+        await endSession(expired: true);
+        return;
+      }
+      // Everything else is treated as unreachable so the panel degrades
+      // honestly rather than lying about the queue.
+      recordFailure();
     } catch (_) {
-      state.value = PanelState.offline;
+      recordFailure();
+    } finally {
+      _refreshing = false;
     }
   }
 
   // ---------------------------------------------------------------- actions
 
+  void _showActionError(String message) {
+    actionError.value = message;
+    _errorTimer?.cancel();
+    _errorTimer = Timer(const Duration(seconds: 8), () => actionError.value = null);
+  }
+
+  /// The face the button shows: the tour's while a tour step sets one.
+  VisitAction get displayAction => tour?.face ?? action;
+
   Future<void> act(VisitAction a) async {
     if (busyAction.value) return;
+    // The tour drives the panel for show; it must never write to a queue.
+    if (tourStep.value != 0) return;
     final target = switch (a) {
       VisitAction.alert => next,
-      VisitAction.endVisit => serving.value ?? called.value,
+      VisitAction.start => called.value,
+      VisitAction.endVisit => serving.value,
       VisitAction.noShow => called.value,
     };
     if (target == null) return;
 
     busyAction.value = true;
+    actionError.value = null;
     try {
       if (kMock) {
         // Never write to a real queue from fixtures.
@@ -313,18 +543,58 @@ class QueueController extends GetxController {
       switch (a) {
         case VisitAction.alert:
           await Api.instance.put(Urls.alert(target.id));
+          _observed['c:${target.id}'] = DateTime.now();
+        case VisitAction.start:
+          // No force: if someone is already in the room the server says so,
+          // and that message is shown rather than overridden.
+          await Api.instance.put(Urls.serving_(target.id));
+          _observed['s:${target.id}'] = DateTime.now();
         case VisitAction.endVisit:
           await Api.instance.put(Urls.served(target.id));
         case VisitAction.noShow:
           await Api.instance.put(Urls.noShow(target.id));
       }
       await refreshNow();
-    } on ApiException {
-      // Roll back by re-reading rather than guessing at local state.
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        await endSession(expired: true);
+        return;
+      }
+      _showActionError(e.message);
+      await refreshNow();
+    } catch (_) {
+      _showActionError('Cannot reach Chup');
       await refreshNow();
     } finally {
       busyAction.value = false;
     }
+  }
+
+  // ---------------------------------------------------------------- session
+
+  /// Back to the sign-in card, for sign-out and for an expired token alike.
+  ///
+  /// Stops this controller (timers and all) so signing in again starts a
+  /// fresh one instead of running two.
+  Future<void> endSession({bool expired = false}) async {
+    _poll?.cancel();
+    _clock?.cancel();
+    if (expired) {
+      Api.instance.token = null;
+    } else {
+      await Api.instance.signOut();
+    }
+    // Not awaited: Get.offAll's future only completes when the route is popped.
+    unawaited(Get.offAll(() => SignInScreen(
+        notice: expired ? 'Your session expired. Please sign in again.' : null)));
+    await showSignInWindow();
+    await Get.delete<QueueController>(force: true);
+  }
+
+  /// Sizes and centres the window for the sign-in card.
+  Future<void> showSignInWindow() async {
+    await windowManager.setSize(const Size(kSignInWidth, kSignInHeight));
+    await windowManager.center();
   }
 }
 

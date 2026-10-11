@@ -19,16 +19,16 @@ const double kEdgeInset = 12;
 /// Window height the size menu needs, measured the same way as kRevealHeight.
 ///
 /// The menu opens *under* a button that sits about 21px down the reveal, and
-/// its items are 30px each: five of them plus the divider and the surface's
-/// own padding put the last row's bottom at ~188. The small size's reveal is
-/// only 40 + kRevealHeight = 158 tall, which clipped "Sign out" to an
-/// unreadable 8px sliver — reachable, but you could not tell what it was.
+/// its items are 30px each: six of them plus the divider and the surface's
+/// own padding put the last row's bottom at ~218. The small size's reveal is
+/// only 40 + kRevealHeight = 158 tall, which clipped the last rows to an
+/// unreadable sliver.
 ///
-/// 212 is the smallest number that fits it with room to spare; medium and
-/// large are already taller than this, so the value only ever bites on small.
+/// 242 fits it with the same spare room 212 left for five rows; medium and
+/// large are already at least this tall, so the value only ever bites on small.
 /// `QueueController.windowHeight` is what applies it, guarded by
 /// test/size_menu_pin_test.dart.
-const double kSizeMenuWindowHeight = 212;
+const double kSizeMenuWindowHeight = 242;
 
 /// Keeps the panel pinned to its corner while its height changes.
 ///
@@ -46,21 +46,44 @@ class WindowAnchor {
   double get right => _box.read<double>('pos_right') ?? kEdgeInset;
   double get bottom => _box.read<double>('pos_bottom') ?? kEdgeInset;
 
-  Future<void> savePosition(double r, double b) async {
+  /// The display the widget was last parked on. Offsets are relative to it, so
+  /// a widget dragged to a second monitor stays there across resizes.
+  String? get displayId => _box.read<String>('pos_display');
+
+  Future<void> savePosition(double r, double b, {String? display}) async {
     await _box.write('pos_right', r);
     await _box.write('pos_bottom', b);
+    if (display != null) await _box.write('pos_display', display);
   }
 
-  Future<Rect> _workArea() async {
-    final d = await screenRetriever.getPrimaryDisplay();
+  static Rect _area(Display d) {
     final size = d.visibleSize ?? d.size;
     final origin = d.visiblePosition ?? Offset.zero;
     return Rect.fromLTWH(origin.dx, origin.dy, size.width, size.height);
   }
 
+  /// The stored display when it is still connected, otherwise the primary.
+  Future<Display> _display() async {
+    final id = displayId;
+    if (id != null) {
+      final all = await screenRetriever.getAllDisplays();
+      for (final d in all) {
+        if (d.id == id) return d;
+      }
+    }
+    return screenRetriever.getPrimaryDisplay();
+  }
+
+  Future<Rect> _workArea() async => _area(await _display());
+
   /// Places a window of [w]x[h] at the stored corner offsets, clamped so the
   /// reveal always has room to open upward without running off the top.
   Future<void> setSizeKeepingBottom(double w, double h) async {
+    await windowManager.setBounds(await boundsFor(w, h));
+  }
+
+  /// Where a [w]x[h] window sits at the stored corner, without moving it.
+  Future<Rect> boundsFor(double w, double h) async {
     final area = await _workArea();
     final x = area.right - w - right;
     var y = area.bottom - h - bottom;
@@ -70,7 +93,7 @@ class WindowAnchor {
     final minY = area.top + kRevealHeight;
     if (y < minY) y = minY;
 
-    await windowManager.setBounds(Rect.fromLTWH(x, y, w, h));
+    return Rect.fromLTWH(x, y, w, h);
   }
 
   /// The closed tab sits flush to the right screen edge, at the same height the
@@ -84,12 +107,21 @@ class WindowAnchor {
 
   /// After a drag, convert the window's absolute position back into corner
   /// offsets so later resizes keep the same anchor.
+  ///
+  /// The display is whichever one now holds the window's centre.
   Future<void> rememberCurrentPosition() async {
-    final area = await _workArea();
     final b = await windowManager.getBounds();
+    final all = await screenRetriever.getAllDisplays();
+    Display? on;
+    for (final d in all) {
+      if (_area(d).contains(b.center)) on = d;
+    }
+    on ??= await screenRetriever.getPrimaryDisplay();
+    final area = _area(on);
     await savePosition(
       (area.right - b.right).clamp(0.0, area.width),
       (area.bottom - b.bottom).clamp(0.0, area.height),
+      display: on.id,
     );
   }
 }

@@ -18,6 +18,13 @@ Future<void> main() async {
 
   // Fixtures skip the sign-in card so the panel is reachable with no backend.
   final loggedIn = kMock || Api.instance.isLoggedIn;
+
+  // A stored token with no tour flag is an install from before the tour
+  // existed. That doctor already knows the widget, so the tour is skipped.
+  final box = GetStorage();
+  if (Api.instance.isLoggedIn && box.read('first_run_completed') == null) {
+    await box.write('first_run_completed', true);
+  }
   // Sign in is centred; the widget lives in its corner.
   //
   // The panel's height is whatever size the menu left it at — it is stored, and

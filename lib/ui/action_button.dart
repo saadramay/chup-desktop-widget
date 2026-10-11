@@ -81,6 +81,8 @@ class _ActionButtonState extends State<ActionButton>
 
   ({String label, Color base, Color hover}) get _face => switch (widget.action) {
         VisitAction.alert => (label: 'ALERT', base: cOrange, hover: cOrangeHover),
+        VisitAction.start =>
+          (label: 'START', base: cGreen600, hover: cGreen700Hover),
         VisitAction.endVisit =>
           (label: 'END VISIT', base: cGreen700, hover: cGreen700Hover),
         VisitAction.noShow => (label: 'NO-SHOW', base: cRed, hover: cRed),

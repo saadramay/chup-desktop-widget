@@ -5,6 +5,7 @@ import '../core/queue_controller.dart';
 import '../core/window_anchor.dart';
 import 'sliver_panel.dart';
 import 'tokens.dart';
+import 'tour_card.dart';
 
 /// Switches between the three presentations and keeps the OS window sized to
 /// whichever is showing.
@@ -21,6 +22,12 @@ class WidgetShell extends StatelessWidget {
 
     return Obx(() {
       final p = c.presentation.value;
+      // Read here, not inside LayoutBuilder: Obx only tracks reads made
+      // during its own build.
+      final panelMin = c.size.value.height;
+      final touring = c.tourStep.value != 0;
+      final blinking = c.blinking.value;
+      final panelHeight = c.panelHeight;
 
       // Geometry follows presentation. Done after the frame so the window is
       // never resized mid-build.
@@ -56,7 +63,7 @@ class WidgetShell extends StatelessWidget {
       return LayoutBuilder(builder: (context, box) {
         if (p == Presentation.panel &&
             (box.maxWidth < kWidgetWidth ||
-                box.maxHeight < c.size.value.height)) {
+                box.maxHeight < panelMin)) {
           // Drawing nothing is only half of the fix — the other half is asking
           // for the height the panel is missing, because nothing else would.
           // main() starts the window at the *stored* size, but that handshake
@@ -67,16 +74,42 @@ class WidgetShell extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        return switch (p) {
-          Presentation.panel => Container(
-              decoration: BoxDecoration(
-                color: cWhite,
-                border: Border.all(color: cLine200),
-                borderRadius: BorderRadius.circular(8),
+        if (p == Presentation.panel) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => c.landed());
+        }
+
+        // Pinned to the window's right edge at its own width, so a wider
+        // window (the tour card) never stretches or moves it. It fills the
+        // window's height except while touring, when the card sets that.
+        final panel = Align(
+          alignment: Alignment.bottomRight,
+          child: SizedBox(
+            width: kWidgetWidth,
+            height: touring
+                ? panelHeight.clamp(0.0, box.maxHeight)
+                : box.maxHeight,
+            child: Stack(fit: StackFit.expand, children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: cWhite,
+                  border: Border.all(color: cLine200),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: const SliverPanel(),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: const SliverPanel(),
-            ),
+              if (blinking) const LandingBlink(),
+            ]),
+          ),
+        );
+
+        return switch (p) {
+          Presentation.panel => touring
+              ? Stack(children: [
+                  const Positioned(left: 0, bottom: 0, child: TourCard()),
+                  panel,
+                ])
+              : panel,
           Presentation.minimised => const _MinimisedChip(),
           Presentation.closed => const _ClosedTab(),
         };

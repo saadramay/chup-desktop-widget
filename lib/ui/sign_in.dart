@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -6,12 +9,17 @@ import 'package:window_manager/window_manager.dart';
 
 import '../core/api.dart';
 import '../core/queue_controller.dart';
+import '../core/startup.dart';
+import '../core/window_anchor.dart';
 import 'shell.dart';
 import 'tokens.dart';
 
 /// kSignInWidth x kSignInHeight, centred. Shown once per install.
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+  const SignInScreen({super.key, this.notice});
+
+  /// Why the card is showing, e.g. an expired session. Shown until submit.
+  final String? notice;
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -23,9 +31,18 @@ class _SignInScreenState extends State<SignInScreen> {
   final _box = GetStorage();
 
   bool _busy = false;
+
+  /// Sign-in content opacity during the morph to the corner.
+  double _content = 1;
   bool _obscure = true;
   bool _stay = true; // default ON
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _error = widget.notice;
+  }
 
   @override
   void dispose() {
@@ -41,16 +58,23 @@ class _SignInScreenState extends State<SignInScreen> {
       _error = null;
     });
     try {
+      // "Stay signed in" decides whether the token survives the session. It has
+      // to be set before login(), which is what stores the token.
+      Api.instance.persistToken = _stay;
       await Api.instance.login(_email.text.trim(), _password.text);
-      // "Stay signed in" is what decides whether the token survives the session,
-      // which is a different promise from remembering an email.
-      if (!_stay) Api.instance.persistToken = false;
       await _box.write('stay_signed_in', _stay);
+      unawaited(registerStartup());
+      if (!mounted) return;
+      await _morphToCorner();
       if (!mounted) return;
       Get.put(QueueController());
       Get.offAll(() => const WidgetShell());
     } on ApiException catch (e) {
-      setState(() => _error = e.statusCode == 401 || e.statusCode == 200
+      // The server's own message when it sent one; the API reports a bad
+      // password as HTTP 200 with error:true.
+      final generic = e.message.isEmpty || e.message == 'Request failed';
+      setState(() => _error = generic &&
+              (e.statusCode == 401 || e.statusCode == 200)
           ? 'Wrong email or password'
           : e.message);
     } catch (_) {
@@ -60,14 +84,59 @@ class _SignInScreenState extends State<SignInScreen> {
     }
   }
 
+  /// The card becomes the widget: 1150ms on the spec's curve, travelling to
+  /// the corner at the panel's stored size, content gone by 28%.
+  Future<void> _morphToCorner() async {
+    try {
+      final from = await windowManager.getBounds();
+      final to = await WindowAnchor.instance
+          .boundsFor(kWidgetWidth, QueueController.storedSize().height);
+      const curve = Cubic(0.45, 0.05, 0.2, 1);
+      const total = Duration(milliseconds: 1150);
+      final clock = Stopwatch()..start();
+      while (clock.elapsed < total && mounted) {
+        final lin = clock.elapsedMilliseconds / total.inMilliseconds;
+        final e = curve.transform(lin.clamp(0.0, 1.0));
+        setState(() => _content = (1 - lin / 0.28).clamp(0.0, 1.0));
+        await windowManager.setBounds(Rect.lerp(from, to, e)!);
+        await Future<void>.delayed(const Duration(milliseconds: 16));
+      }
+      await windowManager.setBounds(to);
+    } on MissingPluginException {
+      // No OS window under `flutter test`.
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // While the window shrinks the card keeps its own size and is clipped,
+    // so the morph never reports an overflow.
+    // The white box is the window and shrinks with it; only the content is
+    // fixed-size, faded and clipped.
     return Container(
       decoration: BoxDecoration(
         color: cWhite,
         border: Border.all(color: cLine200),
         borderRadius: BorderRadius.circular(8),
       ),
+      clipBehavior: Clip.antiAlias,
+      child: OverflowBox(
+        alignment: Alignment.topLeft,
+        minWidth: 0,
+        minHeight: 0,
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+        child: SizedBox(
+          width: kSignInWidth - 2,
+          height: kSignInHeight - 2,
+          child: Opacity(opacity: _content, child: _card()),
+        ),
+      ),
+    );
+  }
+
+  Widget _card() {
+    return Padding(
       padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

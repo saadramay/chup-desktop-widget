@@ -127,8 +127,8 @@ The one genuinely new piece. Three integers, per clinic, ideally per doctor for 
 ```
 
 Anywhere in the response the widget can reach it. Until it exists the widget uses 20 / 15 / 5
-(`lib/core/limits.dart`) and `Limits.fromJson` will pick the real values up the moment the key
-appears — no client change needed.
+(`lib/core/limits.dart`). The poll reads `data.limits` from the serving response first, then
+the visits list, so the real values apply as soon as the key appears.
 
 `estimated_time` and `service_time` already exist per visit, but they are not the same thing:
 the design wants one flat consultation length for the doctor, not a per-visit estimate. Worth a
@@ -149,13 +149,25 @@ clock instead, and use the duration only as a cross-check.
 
 ---
 
+## The ready-made patch
+
+Committed on chup.online `develop` as `577101b68` (2026-10-11); not yet on `v1`.
+`design/chup-online-backend.patch` is the final step of that work, kept for reference. It makes `FindAbleTrait::processQuery` apply and then
+clear the aggregates, adds them and `limits` to `user/visits` (the list the widget polls), and
+gates all of it on `?widget=1` so the dashboard, mobile app and screens see unchanged payloads.
+The widget sends `widget=1` on both polls. Apply from the chup.online root:
+
+```bash
+git apply design/chup-online-backend.patch   # path to this file
+```
+
 ## Things in the design that are not backend work
 
 Flagged so nobody goes looking for an API for them:
 
 - **Sound coordination.** The design says the widget must stay silent while the Chup web app is
   open — one surface owns the sound. That is local IPC (named pipe / lock file), not an endpoint.
-- **Startup registration.** Registering in the Windows startup list is installer work.
+- **Startup registration.** Done in the app on sign-in (per-user Run key, release builds only).
 - **Position, size, `first_run_completed`, tour state.** All local storage.
 - **The first-run tour** is ten steps in Bahasa Malaysia, driving the live panel. No backend.
 

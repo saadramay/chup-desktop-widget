@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,6 +15,13 @@ class Urls {
   static const visits = 'user/visits';
   static const serving = 'user/visits/serving';
 
+  /// `widget=1` asks the backend for called_at / started_at / limits (see
+  /// design/chup-online-backend.patch); servers without it ignore the flag.
+  static const widgetQuery = {'widget': '1'};
+
+  /// The list defaults to 10 rows; Large shows nine, and the rest still count.
+  static const listQuery = {'size': '50', ...widgetQuery};
+
   static String alert(int id) => 'user/visits/$id/alert';
   static String undoAlert(int id) => 'user/visits/$id/undo-alert';
   static String noShow(int id) => 'user/visits/$id/no-show';
@@ -22,8 +31,9 @@ class Urls {
 
 /// Base URL is supplied at build time so no environment file ships with the exe.
 ///
-///   production (live clinics): https://chup.online/api/v1/   <- the default
-///   staging (safe to poke):    https://chup.tech/api/v1/
+///   release builds (clinics):  https://chup.online/api/v1/   <- release default
+///   debug/profile builds:      https://chup.tech/api/v1/     <- so a forgotten
+///                              flag never writes to live clinics' queues
 ///
 ///   `flutter run -d windows --dart-define=BASE_URL=https://chup.tech/api/v1/`
 ///
@@ -32,7 +42,9 @@ class Urls {
 /// route returns a Laravel 404 that looks exactly like a wrong path.
 const String kBaseUrl = String.fromEnvironment(
   'BASE_URL',
-  defaultValue: 'https://chup.online/api/v1/',
+  defaultValue: kReleaseMode
+      ? 'https://chup.online/api/v1/'
+      : 'https://chup.tech/api/v1/',
 );
 
 class ApiException implements Exception {
@@ -60,9 +72,10 @@ class Api {
 
   set token(String? v) {
     _memoryToken = v;
-    if (v == null) {
+    if (v == null || !persistToken) {
+      // Also clears a token an earlier "stay signed in" session left on disk.
       _box.remove('token');
-    } else if (persistToken) {
+    } else {
       _box.write('token', v);
     }
   }

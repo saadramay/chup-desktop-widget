@@ -17,7 +17,17 @@ Lives here because its backend is this repo; it is otherwise a self-contained ap
 
 The app is **built and running**. The redesign (216×40 sliver, hover reveal, hold-to-confirm
 No-Show, three sizes, four data states, minimised chip, closed edge tab) is implemented.
-`flutter analyze` is clean and 44 tests pass.
+`flutter analyze` is clean and 68 tests pass (layout tests skip off Windows).
+
+**2026-10-11 audit fixes.** The API sends `state` as an integer, so states are matched on it,
+not on the translated label. ALERTED counts as called without `called_at`. The action goes
+ALERT, START, END VISIT, because `served` 404s on a visit that is not SERVING. Called and
+serving times fall back to when the app first saw them. Failed actions show their reason. An
+expired token returns to sign-in, and sign-out stops the controller. "Stay signed in"
+unticked no longer writes the token. Backend `limits` are read. Positions count against the
+session total. Booking times combine `date` and `time`. Polling backs off. Debug builds
+default to staging. The morph, landing blink, tour, startup registration, Open in Chup and
+Quit are built. CI signs the exe once certificate secrets exist.
 
 **Latest: the red "No Material widget found" panel is fixed.** Build against a live backend,
 sign in, and the reveal drew Flutter's red error box over the whole panel with a
@@ -201,8 +211,15 @@ made in CI — Smart App Control blocks Flutter's unsigned AOT compiler locally.
   from Segoe at these sizes. The height is guarded by `test/sign_in_fit_test.dart`, which
   fails on 311 by 0.433px. **If the sign-in card should be 271 tall, that is a design
   decision to make by cutting content — not by lowering the constant back.**
-- The 1150ms sign-in → widget morph and landing blink
-- The ten-step first-run tour in Bahasa Malaysia (script is in the `.dc.html`)
-- Sound coordination with the web app (local IPC — only one surface may own the sound)
-- Windows startup registration (installer)
-- The "Open in Chup" target URL
+- **Tour step 7 copy changed** to describe START. A Malay speaker should review it.
+- The tour card sits beside the panel, not in the opposite screen corner. That needs a second
+  native window, and `desktop_multi_window` only does it with a forked `window_manager`, which
+  would replace the package carrying the frameless and sizing fixes.
+- Sound coordination: the widget makes no sound yet, so there is nothing to coordinate.
+- Code signing needs `WINDOWS_SIGN_CERT_PFX_BASE64` and `WINDOWS_SIGN_CERT_PASSWORD` secrets.
+- Backend: committed on chup.online `develop` as `577101b68` (staging once pushed). Not on `v1`,
+  so production still lacks the fields; the widget uses its own observed times and default
+  limits there until it lands.
+- Live checks: CI's `window` job runs `integration_test/window_test.dart` in a real Windows
+  window (boot at Large, menu at Small). Actions against staging: `tools/e2e-actions.py` with a
+  staging login and two test patients.

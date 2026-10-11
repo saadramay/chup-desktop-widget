@@ -25,7 +25,7 @@ flutter run -d windows --dart-define=BASE_URL=https://chup.tech/api/v1/
 
 | Environment | Base URL |
 |---|---|
-| Production (compiled-in default) | `https://chup.online/api/v1/` |
+| Production (release-build default) | `https://chup.online/api/v1/` |
 | Staging | `https://chup.tech/api/v1/` |
 
 ## Traps that have already cost time
@@ -67,12 +67,16 @@ Change the visuals freely, but these are behavioural:
 1. **The bottom 38px never moves.** Sizes and the hover reveal both grow *upward*, so the action
    target stays put under the cursor. That needs window repositioning, not just resizing —
    setting size alone grows a window downward.
-2. **Exactly one action is ever visible.** ALERT → END VISIT at rest; NO-SHOW only in the reveal,
-   and only as a 550ms hold. It marks a real person absent and there is no undo.
+2. **Exactly one action is ever visible.** ALERT, then START once called, then END VISIT. The
+   backend only ends a visit that is SERVING, so START cannot be skipped. NO-SHOW only in the
+   reveal, and only as a 550ms hold. It marks a real person absent and there is no undo.
+3a. **Match states on the integer.** The API sends `state` as the enum integer and `state_name`
+   as a translated label. `Visit.stateNames` maps one to the other.
 3. **The resting line names the NEXT patient**, not the one in the room.
 4. **Derive every minute from a timestamp and the clock.** Durations from the API freeze between
    polls; the widget must keep counting.
-5. **Neither minimise nor close removes it from the screen** — there is no tray.
+5. **Neither minimise nor close removes it from the screen.** There is no tray; Quit in the
+   menu is the way out.
 
 ## Checking the backend
 
@@ -86,12 +90,13 @@ Cloudflare fronts both hosts and 403s a default urllib user-agent — the script
 ## Still owed by the backend
 
 `serving.started_at`, a `called` object with `called_at`, and `limits`
-(`wait_minutes`/`grace_minutes`/`consult_minutes`). Code paths for all of them exist and stay
-inert until the fields land. Details and suggested shapes in `design/BACKEND-WIRING.md`.
+(`wait_minutes`/`grace_minutes`/`consult_minutes`). Until they land, the widget counts from when it first
+saw the alert or the start, and uses 20 / 15 / 5 for limits. Details and suggested shapes in `design/BACKEND-WIRING.md`.
 
 ## Conventions
 
 - Tokens live in `lib/ui/tokens.dart`; never hardcode a hex in a widget.
 - `flutter analyze` must be clean and `flutter test` green before committing.
-- Commit as `100Startups` — the repo sets `user.name` locally because the global git identity is
-  a different account.
+- Commit as the repo owner, on every machine (the WorkSpaces box defaults to `chup`):
+  `git config --local user.name "Saad Arshad"` and
+  `git config --local user.email "73756649+saadramay@users.noreply.github.com"`.

@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '../core/api.dart';
+import '../core/links.dart';
 import '../core/limits.dart';
 import '../core/queue_controller.dart';
 import '../core/visit.dart';
 import '../core/window_anchor.dart';
 import 'action_button.dart';
-import 'sign_in.dart';
 import 'tokens.dart';
+import 'tour_card.dart';
+import '../core/tour.dart';
 
 /// The widget at rest plus its hover reveal.
 ///
@@ -33,7 +34,7 @@ class SliverPanel extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             if (c.revealed.value) const Expanded(child: _Reveal()),
-            _QueueRows(),
+            TourRing(region: TourRegion.list, child: _QueueRows()),
             const _RestingBand(),
           ],
         ),
@@ -64,19 +65,23 @@ class _RestingBand extends StatelessWidget {
               child: switch (state) {
                 PanelState.serving => const _ServingLine(),
                 PanelState.empty => const _StatusLine(
-                    text: 'NO ONE IN THE QUEUE', color: cInk500),
-                PanelState.loading =>
-                  const _StatusLine(text: 'READING THE QUEUE', color: cInk500),
+                  text: 'NO ONE IN THE QUEUE',
+                  color: cInk500,
+                ),
+                PanelState.loading => const _StatusLine(
+                  text: 'READING THE QUEUE',
+                  color: cInk500,
+                ),
                 PanelState.offline => _StatusLine(
-                    text: 'CANNOT REACH CHUP',
-                    color: cRed,
-                    trailing: c.lastGoodPoll.value == null
-                        ? null
-                        : 'LAST READ ${c.minutesSinceLastPoll}M AGO',
-                  ),
+                  text: 'CANNOT REACH CHUP',
+                  color: cRed,
+                  trailing: c.lastGoodPoll.value == null
+                      ? null
+                      : 'LAST READ ${c.minutesSinceLastPoll}M AGO',
+                ),
               },
             ),
-            const _LeadMeter(),
+            const TourRing(region: TourRegion.meter, child: _LeadMeter()),
           ],
         ),
       );
@@ -103,54 +108,87 @@ class _ServingLine extends StatelessWidget {
       return Row(
         children: [
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 9),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          n.shortName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: t(11.5, FontWeight.w600),
+            child: TourRing(
+              region: TourRegion.next,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 9),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            n.shortName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: t(11.5, FontWeight.w600),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${n.sortIndex}/${c.sessionTotal}',
-                        style: t(9.5, FontWeight.w800,
-                            color: cInk500, tabular: true),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(_clock(n.appointmentAt),
-                          style: t(10, FontWeight.w700, tabular: true)),
-                      const Spacer(),
-                      Text(
-                        called ? 'CALLED ${mins}M' : '${mins}M WAITING',
-                        style: t(9, FontWeight.w800,
-                            color: over ? cRed : cInk500,
-                            spacing: 0.4,
-                            tabular: true),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 4),
+                        Text(
+                          '${c.positionOf(n)}/${c.sessionTotal}',
+                          style: t(
+                            9.5,
+                            FontWeight.w800,
+                            color: cInk500,
+                            tabular: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          _clock(n.appointmentAt),
+                          style: t(10, FontWeight.w700, tabular: true),
+                        ),
+                        const Spacer(),
+                        // A failed action takes this slot for a few seconds, so
+                        // it can never pass for a successful one.
+                        if (c.actionError.value != null)
+                          Expanded(
+                            child: Text(
+                              c.actionError.value!.toUpperCase(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.right,
+                              style: t(
+                                9,
+                                FontWeight.w800,
+                                color: cRed,
+                                spacing: 0.4,
+                              ),
+                            ),
+                          )
+                        else
+                          Text(
+                            called ? 'CALLED ${mins}M' : '${mins}M WAITING',
+                            style: t(
+                              9,
+                              FontWeight.w800,
+                              color: over ? cRed : cInk500,
+                              spacing: 0.4,
+                              tabular: true,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
           const SizedBox(width: 6),
-          Padding(
-            padding: const EdgeInsets.all(2),
-            child: ActionButton(
-              action: c.action,
-              onFire: () => c.act(c.action),
+          TourRing(
+            region: TourRegion.act,
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: ActionButton(
+                action: c.displayAction,
+                onFire: () => c.act(c.action),
+              ),
             ),
           ),
         ],
@@ -174,42 +212,42 @@ class _StatusLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 9),
-        // Two strings have to share one line and the line's width is not theirs
-        // to choose: 216 minus the shell's 1px border and this 9px on each side
-        // is 196, and the offline pair needs 214 of it. Both used to be laid out
-        // at the Row's full width with a Spacer between them, so once the two
-        // together outgrew the band the Spacer collapsed to nothing and neither
-        // gave way — the Row just reported an overflow.
-        //
-        // Now the headline, which is the part that names the state, takes what
-        // it needs up to the whole line, and the trailing clock is an Expanded
-        // that gets the remainder and ellipsises into it. Sum of the two can
-        // never exceed the Row, so there is no width at which this overflows.
-        child: Row(
-          children: [
-            Text(
-              text,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: t(9.5, FontWeight.w800, color: color, spacing: 0.5),
-            ),
-            if (trailing != null)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: Text(
-                    trailing!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.right,
-                    style: t(9, FontWeight.w800, color: cInk500, spacing: 0.4),
-                  ),
-                ),
-              ),
-          ],
+    padding: const EdgeInsets.symmetric(horizontal: 9),
+    // Two strings have to share one line and the line's width is not theirs
+    // to choose: 216 minus the shell's 1px border and this 9px on each side
+    // is 196, and the offline pair needs 214 of it. Both used to be laid out
+    // at the Row's full width with a Spacer between them, so once the two
+    // together outgrew the band the Spacer collapsed to nothing and neither
+    // gave way — the Row just reported an overflow.
+    //
+    // Now the headline, which is the part that names the state, takes what
+    // it needs up to the whole line, and the trailing clock is an Expanded
+    // that gets the remainder and ellipsises into it. Sum of the two can
+    // never exceed the Row, so there is no width at which this overflows.
+    child: Row(
+      children: [
+        Text(
+          text,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: t(9.5, FontWeight.w800, color: color, spacing: 0.5),
         ),
-      );
+        if (trailing != null)
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 6),
+              child: Text(
+                trailing!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+                style: t(9, FontWeight.w800, color: cInk500, spacing: 0.4),
+              ),
+            ),
+          ),
+      ],
+    ),
+  );
 }
 
 /// 3px along the bottom edge. Tracks the same person the line names — the wait,
@@ -263,14 +301,17 @@ class _QueueRows extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(v.shortName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: t(10, FontWeight.w600)),
+                    child: Text(
+                      v.shortName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: t(10, FontWeight.w600),
+                    ),
                   ),
-                  Text('${minutesSince(v.arrivedAt, c.now.value)}M',
-                      style: t(9, FontWeight.w800,
-                          color: cInk500, tabular: true)),
+                  Text(
+                    '${minutesSince(v.arrivedAt, c.now.value)}M',
+                    style: t(9, FontWeight.w800, color: cInk500, tabular: true),
+                  ),
                 ],
               ),
             ),
@@ -282,9 +323,10 @@ class _QueueRows extends StatelessWidget {
               decoration: const BoxDecoration(
                 border: Border(top: BorderSide(color: cLine200)),
               ),
-              child: Text('END OF SESSION',
-                  style: t(8.5, FontWeight.w800,
-                      color: cInk500, spacing: 0.8)),
+              child: Text(
+                'END OF SESSION',
+                style: t(8.5, FontWeight.w800, color: cInk500, spacing: 0.8),
+              ),
             ),
         ],
       );
@@ -316,54 +358,99 @@ class _Reveal extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(s == null ? 'CHUP' : 'NOW',
-                    style: t(10, FontWeight.w800,
-                        color: cGreen700, spacing: 0.8)),
+                Text(
+                  s == null ? 'CHUP' : 'NOW',
+                  style: t(10, FontWeight.w800, color: cGreen700, spacing: 0.8),
+                ),
                 const Spacer(),
-                const _ControlCluster(),
+                const TourRing(
+                  region: TourRegion.controls,
+                  child: _ControlCluster(),
+                ),
               ],
             ),
             const SizedBox(height: 2),
-            if (s != null) ...[
-              // Full name — only the resting line shortens. One line, though:
-              // the reveal's height is fixed, so a name that wrapped to two
-              // lines would push the NO-SHOW button off the bottom of the
-              // panel (measured: 42px past it for a three-line name).
-              Text(s.clientName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style:
-                      t(19, FontWeight.w700, height: 1.1, spacing: -0.19)),
-              const SizedBox(height: 3),
-              Row(
-                children: [
-                  Text(s.token,
-                      style: t(15, FontWeight.w800,
-                          color: cGreen600, tabular: true)),
-                  const SizedBox(width: 5),
-                  Text('${s.sortIndex}/${c.sessionTotal}',
-                      style:
-                          t(12, FontWeight.w800, color: cInk500, tabular: true)),
-                  const SizedBox(width: 5),
-                  Text('· SERVING ${c.servingMinutes}M',
-                      style: t(12, FontWeight.w800,
-                          color: c.servingOverLimit ? cRed : cInk500,
-                          tabular: true)),
-                ],
+            if (s != null)
+              TourRing(
+                region: TourRegion.now,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Full name — only the resting line shortens. One line, though:
+                    // the reveal's height is fixed, so a name that wrapped to two
+                    // lines would push the NO-SHOW button off the bottom of the
+                    // panel (measured: 42px past it for a three-line name).
+                    Text(
+                      s.clientName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: t(
+                        19,
+                        FontWeight.w700,
+                        height: 1.1,
+                        spacing: -0.19,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        Text(
+                          s.token,
+                          style: t(
+                            15,
+                            FontWeight.w800,
+                            color: cGreen600,
+                            tabular: true,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          '${c.positionOf(s)}/${c.sessionTotal}',
+                          style: t(
+                            12,
+                            FontWeight.w800,
+                            color: cInk500,
+                            tabular: true,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          '· SERVING ${c.servingMinutes}M',
+                          style: t(
+                            12,
+                            FontWeight.w800,
+                            color: c.servingOverLimit ? cRed : cInk500,
+                            tabular: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    _ServingMeter(),
+                  ],
+                ),
+              )
+            else
+              Text(
+                'No consultation in progress',
+                style: t(11.5, FontWeight.w500, color: cInk500),
               ),
-              const SizedBox(height: 4),
-              _ServingMeter(),
-            ] else
-              Text('No consultation in progress',
-                  style: t(11.5, FontWeight.w500, color: cInk500)),
-            if (called != null) ...[
+            // Shown while someone is called, and on the tour's No-Show step,
+            // where act() refuses to fire.
+            if (called != null || c.tour?.highlight == TourRegion.noShow) ...[
               const SizedBox(height: 6),
-              ActionButton(
-                action: VisitAction.noShow,
-                width: double.infinity,
-                height: 24,
-                holdLabel: 'NO-SHOW · ${called.shortName}',
-                onFire: () => c.act(VisitAction.noShow),
+              TourRing(
+                region: TourRegion.noShow,
+                child: ActionButton(
+                  action: VisitAction.noShow,
+                  width: double.infinity,
+                  height: 24,
+                  holdLabel: called == null
+                      ? 'NO-SHOW'
+                      : 'NO-SHOW · ${called.shortName}',
+                  onFire: () => c.act(VisitAction.noShow),
+                ),
               ),
             ],
           ],
@@ -379,7 +466,9 @@ class _ServingMeter extends StatelessWidget {
     final c = Get.find<QueueController>();
     return Obx(() {
       final consult = c.limits.value.consult.inMinutes;
-      final f = consult == 0 ? 0.0 : (c.servingMinutes / consult).clamp(0.0, 1.0);
+      final f = consult == 0
+          ? 0.0
+          : (c.servingMinutes / consult).clamp(0.0, 1.0);
       return SizedBox(
         height: 2,
         child: Align(
@@ -418,7 +507,7 @@ class _ControlCluster extends StatelessWidget {
         _Ctl(
           icon: Icons.open_in_new,
           tooltip: 'Open in Chup',
-          onTap: () {}, // TODO(dev): launch the web queue URL
+          onTap: () => openInBrowser(webQueueUrl),
         ),
         _SizeMenu(),
         _Ctl(
@@ -474,8 +563,9 @@ class _CtlState extends State<_Ctl> {
         onExit: (_) => setState(() => _h = false),
         child: GestureDetector(
           onTap: widget.onTap,
-          onPanStart:
-              widget.onDragStart == null ? null : (_) => widget.onDragStart!(),
+          onPanStart: widget.onDragStart == null
+              ? null
+              : (_) => widget.onDragStart!(),
           child: Container(
             width: 20,
             height: 20,
@@ -518,17 +608,14 @@ class _SizeMenu extends StatelessWidget {
         c.menuOpen.value = false;
         if (v is WidgetSize) {
           await c.setSize(v);
+        } else if (v == 'help') {
+          await c.startTour();
         } else if (v == 'signout') {
-          await Api.instance.signOut();
-          Get.offAll(() => const SignInScreen());
-          // The card is kSignInWidth x kSignInHeight and centred; the window
-          // is still the panel's 216 x 40 tucked into a screen corner. Without
-          // this the card renders inside the panel's window and overflows it
-          // by hundreds of pixels — the same class of bug as signing in, only
-          // on the way out.
-          await windowManager.setSize(
-              const Size(kSignInWidth, kSignInHeight));
-          await windowManager.center();
+          // Resizes and centres the window for the card, and stops this
+          // controller so the next sign-in does not run two.
+          await c.endSession();
+        } else if (v == 'quit') {
+          await windowManager.destroy();
         }
       },
       itemBuilder: (_) => [
@@ -536,27 +623,34 @@ class _SizeMenu extends StatelessWidget {
           PopupMenuItem<Object>(
             value: s,
             height: 30,
-            child: Row(children: [
-              SizedBox(
-                width: 16,
-                child: c.size.value == s
-                    ? const Icon(Icons.check, size: 12, color: cGreen700)
-                    : null,
-              ),
-              Text(s.label, style: t(11.5, FontWeight.w500)),
-            ]),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 16,
+                  child: c.size.value == s
+                      ? const Icon(Icons.check, size: 12, color: cGreen700)
+                      : null,
+                ),
+                Text(s.label, style: t(11.5, FontWeight.w500)),
+              ],
+            ),
           ),
         const PopupMenuDivider(height: 1),
         PopupMenuItem<Object>(
           value: 'help',
           height: 30,
-          // TODO(dev): restarts the ten-step first-run tour.
           child: Text('Help', style: t(11.5, FontWeight.w500)),
         ),
         PopupMenuItem<Object>(
           value: 'signout',
           height: 30,
           child: Text('Sign out', style: t(11.5, FontWeight.w500)),
+        ),
+        // Close only tucks the widget into an edge tab; this is the way out.
+        PopupMenuItem<Object>(
+          value: 'quit',
+          height: 30,
+          child: Text('Quit', style: t(11.5, FontWeight.w500)),
         ),
       ],
       child: Container(

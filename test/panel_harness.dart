@@ -36,9 +36,21 @@ class PanelHost extends QueueController {
 
   /// How many times the shell (or anything else) asked for the window.
   int geometryRequests = 0;
+
+  /// No OS window on a test host.
+  @override
+  Future<void> showSignInWindow() async {}
+
+  /// The first-run blink and tour run on timers; layout tests do not want them.
+  @override
+  Future<void> landed() async {}
 }
 
 const segouiFontDir = 'C:\\Windows\\Fonts';
+
+/// Layout tests measure with real Segoe UI, so they skip on hosts without it
+/// (macOS, Linux) instead of failing. CI runs on Windows and still enforces them.
+final bool noSegoe = !File('$segouiFontDir\\segoeui.ttf').existsSync();
 
 /// The faces the panel's `t()` helper actually asks for. `segoeuib` is reused
 /// for w800 because Segoe UI ships no heavier weight.
@@ -86,11 +98,14 @@ void requireSegoe(bool loaded) => expect(loaded, isTrue,
 /// implementation on a test host, and `QueueController` builds a `GetStorage()`
 /// the moment it is constructed — so the mock has to be in place first.
 Future<void> initPanelStorage() async {
+  // One folder per test process: test files run in parallel, and a shared
+  // GetStorage file lets one file's writes land in another's assertions.
+  final dir = Directory.systemTemp.createTempSync('chup_widget_test_');
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
           const MethodChannel('plugins.flutter.io/path_provider'),
           (call) async => call.method == 'getApplicationDocumentsDirectory'
-              ? Directory.systemTemp.path
+              ? dir.path
               : null);
 
   await GetStorage.init();

@@ -96,7 +96,7 @@ void main() {
           reason: 'kRevealHeight is too short for the reveal — the NO-SHOW '
               'button is being clipped. The window is sized at '
               '${size.height} + $kRevealHeight.');
-    });
+    }, skip: noSegoe);
   }
 
   testWidgets('a name too long for one line does not push NO-SHOW off',
@@ -112,5 +112,5 @@ void main() {
         reason: 'the reveal name must stay on one line: the reveal height is '
             'fixed by the window, so every extra line pushes the NO-SHOW '
             'button off the bottom of the panel.');
-  });
+  }, skip: noSegoe);
 }

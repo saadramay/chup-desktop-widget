@@ -96,7 +96,7 @@ void main() {
             'so no Scaffold built for home: can cover it. The only Material '
             'ancestor it ever has is the one ChupWidgetApp puts above the '
             'Navigator.');
-  });
+  }, skip: noSegoe);
 
   testWidgets('signing out leaves the sign-in card building clean',
       (tester) async {
@@ -126,7 +126,7 @@ void main() {
     expect(tester.takeException(), isNull,
         reason: 'signing out pushes the sign-in card as a NEW route, and its '
             'TextFields require a Material ancestor.');
-  });
+  }, skip: noSegoe);
 
   testWidgets('the size menu really is an InkWell, so these tests can fail',
       (tester) async {
@@ -149,5 +149,5 @@ void main() {
         reason: 'the size menu is the only widget in the app that requires a '
             'Material ancestor. If that changes, this suite needs a new thing '
             'to assert on.');
-  });
+  }, skip: noSegoe);
 }

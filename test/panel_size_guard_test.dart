@@ -91,7 +91,7 @@ void main() {
       expect(find.byType(SliverPanel), findsNothing,
           reason: 'the shell must draw nothing at this size and let its '
               'geometry callback ask for kWidgetWidth first.');
-    });
+    }, skip: noSegoe);
   }
 
   testWidgets('the panel builds normally once the window is 216 wide',
@@ -106,7 +106,7 @@ void main() {
     expect(find.byType(SliverPanel), findsOneWidget,
         reason: 'the guard is about being too small, not about hiding.');
     expect(tester.takeException(), isNull);
-  });
+  }, skip: noSegoe);
 
   testWidgets(
       'a too-small window asks to be resized, so it cannot stay that way',
@@ -131,5 +131,5 @@ void main() {
         reason: 'drawing nothing is only half of it. Nothing else in the app '
             'sizes the window, so without this ask the window stays 40px for '
             'good: transparent, ignoring the cursor, looking hung.');
-  });
+  }, skip: noSegoe);
 }
