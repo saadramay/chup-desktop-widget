@@ -17,7 +17,7 @@ Lives here because its backend is this repo; it is otherwise a self-contained ap
 
 The app is **built and running**. The redesign (216×40 sliver, hover reveal, hold-to-confirm
 No-Show, three sizes, four data states, minimised chip, closed edge tab) is implemented.
-`flutter analyze` is clean and 32 tests pass.
+`flutter analyze` is clean and 44 tests pass.
 
 **Latest: the red "No Material widget found" panel is fixed.** Build against a live backend,
 sign in, and the reveal drew Flutter's red error box over the whole panel with a
@@ -37,9 +37,87 @@ Two more from the same session: `assets/chup-logo.svg` existed on disk but was m
 `pubspec.yaml`, so `SvgPicture` threw `Unable to load asset` and drew nothing; and the sign-in
 card now fits its window (see Still open for what that cost).
 
-Five fixes worth knowing about. Four are guarded by tests; the two that live in window
-setup are not, because a widget test has neither an OS window nor a `main()` to run —
-verify those by measuring `GetClientRect` against `GetWindowRect` in the running app.
+**Four more, found by watching it run** (the log stayed clean for the last of these — it is a
+logic bug, not an exception):
+
+- **The offline line overflowed by 18px at *every* size.** `CANNOT REACH CHUP` beside
+  `LAST READ …M AGO` needs 214px in a 196px band (216 − the shell's 1px border − 9px padding
+  each side). Both strings were laid out at the Row's *full* width with a `Spacer` between
+  them, so once the pair outgrew the band the Spacer collapsed to nothing and neither gave way.
+  `_StatusLine` now lays the headline out first at whatever it needs and gives the trailing
+  clock an `Expanded` that ellipsises into the remainder — the two can no longer sum past the
+  Row at any width. Guarded by three new cases in `test/resting_band_test.dart`, red on the old
+  code. It was invisible before only because nothing exercised `offline` *with* a trailing:
+  drop `lastGoodPoll` and the trailing is simply not printed.
+- **Windows clamps a 5×34 closed tab to a 136×39 minimum.** `setEdgeTab` and
+  `setSizeKeepingBottom(44, 44)` therefore do not get the window they ask for, so the view is
+  still 136×39 when the panel comes back — and one frame at that size is three errors: 116px of
+  band against a 117px `NO ONE IN THE QUEUE`, `_ServingLine`'s row squeezed to 33px and
+  overflowing by 62, and 39px of window against a 38px band plus a 1px border (the
+  `overflowed by 1.00 pixels on the bottom` line). That is where the live log's
+  `Row …:178 overflowed by 1.0 pixels` came from.
+
+  Two changes, because the obvious one is not enough on its own: `QueueController.showPanel()`
+  awaits `applyWindowGeometry()` *before* flipping `presentation`, and `WidgetShell` refuses to
+  build `SliverPanel` at all unless its constraints are at least `kWidgetWidth × size.height`.
+  Awaiting was tried first and still threw — `SetWindowPos` has already returned success by the
+  time the Dart side resumes, while the view keeps reporting the old size for a frame or two
+  afterwards. The guard reads `LayoutBuilder` rather than `MediaQuery`, because `MediaQuery`
+  answers for the view, which in a widget test is the 800×600 test surface rather than the
+  `SizedBox` the shell was pumped into.
+
+  Guarded by `test/panel_size_guard_test.dart`: pumping the real shell at 136×39 is red on the
+  unguarded code with exactly the logged `overflowed by 1.00 pixels on the bottom`, and green
+  with it; a third case pumps at 216×40 to pin down that the guard hides nothing when the
+  window *is* big enough.
+- **The size menu collapsed the reveal it was anchored to.** `PopupMenuButton` pushes a route,
+  and that route lands a full-screen barrier over the panel. The pointer has not moved, but the
+  render tree has — so `MouseTracker` re-hit-tests and the panel's `MouseRegion` reports an
+  exit while the menu is still open. Take that at face value and the window goes 158 → 40 with
+  the menu open: 167px of menu items drawn into a 40px window, roughly one row of it and none
+  of it clickable, and hover dead afterwards because the barrier swallows the pointer. This one
+  never touched the log — it only shows up by clicking ⋯.
+
+  Fix: `QueueController.menuOpen`, set from the button's `onOpened` / `onCanceled` /
+  `onSelected`, makes `setRevealed(false)` a no-op for as long as it is true. Holding the
+  reveal was only half of it, though — the reveal is 158px and the menu needs ~188px from the
+  top of the window (a button 21px down, five 30px rows, a divider and the surface padding), so
+  even fully open it clipped "Sign out" to an unreadable 8px sliver. `QueueController.windowHeight`
+  is now the single place the window's height is derived, and it floors at
+  `kSizeMenuWindowHeight = 212` while the menu is up; medium and large already outgrow that, so
+  it only ever bites on small.
+
+  Guarded by `test/size_menu_pin_test.dart`: red without the pin line
+  (`Expected: true, Actual: <false>`), and it also pins `windowHeight` — the reveal's own
+  height, the menu's floor, the floor released when the menu is down, and that a size which
+  already outgrows the floor is not forced taller. The pin is deliberately temporary: the test
+  asserts the reveal closes again once the menu is down, or the first use of the menu would
+  leave it open forever.
+- **The widget booted blank, dead and cursor-deaf whenever the stored size was not small.**
+  `main()` sized the window to a hardcoded `Size(kWidgetWidth, 40)` — 40 being the *small*
+  height — while the panel's size is persisted by the size menu (`_box.read('size')`). Pick
+  large, restart, and you get a 208px panel asked to draw into a 40px window: the guard refuses
+  (correctly), and since `applyWindowGeometry()` is the only thing that sizes the window and
+  nothing was calling it, it stayed 40px **for good**. Transparent window, no hover, no click,
+  nothing in the log — it looked hung rather than broken, which is why it hid for so long.
+
+  Found by watching it fail, not by a test: the app came up empty twice in a row and the log was
+  clean. Diagnosed by pausing the main isolate over the VM service (idle, so still alive) and
+  then plugging a print into the guard — `GUARD: view=216.0x40.0 need=216.0x208.0`.
+
+  Three changes: `QueueController.storedSize()` is now the single read of the stored size and
+  `main()` starts the window at `storedSize().height` instead of 40; and the guard's other half,
+  `reclaimGeometry()`, means a shell that cannot draw asks for the height it is missing rather
+  than waiting for someone who never comes. Guarded by the fourth case in
+  `test/panel_size_guard_test.dart`, which pumps the shell at 216x40 with `size = large` and
+  asserts the shell asked.
+
+Five earlier fixes worth knowing about. All five are guarded by tests. Three of the newer ones
+above are too — but note which is not: nothing in a widget test can observe *when* the OS window
+is resized, so `showPanel()`'s ordering is only load-bearing in combination with the guard, and
+it is the guard the test pins down. The two `main()` window-setup fixes below remain unguarded
+for the usual reason — a widget test has neither an OS window nor a `main()` to run — so verify
+those by measuring `GetClientRect` against `GetWindowRect` in the running app.
 
 - `kRevealHeight` is **118**, not 112. The tallest reveal — somebody in the room *and*
   somebody called, which is when NO-SHOW shows — needs 116px inside the shell's 1px border;

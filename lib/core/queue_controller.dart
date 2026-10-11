@@ -66,6 +66,18 @@ class QueueController extends GetxController {
   final size = WidgetSize.small.obs;
   final presentation = Presentation.panel.obs;
   final revealed = false.obs;
+
+  /// True while the size menu is up.
+  ///
+  /// `PopupMenuButton` pushes a route, and that route installs a full-screen
+  /// barrier over the panel. From the moment the barrier lands the pointer no
+  /// longer hits the panel's `MouseRegion`, so `onExit` fires with `false`
+  /// while the menu is still open — and collapsing the reveal takes 118px of
+  /// window, plus the button the menu is anchored to, out from under a menu
+  /// whose items are 167px tall. The menu then draws into a 40px window:
+  /// roughly one row of it, unclickable, with hover dead until it is dismissed.
+  final menuOpen = false.obs;
+
   final busyAction = false.obs;
 
   /// Ticks every second so minute figures keep counting between polls.
@@ -74,14 +86,23 @@ class QueueController extends GetxController {
   Timer? _poll;
   Timer? _clock;
 
+  /// The size last chosen from the menu, read straight from storage.
+  ///
+  /// Static because `main()` needs it before the controller exists — and it
+  /// needs it badly: starting the window at a fixed 40px regardless of what
+  /// was stored left a 208px panel with nowhere to go, so the shell drew
+  /// nothing at all and the widget sat on the desktop blank and inert. Small
+  /// is the answer whenever nothing is stored, which is every first run.
+  static WidgetSize storedSize() {
+    final saved = GetStorage().read<String>('size');
+    return WidgetSize.values.firstWhere((s) => s.name == saved,
+        orElse: () => WidgetSize.small);
+  }
+
   @override
   void onInit() {
     super.onInit();
-    final saved = _box.read<String>('size');
-    if (saved != null) {
-      size.value = WidgetSize.values.firstWhere((s) => s.name == saved,
-          orElse: () => WidgetSize.small);
-    }
+    size.value = storedSize();
     _clock = Timer.periodic(const Duration(seconds: 1), (_) {
       now.value = DateTime.now();
     });
@@ -106,6 +127,8 @@ class QueueController extends GetxController {
 
   Future<void> setRevealed(bool v) async {
     if (revealed.value == v) return;
+    // Pinned open while the menu is up — see `menuOpen`.
+    if (!v && menuOpen.value) return;
     revealed.value = v;
     await applyWindowGeometry();
   }
@@ -113,9 +136,57 @@ class QueueController extends GetxController {
   /// Resizes the OS window to fit the current size plus, when open, the reveal —
   /// keeping the bottom edge pinned so the action band never moves.
   Future<void> applyWindowGeometry() async {
+    await WindowAnchor.instance.setSizeKeepingBottom(kWidgetWidth, windowHeight);
+  }
+
+  /// The other half of the shell's guard: the shell draws nothing when the
+  /// view is smaller than the panel, but nothing else in the app would ever
+  /// ask for the missing height.
+  ///
+  /// That was not a theoretical state. `main()` used to start the window at a
+  /// fixed 40px, so a stored size of large meant a 208px panel with a 40px
+  /// window to draw it into — for good, since the only code that sizes the
+  /// window is here and it was not being called. The widget sat on the
+  /// desktop transparent, ignoring the cursor, looking hung. Asked from the
+  /// guard it resolves on the very next frame, and stops.
+  Future<void> reclaimGeometry() => applyWindowGeometry();
+
+  /// The height this presentation needs from the window, at the width above.
+  ///
+  /// Derived rather than commanded, so every caller agrees: `kRevealHeight`
+  /// when the reveal is up, plus `kSizeMenuWindowHeight` as a floor while the
+  /// size menu is showing — that menu needs more room than the small reveal
+  /// has and otherwise draws its last row off the bottom of the window.
+  double get windowHeight {
     final reveal = revealed.value ? kRevealHeight : 0.0;
-    await WindowAnchor.instance
-        .setSizeKeepingBottom(kWidgetWidth, size.value.height + reveal);
+    final h = size.value.height + reveal;
+    return menuOpen.value && h < kSizeMenuWindowHeight
+        ? kSizeMenuWindowHeight
+        : h;
+  }
+
+  /// Back to the panel, with the window already sized for it.
+  ///
+  /// The order is the whole point. The alternative — flipping `presentation`
+  /// first and letting the shell's post-frame callback resize — leaves a frame
+  /// in which the panel is built inside whatever window the previous
+  /// presentation left behind, and Windows refuses to make a window as small as
+  /// those ask for: a 5x34 closed tab clamps to a 136x39 minimum. Laid out at
+  /// 136 the band is 116px wide against a 117px headline, and 39px tall against
+  /// the 38px band plus the shell's 1px border — so that single frame reports a
+  /// horizontal overflow on the status line, another 62px on the serving row,
+  /// and 1px off the bottom. Resizing first means the frame that shows the
+  /// panel is the first frame at 216.
+  ///
+  /// A widget test has no OS window to resize, so this is guarded by measuring
+  /// `GetWindowRect` against `GetClientRect` in the running app instead — the
+  /// same way main()'s window setup is.
+  Future<void> showPanel() async {
+    try {
+      await applyWindowGeometry();
+    } finally {
+      presentation.value = Presentation.panel;
+    }
   }
 
   // ---------------------------------------------------------------- derived

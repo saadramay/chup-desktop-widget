@@ -47,6 +47,7 @@ void main() {
     required PanelState state,
     Visit? serving,
     bool fullQueue = false,
+    DateTime? lastGoodPoll,
   }) async {
     final c = PanelHost();
     Get.put<QueueController>(c);
@@ -57,6 +58,11 @@ void main() {
     c.revealed.value = false;
     c.now.value = DateTime(2026, 8, 1, 15, 45);
     c.serving.value = serving;
+    // Only the offline line reads this, and only to decide whether it has a
+    // trailing "LAST READ ...M AGO" to sit beside the headline. Left null the
+    // trailing is dropped and the line is short — which is how the horizontal
+    // overflow stayed invisible for so long.
+    c.lastGoodPoll.value = lastGoodPoll;
     if (fullQueue) {
       c.queue.value = <Visit>[
         for (var i = 0; i < size.rows + 1; i++)
@@ -114,4 +120,37 @@ void main() {
             'minus the shell border leaves 38px, which is exactly what the '
             'band needs — so anything more than 38 overflows.');
   });
+
+  // The line runs LEFT to RIGHT, and until now nothing pinned it down: the
+  // headline sat at its natural width and the trailing clock was pushed out by
+  // a Spacer, so the pair overflowed whenever the two together outgrew the
+  // band. The tall-size tests above cannot see it — they assert the band's
+  // height, and the horizontal case only exists where a trailing is present.
+  for (final size in WidgetSize.values) {
+    testWidgets('the offline line fits its width (${size.name})',
+        (tester) async {
+      requireSegoe(segouiLoaded);
+
+      // 100 minutes: the widest the trailing can be is three digits, and the
+      // headline "CANNOT REACH CHUP" is the longest one the band prints.
+      await pumpAtRest(tester, size,
+          state: PanelState.offline, lastGoodPoll: DateTime(2026, 8, 1, 13, 5));
+
+      expect(tester.takeException(), isNull,
+          reason: '"CANNOT REACH CHUP" beside "LAST READ 100M AGO" is wider '
+              'than the ${kWidgetWidth}px band minus the shell border and the '
+              '9px padding on each side. The two have to share one line, so '
+              'one of them has to give.');
+    });
+
+    testWidgets('the loading line fits its width (${size.name})',
+        (tester) async {
+      requireSegoe(segouiLoaded);
+
+      await pumpAtRest(tester, size, state: PanelState.loading);
+
+      expect(tester.takeException(), isNull,
+          reason: '"READING THE QUEUE" does not fit the band.');
+    });
+  }
 }

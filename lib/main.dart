@@ -19,8 +19,16 @@ Future<void> main() async {
   // Fixtures skip the sign-in card so the panel is reachable with no backend.
   final loggedIn = kMock || Api.instance.isLoggedIn;
   // Sign in is centred; the widget lives in its corner.
-  final start =
-      loggedIn ? const Size(kWidgetWidth, 40) : const Size(kSignInWidth, kSignInHeight);
+  //
+  // The panel's height is whatever size the menu left it at — it is stored, and
+  // starting the window at a fixed 40 instead was the bug behind a widget that
+  // came up blank and dead. A stored size of large is a 208px panel, which
+  // nothing can draw into a 40px window.
+  final panelHeight =
+      loggedIn ? QueueController.storedSize().height : kSignInHeight;
+  final start = loggedIn
+      ? Size(kWidgetWidth, panelHeight)
+      : const Size(kSignInWidth, kSignInHeight);
 
   final options = WindowOptions(
     size: start,
@@ -52,7 +60,8 @@ Future<void> main() async {
     await windowManager.setResizable(false);
     await windowManager.setHasShadow(false);
     if (loggedIn) {
-      await WindowAnchor.instance.setSizeKeepingBottom(kWidgetWidth, 40);
+      await WindowAnchor.instance
+          .setSizeKeepingBottom(kWidgetWidth, panelHeight);
     }
     await windowManager.show();
   });

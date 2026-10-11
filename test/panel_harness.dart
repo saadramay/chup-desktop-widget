@@ -27,8 +27,15 @@ class PanelHost extends QueueController {
   /// The real one reaches for `screen_retriever` and `window_manager`, neither
   /// of which exists on a test host. The window size is exercised instead by
   /// pumping at the exact height it would ask for.
+  ///
+  /// Counted, so a test can tell whether the shell ever asked to be resized.
   @override
-  Future<void> applyWindowGeometry() async {}
+  Future<void> applyWindowGeometry() async {
+    geometryRequests++;
+  }
+
+  /// How many times the shell (or anything else) asked for the window.
+  int geometryRequests = 0;
 }
 
 const segouiFontDir = 'C:\\Windows\\Fonts';

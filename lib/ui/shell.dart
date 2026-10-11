@@ -35,19 +35,52 @@ class WidgetShell extends StatelessWidget {
         }
       });
 
-      return switch (p) {
-        Presentation.panel => Container(
-            decoration: BoxDecoration(
-              color: cWhite,
-              border: Border.all(color: cLine200),
-              borderRadius: BorderRadius.circular(8),
+      // The panel may only be built into a window that can hold it.
+      //
+      // Windows will not make a window as small as the two other
+      // presentations ask for: a 5x34 closed tab clamps to a 136x39 minimum.
+      // Both of them therefore leave the *view* at 136x39 when the panel comes
+      // back, and SetWindowPos has already returned success by then — so
+      // awaiting the resize before flipping `presentation` (showPanel) is not
+      // enough, the view reports the old size for a frame or two afterwards.
+      //
+      // Built into that, the band is 116px wide against a 117px headline,
+      // `_ServingLine`'s row is squeezed to 33px, and 39px of window is 1px
+      // short of the 38px band plus the shell's border: three overflow errors
+      // for one frame's wait. Draw nothing instead; the callback above has
+      // already asked for 216 and the next frame draws the panel.
+      //
+      // Read from the constraints rather than MediaQuery, because MediaQuery
+      // answers for the *view* — which in a widget test is the test surface,
+      // not the SizedBox the shell was pumped into.
+      return LayoutBuilder(builder: (context, box) {
+        if (p == Presentation.panel &&
+            (box.maxWidth < kWidgetWidth ||
+                box.maxHeight < c.size.value.height)) {
+          // Drawing nothing is only half of the fix — the other half is asking
+          // for the height the panel is missing, because nothing else would.
+          // main() starts the window at the *stored* size, but that handshake
+          // is the only place the two agree, and a window left at 40px for a
+          // 208px panel stays that way for good: transparent, ignoring the
+          // cursor, looking hung. Asked here it resolves on the next frame.
+          c.reclaimGeometry();
+          return const SizedBox.shrink();
+        }
+
+        return switch (p) {
+          Presentation.panel => Container(
+              decoration: BoxDecoration(
+                color: cWhite,
+                border: Border.all(color: cLine200),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: const SliverPanel(),
             ),
-            clipBehavior: Clip.antiAlias,
-            child: const SliverPanel(),
-          ),
-        Presentation.minimised => const _MinimisedChip(),
-        Presentation.closed => const _ClosedTab(),
-      };
+          Presentation.minimised => const _MinimisedChip(),
+          Presentation.closed => const _ClosedTab(),
+        };
+      });
     });
   }
 }
@@ -65,7 +98,7 @@ class _MinimisedChip extends StatelessWidget {
       return MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
-          onTap: () => c.presentation.value = Presentation.panel,
+          onTap: () => c.showPanel(),
           child: Container(
             decoration: BoxDecoration(
               color: cWhite,
@@ -129,7 +162,7 @@ class _ClosedTabState extends State<_ClosedTab> {
         await WindowAnchor.instance.setEdgeTab(5, 34);
       },
       child: GestureDetector(
-        onTap: () => c.presentation.value = Presentation.panel,
+        onTap: () => c.showPanel(),
         child: Container(
           decoration: BoxDecoration(
             color: _h ? cGreen600 : cGreen700,

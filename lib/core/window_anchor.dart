@@ -16,6 +16,20 @@ const double kRevealHeight = 118;
 /// Resting distance from the right and bottom screen edges.
 const double kEdgeInset = 12;
 
+/// Window height the size menu needs, measured the same way as kRevealHeight.
+///
+/// The menu opens *under* a button that sits about 21px down the reveal, and
+/// its items are 30px each: five of them plus the divider and the surface's
+/// own padding put the last row's bottom at ~188. The small size's reveal is
+/// only 40 + kRevealHeight = 158 tall, which clipped "Sign out" to an
+/// unreadable 8px sliver — reachable, but you could not tell what it was.
+///
+/// 212 is the smallest number that fits it with room to spare; medium and
+/// large are already taller than this, so the value only ever bites on small.
+/// `QueueController.windowHeight` is what applies it, guarded by
+/// test/size_menu_pin_test.dart.
+const double kSizeMenuWindowHeight = 212;
+
 /// Keeps the panel pinned to its corner while its height changes.
 ///
 /// The design is explicit that the bottom 38px must never move: the panel grows

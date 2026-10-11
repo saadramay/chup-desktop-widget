@@ -175,15 +175,38 @@ class _StatusLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 9),
+        // Two strings have to share one line and the line's width is not theirs
+        // to choose: 216 minus the shell's 1px border and this 9px on each side
+        // is 196, and the offline pair needs 214 of it. Both used to be laid out
+        // at the Row's full width with a Spacer between them, so once the two
+        // together outgrew the band the Spacer collapsed to nothing and neither
+        // gave way — the Row just reported an overflow.
+        //
+        // Now the headline, which is the part that names the state, takes what
+        // it needs up to the whole line, and the trailing clock is an Expanded
+        // that gets the remainder and ellipsises into it. Sum of the two can
+        // never exceed the Row, so there is no width at which this overflows.
         child: Row(
           children: [
-            Text(text,
-                style: t(9.5, FontWeight.w800, color: color, spacing: 0.5)),
-            if (trailing != null) ...[
-              const Spacer(),
-              Text(trailing!,
-                  style: t(9, FontWeight.w800, color: cInk500, spacing: 0.4)),
-            ],
+            Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: t(9.5, FontWeight.w800, color: color, spacing: 0.5),
+            ),
+            if (trailing != null)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 6),
+                  child: Text(
+                    trailing!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.right,
+                    style: t(9, FontWeight.w800, color: cInk500, spacing: 0.4),
+                  ),
+                ),
+              ),
           ],
         ),
       );
@@ -479,7 +502,20 @@ class _SizeMenu extends StatelessWidget {
       splashRadius: 12,
       position: PopupMenuPosition.under,
       constraints: const BoxConstraints(minWidth: 132),
+      // Hold the reveal open for as long as the menu is up: the route's own
+      // barrier is what makes the panel's MouseRegion report an exit, and
+      // without this the window collapses under the menu the instant it opens.
+      // The geometry follows too — see kSizeMenuWindowHeight.
+      onOpened: () {
+        c.menuOpen.value = true;
+        c.applyWindowGeometry();
+      },
+      onCanceled: () {
+        c.menuOpen.value = false;
+        c.applyWindowGeometry();
+      },
       onSelected: (v) async {
+        c.menuOpen.value = false;
         if (v is WidgetSize) {
           await c.setSize(v);
         } else if (v == 'signout') {
