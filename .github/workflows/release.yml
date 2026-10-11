@@ -87,8 +87,25 @@ jobs:
           & $env:SIGNTOOL sign /f $env:PFX /p $env:SIGN_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 dist\chup-widget-setup.exe
           Remove-Item $env:PFX
 
+      # Releases go to the public, code-free releases repository; this one is
+      # private. RELEASES_TOKEN is a fine-grained token with Contents
+      # read/write on that repository only.
       - name: Publish the release
         if: env.PUBLISH == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+        run: >
+          gh release create '${{ github.ref_name }}' -R saadramay/chup-desktop-widget-releases
+          dist\chup-widget-setup.exe dist\chup-widget-windows.zip dist\chup-widget-windows.zip.sha256
+          --title "Chup Widget $env:VERSION"
+          --notes "Built from saadramay/chup-desktop-widget@${{ github.sha }}."
+
+      # Transition only: widgets up to 1.0.3 look for releases in this
+      # repository. While it is public, publish here too so they can reach a
+      # build that looks in the releases repository. Skipped once private.
+      - name: Publish here too (transition)
+        if: env.PUBLISH == 'true' && github.event.repository.private == false
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -101,10 +118,10 @@ jobs:
         if: env.PUBLISH != 'true'
         shell: pwsh
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.RELEASES_TOKEN }}
         run: >
-          gh release create "v$env:VERSION-test.${{ github.run_number }}"
+          gh release create "v$env:VERSION-test.${{ github.run_number }}" -R saadramay/chup-desktop-widget-releases
           dist\chup-widget-setup.exe dist\chup-widget-windows.zip dist\chup-widget-windows.zip.sha256
-          --prerelease --target ${{ github.sha }}
+          --prerelease
           --title "Chup Widget $env:VERSION (test build ${{ github.run_number }})"
-          --notes "Test build from ${{ github.sha }}. Not offered to installed widgets."
+          --notes "Test build from saadramay/chup-desktop-widget@${{ github.sha }}. Not offered to installed widgets."

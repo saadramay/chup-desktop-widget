@@ -1,5 +1,7 @@
 name: Build
 
+# Shippable builds come from release.yml (tag push). This workflow only checks.
+#
 # Release builds cannot be produced on a machine with Smart App Control
 # enforced — SAC blocks Flutter's unsigned gen_snapshot.exe, which is the AOT
 # compiler every release build invokes. A hosted runner has no such policy, so
@@ -41,42 +43,3 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter test integration_test -d windows --dart-define=MOCK=true
-
-  release:
-    needs: [check, window]
-    if: github.event_name != 'pull_request'
-    runs-on: windows-latest
-    env:
-      SIGN_CERT: ${{ secrets.WINDOWS_SIGN_CERT_PFX_BASE64 }}
-      SIGN_PASSWORD: ${{ secrets.WINDOWS_SIGN_CERT_PASSWORD }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-      - run: flutter pub get
-      - name: Build release
-        run: >
-          flutter build windows --release
-          --dart-define=BASE_URL=${{ github.event.inputs.base_url || 'https://chup.online/api/v1/' }}
-      - name: Sign
-        # Unsigned exes trip SmartScreen and Smart App Control on clinic PCs.
-        # Runs only once the certificate secrets exist; until then builds stay unsigned.
-        # Step-level env is not visible to the same step's `if`, hence job-level env.
-        if: env.SIGN_CERT != ''
-        shell: pwsh
-        run: |
-          $pfx = Join-Path $env:RUNNER_TEMP 'sign.pfx'
-          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:SIGN_CERT))
-          $signtool = Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe' | Sort-Object FullName | Select-Object -Last 1
-          & $signtool.FullName sign /f $pfx /p $env:SIGN_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 build\windows\x64\runner\Release\chup_widget.exe
-          Remove-Item $pfx
-      - name: Package
-        # The exe needs the DLLs and data folder beside it — ship the folder.
-        run: Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath chup-widget-windows.zip
-      - uses: actions/upload-artifact@v4
-        with:
-          name: chup-widget-windows
-          path: chup-widget-windows.zip
-          retention-days: 30

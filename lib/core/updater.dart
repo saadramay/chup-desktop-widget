@@ -13,7 +13,9 @@ const String kAppVersion = String.fromEnvironment(
   defaultValue: '0.0.0',
 );
 
-const kReleasesRepo = 'saadramay/chup-desktop-widget';
+/// Public and code-free: the source repository is private, and installed
+/// widgets read releases without credentials.
+const kReleasesRepo = 'saadramay/chup-desktop-widget-releases';
 
 /// Test builds only: a URL serving the same JSON as GitHub's releases/latest,
 /// so the updater can be exercised end to end without publishing anything.

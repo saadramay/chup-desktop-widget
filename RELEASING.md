@@ -10,13 +10,28 @@ git push origin v1.2.0
 
 `.github/workflows/release.yml` then tests, builds against **production**
 (`https://chup.online/api/v1/`), signs when the certificate secrets exist, and
-publishes a GitHub Release with three files:
+publishes a GitHub Release in the public, code-free
+[chup-desktop-widget-releases](https://github.com/saadramay/chup-desktop-widget-releases)
+repository with three files:
 
 | File | For |
 |---|---|
 | `chup-widget-setup.exe` | First install on a PC |
 | `chup-widget-windows.zip` | What installed widgets download to update |
 | `chup-widget-windows.zip.sha256` | The checksum the updater verifies before swapping |
+
+## Where releases live, and why
+
+This source repository is private. Installed widgets read
+`saadramay/chup-desktop-widget-releases/releases/latest` without credentials, so
+releases go to that public repository, which holds no code. Publishing there
+needs the `RELEASES_TOKEN` secret in this repository: a fine-grained personal
+access token with **Contents: read and write** on the releases repository only.
+Renew it before it expires, or releases fail at the publish step.
+
+Widgets up to 1.0.3 looked for releases in this repository. 1.0.4 was the
+bridge: published in both places so those widgets could reach a build that
+looks in the releases repository.
 
 ## What a clinic PC does
 
@@ -39,9 +54,9 @@ removes that entry. Never change the installer's `AppId`.
 
 ## Test build
 
-Actions tab, **Release**, **Run workflow**, enter a version. It is published as a
-pre-release tagged `vX.Y.Z-test.N`, so the installer is a plain download on the
-Releases page. Installed widgets never update to a pre-release.
+Actions tab, **Release**, **Run workflow**, enter a version. It is published to
+the releases repository as a pre-release tagged `vX.Y.Z-test.N`, so the installer
+is a plain download. Installed widgets never update to a pre-release.
 
 ## Before the first real release
 
