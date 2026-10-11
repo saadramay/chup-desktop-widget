@@ -68,4 +68,37 @@ void main() {
         reason: 'a second sign-in must not run two controllers');
     expect(c.isClosed, isTrue);
   });
+
+  testWidgets('a serving patient with nobody waiting still shows END VISIT',
+      (tester) async {
+    final original = FlutterError.onError;
+    FlutterError.onError = (d) {
+      if (!d.toString().contains('overflowed')) original?.call(d);
+    };
+    addTearDown(() => FlutterError.onError = original);
+
+    final c = PanelHost();
+    Get.put<QueueController>(c);
+    c.applyResponses({
+      'data': {
+        'data': [
+          {'id': 4, 'state': 4, 'sort_index': 1, 'token': 'HL-01', 'client': {'name': 'Saad'}},
+        ],
+      },
+    }, {'data': {'data': []}});
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Align(
+          alignment: Alignment.bottomRight,
+          child: SizedBox(width: 216, height: 40, child: WidgetShell()),
+        ),
+      ),
+    ));
+    await tester.pump();
+
+    expect(find.text('END VISIT'), findsOneWidget);
+    expect(find.text('NO ONE IN THE QUEUE'), findsNothing);
+    expect(find.textContaining('SERVING'), findsOneWidget);
+  });
 }

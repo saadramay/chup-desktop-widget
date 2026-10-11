@@ -335,9 +335,13 @@ class QueueController extends GetxController {
 
   /// Minutes the next patient has waited, or — once called — minutes since the
   /// call, because that is now the thing being waited on.
+  /// Nobody waiting, someone in the room: the resting line names them, so
+  /// END VISIT stays reachable, and the lead figures track the consultation.
+  bool get onlyServing => next == null && serving.value != null;
+
   int get leadMinutes {
     final n = next;
-    if (n == null) return 0;
+    if (n == null) return onlyServing ? servingMinutes : 0;
     return n.isCalled
         ? minutesSince(n.calledAt, now.value)
         : minutesSince(n.arrivedAt, now.value);
@@ -347,7 +351,12 @@ class QueueController extends GetxController {
   /// threshold applies to it.
   double get leadProgress {
     final n = next;
-    if (n == null) return 0;
+    if (n == null) {
+      final consult = limits.value.consult.inMinutes;
+      return onlyServing && consult > 0
+          ? (servingMinutes / consult).clamp(0.0, 1.0)
+          : 0;
+    }
     final limit = n.isCalled ? limits.value.grace : limits.value.wait;
     final m = limit.inMinutes;
     if (m <= 0) return 0;
@@ -356,7 +365,7 @@ class QueueController extends GetxController {
 
   bool get leadOverLimit {
     final n = next;
-    if (n == null) return false;
+    if (n == null) return onlyServing && servingOverLimit;
     final limit = n.isCalled ? limits.value.grace : limits.value.wait;
     return leadMinutes >= limit.inMinutes;
   }

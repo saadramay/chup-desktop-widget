@@ -205,4 +205,18 @@ void main() {
       expect(c.restingHeight, WidgetSize.small.height);
     });
   });
+
+  group('only serving', () {
+    test('END VISIT stays offered when nobody is waiting', () {
+      final c = PanelHost();
+      Get.put<QueueController>(c);
+      c.applyResponses(page([row(4, 4)]), page([]));
+
+      expect(c.next, isNull);
+      expect(c.onlyServing, isTrue);
+      expect(c.action, VisitAction.endVisit);
+      expect(c.state.value, PanelState.serving);
+      expect(c.leadOverLimit, isFalse);
+    });
+  });
 }

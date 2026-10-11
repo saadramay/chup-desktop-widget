@@ -97,7 +97,10 @@ class _ServingLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = Get.find<QueueController>();
     return Obx(() {
-      final n = c.next;
+      // The next patient, or with nobody waiting the patient in the room, so
+      // END VISIT never disappears while someone is being served.
+      final inRoom = c.onlyServing;
+      final n = c.next ?? c.serving.value;
       if (n == null) {
         return const _StatusLine(text: 'NO ONE IN THE QUEUE', color: cInk500);
       }
@@ -164,7 +167,11 @@ class _ServingLine extends StatelessWidget {
                           )
                         else
                           Text(
-                            called ? 'CALLED ${mins}M' : '${mins}M WAITING',
+                            inRoom
+                                ? 'SERVING ${mins}M'
+                                : called
+                                ? 'CALLED ${mins}M'
+                                : '${mins}M WAITING',
                             style: t(
                               9,
                               FontWeight.w800,
