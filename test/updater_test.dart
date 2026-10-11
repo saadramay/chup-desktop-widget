@@ -130,4 +130,42 @@ void main() {
         contains("couldn't start"));
     expect(Updater.describeFailure(StateError('x')), 'Update failed. Try again later.');
   });
+
+  group('downloadScript', () {
+    test('downloads with Windows HTTP, TLS 1.2, and stops on any error', () {
+      final s = downloadScript(
+        Uri.parse('https://github.com/x/releases/download/v1/$kZipAsset'),
+        r'C:\Temp\u\chup-widget-windows.zip',
+      );
+      expect(s, contains("\$ErrorActionPreference = 'Stop'"));
+      expect(s, contains('Tls12'));
+      expect(s, contains('Invoke-WebRequest -UseBasicParsing'));
+      expect(s, contains(r"-OutFile 'C:\Temp\u\chup-widget-windows.zip'"));
+    });
+
+    test('quotes the file path', () {
+      final s = downloadScript(Uri.parse('https://e.test/a.zip'), r"C:\Users\O'Neil\a.zip");
+      expect(s, contains(r"'C:\Users\O''Neil\a.zip'"));
+    });
+
+    test('parses as PowerShell', () async {
+      final dir = await Directory.systemTemp.createTemp('chup-dl-');
+      final f = File('${dir.path}${Platform.pathSeparator}dl.ps1')
+        ..writeAsStringSync(downloadScript(
+            Uri.parse('https://e.test/a.zip'), r"C:\Users\O'Neil\a.zip"));
+      final r = await Process.run('powershell.exe', [
+        '-NoProfile',
+        '-Command',
+        "\$e = \$null; [System.Management.Automation.Language.Parser]::ParseFile('${f.path}', [ref]\$null, [ref]\$e) | Out-Null; if (\$e) { \$e | ForEach-Object { \$_.Message }; exit 1 }",
+      ]);
+      expect(r.exitCode, 0, reason: '${r.stdout}${r.stderr}');
+    }, skip: !Platform.isWindows);
+  });
+
+  test('certificate and Windows download failures read as download failures', () {
+    expect(Updater.describeFailure(const HandshakeException('CERTIFICATE_VERIFY_FAILED')),
+        contains("can't download"));
+    expect(Updater.describeFailure(const UpdateDownloadException('404')),
+        contains("can't download"));
+  });
 }

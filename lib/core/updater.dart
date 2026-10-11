@@ -84,6 +84,31 @@ Release? parseRelease(Map<String, dynamic> j) {
   );
 }
 
+/// A download failed in Windows' own HTTP stack; [detail] is its message.
+class UpdateDownloadException implements Exception {
+  const UpdateDownloadException(this.detail);
+  final String detail;
+  @override
+  String toString() => 'UpdateDownloadException: $detail';
+}
+
+/// PowerShell that downloads [url] to [file] with Windows' own HTTP stack.
+///
+/// Dart's TLS trusts only the root certificates already in the Windows store.
+/// Windows fetches missing roots on demand and goes through corporate proxies
+/// that re-sign HTTPS; Dart does neither. On the WorkSpace that made every
+/// download fail with CERTIFICATE_VERIFY_FAILED while the browser was fine.
+@visibleForTesting
+String downloadScript(Uri url, String file) {
+  String q(String s) => "'${s.replaceAll("'", "''")}'";
+  return [
+    r"$ErrorActionPreference = 'Stop'",
+    r"$ProgressPreference = 'SilentlyContinue'",
+    r'[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12',
+    "Invoke-WebRequest -UseBasicParsing -Uri ${q(url.toString())} -OutFile ${q(file)} -Headers @{ 'User-Agent' = 'chup-widget/$kAppVersion' }",
+  ].join('; ');
+}
+
 /// The PowerShell that finishes an update once the widget has exited: Windows
 /// will not let a running exe be overwritten. It always restarts the widget,
 /// old or new, so a failed copy never leaves the doctor without it.
@@ -134,7 +159,10 @@ class Updater {
 
   /// A short reason for the resting line; the log has the rest.
   static String describeFailure(Object e) {
-    if (e is SocketException || e is http.ClientException) {
+    if (e is SocketException ||
+        e is http.ClientException ||
+        e is HandshakeException ||
+        e is UpdateDownloadException) {
       return "Update failed: can't download from GitHub";
     }
     if (e is TimeoutException) return 'Update failed: the download timed out';
@@ -166,14 +194,48 @@ class Updater {
           )
           .timeout(const Duration(seconds: 20));
       if (r.statusCode != 200) return null;
-      final release = parseRelease(jsonDecode(r.body) as Map<String, dynamic>);
-      if (release == null ||
-          compareVersions(release.version, kAppVersion) <= 0) {
-        return null;
+      return _newer(jsonDecode(r.body) as Map<String, dynamic>);
+    } on HandshakeException {
+      // Same certificate problem as downloads; ask Windows instead.
+      if (client != null || !Platform.isWindows) rethrow;
+      final dir = await Directory.systemTemp.createTemp('chup-widget-check-');
+      try {
+        final f = File('${dir.path}${Platform.pathSeparator}latest.json');
+        await windowsDownload(latestReleaseUrl, f);
+        return _newer(
+          jsonDecode(await f.readAsString()) as Map<String, dynamic>,
+        );
+      } finally {
+        await dir.delete(recursive: true);
       }
-      return release;
     } finally {
       if (client == null) c.close();
+    }
+  }
+
+  static Release? _newer(Map<String, dynamic> json) {
+    final release = parseRelease(json);
+    if (release == null || compareVersions(release.version, kAppVersion) <= 0) {
+      return null;
+    }
+    return release;
+  }
+
+  /// Downloads [url] to [file] through PowerShell (see [downloadScript]).
+  static Future<void> windowsDownload(Uri url, File file) async {
+    final r = await Process.run('powershell.exe', [
+      '-NoProfile',
+      '-NonInteractive',
+      '-ExecutionPolicy',
+      'Bypass',
+      '-Command',
+      downloadScript(url, file.path),
+    ]).timeout(const Duration(minutes: 5));
+    if (r.exitCode != 0 || !await file.exists()) {
+      final err = '${r.stderr}'.trim();
+      throw UpdateDownloadException(
+        err.isEmpty ? 'exit code ${r.exitCode}' : err.split('\n').first,
+      );
     }
   }
 
@@ -182,18 +244,22 @@ class Updater {
   static Future<void> install(Release r) async {
     final dir = await Directory.systemTemp.createTemp('chup-widget-update-');
     final zip = File('${dir.path}${Platform.pathSeparator}$kZipAsset');
-    final bytes =
-        (await http.get(r.zip).timeout(const Duration(minutes: 5))).bodyBytes;
-    final expected = (await http.get(
-      r.sha256,
-    )).body.trim().split(RegExp(r'\s+')).first.toLowerCase();
-    final actual = sha256.convert(bytes).toString();
+    final shaFile = File('${dir.path}${Platform.pathSeparator}$kShaAsset');
+    // Windows downloads, Dart verifies.
+    await windowsDownload(r.zip, zip);
+    await windowsDownload(r.sha256, shaFile);
+    final expected = (await shaFile.readAsString())
+        .trim()
+        .split(RegExp(r'\s+'))
+        .first
+        .toLowerCase();
+    final actual = sha256.convert(await zip.readAsBytes()).toString();
     if (expected.length != 64 || actual != expected) {
+      await zip.delete();
       throw const FileSystemException(
         'The download did not match its checksum',
       );
     }
-    await zip.writeAsBytes(bytes, flush: true);
 
     final exe = Platform.resolvedExecutable;
     final script = File('${dir.path}${Platform.pathSeparator}update.ps1');
