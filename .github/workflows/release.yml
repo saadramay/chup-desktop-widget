@@ -107,4 +107,4 @@ jobs:
           dist\chup-widget-setup.exe dist\chup-widget-windows.zip dist\chup-widget-windows.zip.sha256
           --prerelease --target ${{ github.sha }}
           --title "Chup Widget $env:VERSION (test build ${{ github.run_number }})"
-          --notes "Test build from ${{ github.sha }}. Not offered to installed widgets.
+          --notes "Test build from ${{ github.sha }}. Not offered to installed widgets."
