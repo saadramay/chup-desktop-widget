@@ -24,7 +24,7 @@ class WidgetShell extends StatelessWidget {
       final p = c.presentation.value;
       // Read here, not inside LayoutBuilder: Obx only tracks reads made
       // during its own build.
-      final panelMin = c.size.value.height;
+      final panelMin = c.restingHeight;
       final touring = c.tourStep.value != 0;
       final blinking = c.blinking.value;
       final panelHeight = c.panelHeight;

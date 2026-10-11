@@ -89,15 +89,16 @@ def main():
         sys.exit(1)
 
     # --- queue ------------------------------------------------------------
-    serving, err1 = call(base + "user/visits/serving", token)
-    visits, err2 = call(base + "user/visits", token)
+    # widget=1 asks for called_at / started_at / limits (chup.online 577101b68).
+    serving, err1 = call(base + "user/visits/serving?widget=1", token)
+    visits, err2 = call(base + "user/visits?widget=1&size=50", token)
     check(serving is not None, "GET user/visits/serving", err1 or "")
     check(visits is not None, "GET user/visits", err2 or "")
 
     sample = (rows(serving) or []) + (rows(visits) or [])
     if not sample:
         print(f"\n[{WARN}] queue is empty — field checks need at least one visit.")
-        print("        Register a test patient on staging, then re-run.")
+        print("        Register a test patient for today, then re-run.")
         sys.exit(1 if failures else 0)
 
     v = sample[0]

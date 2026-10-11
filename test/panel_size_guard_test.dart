@@ -44,11 +44,16 @@ void main() {
     required double height,
     PanelState state = PanelState.empty,
     WidgetSize size = WidgetSize.small,
+    bool fullQueue = false,
   }) async {
     final c = PanelHost();
     Get.put<QueueController>(c);
     c.size.value = size;
     c.state.value = state;
+    if (fullQueue) {
+      // The panel sizes to its rows, so "Large" only means 208px when full.
+      c.queue.value = [for (var i = 0; i < 9; i++) visit(name: 'Patient $i')];
+    }
     c.revealed.value = false;
     c.presentation.value = Presentation.panel;
     c.now.value = DateTime(2026, 8, 1, 15, 45);
@@ -119,13 +124,14 @@ void main() {
     await pumpShell(tester,
         width: kWidgetWidth,
         height: WidgetSize.small.height,
-        state: PanelState.empty,
-        size: WidgetSize.large);
+        state: PanelState.serving,
+        size: WidgetSize.large,
+        fullQueue: true);
 
     final c = Get.find<QueueController>() as PanelHost;
 
     expect(find.byType(SliverPanel), findsNothing,
-        reason: '40px cannot hold a 208px panel, so it still must not draw.');
+        reason: '40px cannot hold a full 208px panel, so it still must not draw.');
     expect(tester.takeException(), isNull);
     expect(c.geometryRequests, greaterThan(0),
         reason: 'drawing nothing is only half of it. Nothing else in the app '

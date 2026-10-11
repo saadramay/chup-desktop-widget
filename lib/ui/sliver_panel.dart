@@ -197,6 +197,10 @@ class _ServingLine extends StatelessWidget {
   }
 }
 
+/// "2.30", the row's short form of [_clock].
+String _clockShort(DateTime? d) =>
+    _clock(d).replaceAll(RegExp(r'\s*(AM|PM)$'), '');
+
 String _clock(DateTime? d) {
   if (d == null) return '';
   final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
@@ -298,25 +302,63 @@ class _QueueRows extends StatelessWidget {
                 border: Border(top: BorderSide(color: cLine200)),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 9),
+              // Spec order: appointment time, token, full name, minutes waiting
+              // (red past the wait limit).
               child: Row(
                 children: [
+                  if (v.appointmentAt != null) ...[
+                    Text(
+                      _clockShort(v.appointmentAt),
+                      style: t(
+                        8.5,
+                        FontWeight.w800,
+                        color: cInk500,
+                        tabular: true,
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                  ],
+                  Text(
+                    v.token,
+                    style: t(
+                      9,
+                      FontWeight.w800,
+                      color: cGreen600,
+                      tabular: true,
+                    ),
+                  ),
+                  const SizedBox(width: 5),
                   Expanded(
                     child: Text(
-                      v.shortName,
+                      v.clientName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: t(10, FontWeight.w600),
                     ),
                   ),
-                  Text(
-                    '${minutesSince(v.arrivedAt, c.now.value)}M',
-                    style: t(9, FontWeight.w800, color: cInk500, tabular: true),
+                  const SizedBox(width: 4),
+                  Builder(
+                    builder: (_) {
+                      final m = minutesSince(v.arrivedAt, c.now.value);
+                      return Text(
+                        '${m}M',
+                        style: t(
+                          9,
+                          FontWeight.w800,
+                          color: m >= c.limits.value.wait.inMinutes
+                              ? cRed
+                              : cInk500,
+                          tabular: true,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
             ),
           // Mark the true end of the list rather than leaving empty paper.
-          if (c.endOfSession && rows.length < c.size.value.rows)
+          // Same rule as QueueController.listRowCount, which sizes the window.
+          if (rows.length < c.listRowCount)
             Container(
               height: h,
               alignment: Alignment.center,

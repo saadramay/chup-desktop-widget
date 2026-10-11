@@ -78,7 +78,9 @@ void main() {
         reason: 'the extra room belongs to the menu alone.');
 
     // Medium and large already outgrow the floor, so it must not force them
-    // any taller than the reveal they are already showing.
+    // any taller than the reveal they are already showing. A full queue, since
+    // the panel sizes to its rows.
+    c.queue.value = [for (var i = 0; i < 9; i++) visit(name: 'Patient $i')];
     c.size.value = WidgetSize.large;
     c.menuOpen.value = true;
     expect(c.windowHeight, 208 + kRevealHeight);

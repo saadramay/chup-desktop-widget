@@ -1,5 +1,6 @@
 import 'package:chup_widget/core/queue_controller.dart';
 import 'package:chup_widget/core/visit.dart';
+import 'package:chup_widget/core/window_anchor.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 
@@ -169,6 +170,39 @@ void main() {
 
       await c.endTour();
       expect(c.displayAction, VisitAction.alert);
+    });
+  });
+
+  group('panel height', () {
+    test('a short session sizes to its rows, not to the size maximum', () {
+      final c = PanelHost();
+      Get.put<QueueController>(c);
+      c.size.value = WidgetSize.large;
+      c.applyResponses(page([]), page([row(1, 2), row(2, 1, sort: 2), row(3, 1, sort: 3)]));
+
+      // Next patient in the band, two behind them, then END OF SESSION.
+      expect(c.listRowCount, 3);
+      expect(c.restingHeight, 40 + 3 * WidgetSize.large.rowHeight);
+
+      c.revealed.value = true;
+      expect(c.panelHeight, c.restingHeight + kRevealHeight,
+          reason: 'the reveal gets its own height, not the missing rows');
+    });
+
+    test('a full session caps at the size maximum', () {
+      final c = PanelHost();
+      Get.put<QueueController>(c);
+      c.size.value = WidgetSize.large;
+      c.applyResponses(page([]), page([for (var i = 1; i <= 12; i++) row(i, 1, sort: i)]));
+      expect(c.restingHeight, WidgetSize.large.height);
+    });
+
+    test('an empty queue is just the band', () {
+      final c = PanelHost();
+      Get.put<QueueController>(c);
+      c.size.value = WidgetSize.medium;
+      c.applyResponses(page([]), page([]));
+      expect(c.restingHeight, WidgetSize.small.height);
     });
   });
 }

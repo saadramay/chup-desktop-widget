@@ -24,28 +24,28 @@ enum WidgetSize { small, medium, large }
 
 extension WidgetSizeX on WidgetSize {
   double get height => switch (this) {
-        WidgetSize.small => 40,
-        WidgetSize.medium => 128,
-        WidgetSize.large => 208,
-      };
+    WidgetSize.small => 40,
+    WidgetSize.medium => 128,
+    WidgetSize.large => 208,
+  };
 
   int get rows => switch (this) {
-        WidgetSize.small => 0,
-        WidgetSize.medium => 4,
-        WidgetSize.large => 8,
-      };
+    WidgetSize.small => 0,
+    WidgetSize.medium => 4,
+    WidgetSize.large => 8,
+  };
 
   double get rowHeight => switch (this) {
-        WidgetSize.small => 0,
-        WidgetSize.medium => 22,
-        WidgetSize.large => 21,
-      };
+    WidgetSize.small => 0,
+    WidgetSize.medium => 22,
+    WidgetSize.large => 21,
+  };
 
   String get label => switch (this) {
-        WidgetSize.small => 'Small',
-        WidgetSize.medium => 'Medium',
-        WidgetSize.large => 'Large',
-      };
+    WidgetSize.small => 'Small',
+    WidgetSize.medium => 'Medium',
+    WidgetSize.large => 'Large',
+  };
 }
 
 /// What the panel is showing. Every state keeps the reveal reachable and puts
@@ -126,8 +126,10 @@ class QueueController extends GetxController {
   /// is the answer whenever nothing is stored, which is every first run.
   static WidgetSize storedSize() {
     final saved = GetStorage().read<String>('size');
-    return WidgetSize.values.firstWhere((s) => s.name == saved,
-        orElse: () => WidgetSize.small);
+    return WidgetSize.values.firstWhere(
+      (s) => s.name == saved,
+      orElse: () => WidgetSize.small,
+    );
   }
 
   @override
@@ -178,9 +180,23 @@ class QueueController extends GetxController {
   double get windowWidth =>
       tour == null ? kWidgetWidth : kWidgetWidth + kTourGap + kTourCardWidth;
 
+  /// Rows the list shows: the people behind the next patient, plus the END OF
+  /// SESSION row when the session is shorter than the size allows. Never more
+  /// than the size's maximum.
+  int get listRowCount {
+    if (size.value.rows == 0 || next == null) return 0;
+    final n = upcoming.length;
+    return n < size.value.rows ? n + 1 : n;
+  }
+
+  /// The panel at rest, sized to its content rather than to the size's
+  /// maximum, so a short session never leaves empty paper above the list.
+  double get restingHeight =>
+      WidgetSize.small.height + listRowCount * size.value.rowHeight;
+
   /// The panel's own height, which the window can exceed (menu, tour card).
   double get panelHeight =>
-      size.value.height + (revealed.value ? kRevealHeight : 0.0);
+      restingHeight + (revealed.value ? kRevealHeight : 0.0);
 
   // ---------------------------------------------------------------- tour
 
@@ -305,7 +321,8 @@ class QueueController extends GetxController {
   /// Everyone in the session: the patient in the room plus the whole waiting
   /// list, not just the rows fetched.
   int get sessionTotal =>
-      math.max(visitsTotal.value, queue.length) + (serving.value == null ? 0 : 1);
+      math.max(visitsTotal.value, queue.length) +
+      (serving.value == null ? 0 : 1);
 
   /// 1-based place in the session, counted the same way as [sessionTotal] so
   /// the pair always reads sensibly (never "7/3").
@@ -371,7 +388,9 @@ class QueueController extends GetxController {
 
   static int _total(Map<String, dynamic> res) {
     final data = res['data'];
-    return data is Map && data['total'] is num ? (data['total'] as num).toInt() : 0;
+    return data is Map && data['total'] is num
+        ? (data['total'] as num).toInt()
+        : 0;
   }
 
   /// `limits` sits beside the paginator keys, or at the top level.
@@ -393,12 +412,15 @@ class QueueController extends GetxController {
   }
 
   /// Records [key] the first time it is seen, and returns when that was.
-  DateTime _seen(String key, DateTime now) => _observed.putIfAbsent(key, () => now);
+  DateTime _seen(String key, DateTime now) =>
+      _observed.putIfAbsent(key, () => now);
 
   /// Fills `called_at` / `started_at` from local observation when the API sent
   /// none, and forgets visits that have left the queue.
   ({Visit? serving, List<Visit> rows}) _withObserved(
-      Visit? serving, List<Visit> rows) {
+    Visit? serving,
+    List<Visit> rows,
+  ) {
     final now = DateTime.now();
     final keep = <String>{};
     Visit? s;
@@ -417,8 +439,10 @@ class QueueController extends GetxController {
           v,
     ];
     _observed.removeWhere((k, _) => !keep.contains(k));
-    _box.write('observed',
-        _observed.map((k, v) => MapEntry(k, v.toIso8601String())));
+    _box.write(
+      'observed',
+      _observed.map((k, v) => MapEntry(k, v.toIso8601String())),
+    );
     return (serving: s, rows: out);
   }
 
@@ -449,17 +473,21 @@ class QueueController extends GetxController {
   /// Folds one poll's two responses into the panel's state.
   @visibleForTesting
   void applyResponses(
-      Map<String, dynamic> servingRes, Map<String, dynamic> visitsRes) {
+    Map<String, dynamic> servingRes,
+    Map<String, dynamic> visitsRes,
+  ) {
+    final heightBefore = panelHeight;
     final servingRows = _rows(servingRes);
     final observed = _withObserved(
-        servingRows.isEmpty ? null : servingRows.first, _rows(visitsRes));
+      servingRows.isEmpty ? null : servingRows.first,
+      _rows(visitsRes),
+    );
 
     serving.value = observed.serving;
     called.value = observed.rows.where((v) => v.isCalled).firstOrNull;
-    queue.value = observed.rows
-        .where((v) => !v.isNoShow && !v.isServing)
-        .toList()
-      ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex));
+    queue.value =
+        observed.rows.where((v) => !v.isNoShow && !v.isServing).toList()
+          ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex));
     visitsTotal.value = _total(visitsRes);
     // The serving endpoint resolves the doctor's own consult length, so it wins.
     limits.value = Limits.fromJson(_limits(servingRes) ?? _limits(visitsRes));
@@ -469,6 +497,12 @@ class QueueController extends GetxController {
     state.value = (serving.value == null && queue.isEmpty)
         ? PanelState.empty
         : PanelState.serving;
+
+    // The list grew or shrank: follow it, bottom edge pinned.
+    if (panelHeight != heightBefore &&
+        presentation.value == Presentation.panel) {
+      unawaited(applyWindowGeometry());
+    }
   }
 
   /// Counts a failed poll, for [pollInterval]'s backoff.
@@ -484,10 +518,9 @@ class QueueController extends GetxController {
     try {
       // `serving` looks like it should be a single object but is a paginated
       // list too — parsing it as an object yields a junk visit with id 0.
-      final servingRes =
-          kMock
-              ? Mock.serving()
-              : await Api.instance.get(Urls.serving, Urls.widgetQuery);
+      final servingRes = kMock
+          ? Mock.serving()
+          : await Api.instance.get(Urls.serving, Urls.widgetQuery);
       final visitsRes = kMock
           ? Mock.visits()
           : await Api.instance.get(Urls.visits, Urls.listQuery);
@@ -514,7 +547,10 @@ class QueueController extends GetxController {
   void _showActionError(String message) {
     actionError.value = message;
     _errorTimer?.cancel();
-    _errorTimer = Timer(const Duration(seconds: 8), () => actionError.value = null);
+    _errorTimer = Timer(
+      const Duration(seconds: 8),
+      () => actionError.value = null,
+    );
   }
 
   /// The face the button shows: the tour's while a tour step sets one.
@@ -585,8 +621,15 @@ class QueueController extends GetxController {
       await Api.instance.signOut();
     }
     // Not awaited: Get.offAll's future only completes when the route is popped.
-    unawaited(Get.offAll(() => SignInScreen(
-        notice: expired ? 'Your session expired. Please sign in again.' : null)));
+    unawaited(
+      Get.offAll(
+        () => SignInScreen(
+          notice: expired
+              ? 'Your session expired. Please sign in again.'
+              : null,
+        ),
+      ),
+    );
     await showSignInWindow();
     await Get.delete<QueueController>(force: true);
   }

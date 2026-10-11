@@ -211,6 +211,10 @@ made in CI — Smart App Control blocks Flutter's unsigned AOT compiler locally.
   from Segoe at these sizes. The height is guarded by `test/sign_in_fit_test.dart`, which
   fails on 311 by 0.433px. **If the sign-in card should be 271 tall, that is a design
   decision to make by cutting content — not by lowering the constant back.**
+- **The panel sizes to its rows** (2026-10-11, after testing on the WorkSpace). Medium and Large
+  are now maximums: a short session ends with the END OF SESSION row instead of holding the full
+  height with empty paper above, and the reveal keeps its own 118px. Rows show time, token, full
+  name and minutes (red past the wait limit), as the spec's rows do.
 - **Tour step 7 copy changed** to describe START. A Malay speaker should review it.
 - The tour card sits beside the panel, not in the opposite screen corner. That needs a second
   native window, and `desktop_multi_window` only does it with a forked `window_manager`, which
