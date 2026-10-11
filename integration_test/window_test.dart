@@ -10,7 +10,6 @@ import 'package:chup_widget/core/queue_controller.dart';
 import 'package:chup_widget/core/window_anchor.dart';
 import 'package:chup_widget/main.dart' as app;
 import 'package:chup_widget/ui/sliver_panel.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -48,7 +47,7 @@ void main() {
     await c.setRevealed(true);
     await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
-    await tester.tap(find.byIcon(Icons.more_horiz));
+    await tester.tap(find.byTooltip('More'));
     await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
     final menu = await windowManager.getBounds();
