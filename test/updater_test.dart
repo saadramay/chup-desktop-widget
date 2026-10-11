@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -114,4 +115,19 @@ void main() {
     ]);
     expect(r.exitCode, 0, reason: '${r.stdout}${r.stderr}');
   }, skip: !Platform.isWindows);
+
+  test('a failure names its cause in a few words', () {
+    expect(Updater.describeFailure(const SocketException('blocked')),
+        contains("can't download"));
+    expect(Updater.describeFailure(http.ClientException('reset')),
+        contains("can't download"));
+    expect(Updater.describeFailure(TimeoutException('slow')), contains('timed out'));
+    expect(
+        Updater.describeFailure(
+            const FileSystemException('The download did not match its checksum')),
+        contains('damaged'));
+    expect(Updater.describeFailure(const ProcessException('cmd.exe', [])),
+        contains("couldn't start"));
+    expect(Updater.describeFailure(StateError('x')), 'Update failed. Try again later.');
+  });
 }

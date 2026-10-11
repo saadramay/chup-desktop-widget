@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -115,6 +116,35 @@ try {
 }
 
 class Updater {
+  /// Where a failed update leaves its details: %TEMP%\chup-widget-update-error.log.
+  static File get failureLog => File(
+    '${Directory.systemTemp.path}${Platform.pathSeparator}chup-widget-update-error.log',
+  );
+
+  static Future<void> logFailure(Object e, StackTrace st) async {
+    try {
+      await failureLog.writeAsString(
+        '${DateTime.now().toIso8601String()} $kAppVersion\n$e\n$st\n\n',
+        mode: FileMode.append,
+      );
+    } catch (_) {}
+  }
+
+  /// A short reason for the resting line; the log has the rest.
+  static String describeFailure(Object e) {
+    if (e is SocketException || e is http.ClientException) {
+      return "Update failed: can't download from GitHub";
+    }
+    if (e is TimeoutException) return 'Update failed: the download timed out';
+    if (e is FileSystemException && '$e'.contains('checksum')) {
+      return 'Update failed: the download was damaged';
+    }
+    if (e is ProcessException) {
+      return "Update failed: couldn't start the installer";
+    }
+    return 'Update failed. Try again later.';
+  }
+
   /// Release builds on Windows only: a debug run from `flutter run` must never
   /// replace itself, and a build without APP_VERSION has nothing to compare.
   static bool get enabled =>

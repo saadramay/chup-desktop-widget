@@ -63,27 +63,40 @@ class _RestingBand extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: switch (state) {
-                PanelState.serving => const _ServingLine(),
-                PanelState.empty => const _StatusLine(
-                  text: 'No one in the queue',
-                  color: cInk500,
-                  icon: Icons.check_circle_outline_rounded,
-                ),
-                PanelState.loading => const _StatusLine(
-                  text: 'Reading the queue…',
-                  color: cInk500,
-                  icon: Icons.sync_rounded,
-                ),
-                PanelState.offline => _StatusLine(
-                  text: "Can't reach Chup",
-                  color: cRed,
-                  icon: Icons.cloud_off_rounded,
-                  trailing: c.lastGoodPoll.value == null
-                      ? null
-                      : '${c.minutesSinceLastPoll}m ago',
-                ),
-              },
+              // Update progress and failed actions show in every state, not
+              // only when a patient fills the line.
+              child: c.updating.value
+                  ? const _StatusLine(
+                      text: 'Downloading update…',
+                      color: cGreen700,
+                      icon: Icons.download_rounded,
+                    )
+                  : c.actionError.value != null && state != PanelState.serving
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: _ActionError(c.actionError.value!),
+                    )
+                  : switch (state) {
+                      PanelState.serving => const _ServingLine(),
+                      PanelState.empty => const _StatusLine(
+                        text: 'No one in the queue',
+                        color: cInk500,
+                        icon: Icons.check_circle_outline_rounded,
+                      ),
+                      PanelState.loading => const _StatusLine(
+                        text: 'Reading the queue…',
+                        color: cInk500,
+                        icon: Icons.sync_rounded,
+                      ),
+                      PanelState.offline => _StatusLine(
+                        text: "Can't reach Chup",
+                        color: cRed,
+                        icon: Icons.cloud_off_rounded,
+                        trailing: c.lastGoodPoll.value == null
+                            ? null
+                            : '${c.minutesSinceLastPoll}m ago',
+                      ),
+                    },
             ),
             const TourRing(region: TourRegion.meter, child: _LeadMeter()),
           ],
@@ -771,7 +784,12 @@ class _SizeMenu extends StatelessWidget {
         PopupMenuItem<Object>(
           value: 'update',
           height: 30,
-          child: c.updateVersion.value != null
+          child: c.updating.value
+              ? Text(
+                  'Downloading update…',
+                  style: t(12, FontWeight.w600, color: cGreen700),
+                )
+              : c.updateVersion.value != null
               ? Row(
                   children: [
                     const Icon(

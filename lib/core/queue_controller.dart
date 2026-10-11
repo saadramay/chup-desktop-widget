@@ -663,8 +663,9 @@ class QueueController extends GetxController {
     try {
       await Updater.install(r);
       await windowManager.destroy();
-    } catch (e) {
-      _showActionError('Update failed. Try again later.');
+    } catch (e, st) {
+      await Updater.logFailure(e, st);
+      _showActionError(Updater.describeFailure(e));
     } finally {
       updating.value = false;
     }

@@ -101,4 +101,38 @@ void main() {
     expect(find.text('No one in the queue'), findsNothing);
     expect(find.textContaining('Serving'), findsOneWidget);
   });
+
+  testWidgets('update progress and failures show with an empty queue',
+      (tester) async {
+    final original = FlutterError.onError;
+    FlutterError.onError = (d) {
+      if (!d.toString().contains('overflowed')) original?.call(d);
+    };
+    addTearDown(() => FlutterError.onError = original);
+
+    final c = PanelHost();
+    Get.put<QueueController>(c);
+    c.applyResponses({'data': {'data': []}}, {'data': {'data': []}});
+    expect(c.state.value, PanelState.empty);
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Align(
+          alignment: Alignment.bottomRight,
+          child: SizedBox(width: 216, height: 40, child: WidgetShell()),
+        ),
+      ),
+    ));
+
+    c.updating.value = true;
+    await tester.pump();
+    expect(find.text('Downloading update…'), findsOneWidget);
+
+    c.updating.value = false;
+    c.actionError.value = "Update failed: can't download from GitHub";
+    await tester.pump();
+    expect(find.text("Update failed: can't download from GitHub"), findsOneWidget);
+    expect(find.text('No one in the queue'), findsNothing);
+    c.actionError.value = null;
+  });
 }
