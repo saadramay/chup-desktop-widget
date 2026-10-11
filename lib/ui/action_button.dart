@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../core/visit.dart';
 import 'tokens.dart';
 
-/// The 82x36 action button. Three faces, only ever one shown.
+/// The 80x30 action button. One face shown at a time.
 ///
 /// ALERT and END VISIT are a single click. NO-SHOW is hold-to-confirm — it
 /// writes to production, marks a real person absent, and has no undo.
@@ -14,8 +14,8 @@ class ActionButton extends StatefulWidget {
     super.key,
     required this.action,
     required this.onFire,
-    this.width = 82,
-    this.height = 36,
+    this.width = 80,
+    this.height = 30,
     this.holdLabel,
   });
 
@@ -79,14 +79,38 @@ class _ActionButtonState extends State<ActionButton>
 
   bool get _isHold => widget.action == VisitAction.noShow;
 
-  ({String label, Color base, Color hover}) get _face => switch (widget.action) {
-        VisitAction.alert => (label: 'ALERT', base: cOrange, hover: cOrangeHover),
-        VisitAction.start =>
-          (label: 'START', base: cGreen600, hover: cGreen700Hover),
-        VisitAction.endVisit =>
-          (label: 'END VISIT', base: cGreen700, hover: cGreen700Hover),
-        VisitAction.noShow => (label: 'NO-SHOW', base: cRed, hover: cRed),
-      };
+  ({String label, IconData icon, Color base, Color hover, Color ink})
+      get _face => switch (widget.action) {
+            VisitAction.alert => (
+                label: 'Alert',
+                icon: Icons.notifications_rounded,
+                base: cOrange,
+                hover: cOrangeHover,
+                ink: cWhite,
+              ),
+            VisitAction.start => (
+                label: 'Start',
+                icon: Icons.play_arrow_rounded,
+                base: cGreen600,
+                hover: cGreen700Hover,
+                ink: cWhite,
+              ),
+            VisitAction.endVisit => (
+                label: 'End visit',
+                icon: Icons.check_rounded,
+                base: cGreen700,
+                hover: cGreen700Hover,
+                ink: cWhite,
+              ),
+            // Quiet until held: the outcome you dread should not shout.
+            VisitAction.noShow => (
+                label: 'No-show',
+                icon: Icons.person_off_rounded,
+                base: cRedTint,
+                hover: const Color(0xFFFADAD8),
+                ink: cRed,
+              ),
+          };
 
   void _fireImmediate() {
     if (widget.action == VisitAction.alert) _bell.forward(from: 0);
@@ -129,7 +153,7 @@ class _ActionButtonState extends State<ActionButton>
           child: Transform.translate(
             offset: Offset(0, _pressed ? 0.5 : 0),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(kControlRadius),
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -140,22 +164,27 @@ class _ActionButtonState extends State<ActionButton>
                       builder: (_, _) => FractionallySizedBox(
                         alignment: Alignment.centerLeft,
                         widthFactor: _hold.value,
-                        child: ColoredBox(color: Colors.black.withValues(alpha: .28)),
+                        child: ColoredBox(color: cRed.withValues(alpha: .22)),
                       ),
                     ),
                   Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // The bell rings in place of the static icon after Alert.
                         if (widget.action == VisitAction.alert)
-                          _Bell(anim: _bell),
+                          _Bell(anim: _bell, fallback: f.icon)
+                        else
+                          Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Icon(f.icon, size: 15, color: f.ink),
+                          ),
                         Flexible(
                           child: Text(
                             label,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: t(12, FontWeight.w800,
-                                color: cWhite, spacing: 0.6),
+                            style: t(12.5, FontWeight.w600, color: f.ink),
                           ),
                         ),
                       ],
@@ -173,15 +202,21 @@ class _ActionButtonState extends State<ActionButton>
 
 /// Scales in, then rings with a decaying rotation and two expanding waves.
 class _Bell extends StatelessWidget {
-  const _Bell({required this.anim});
+  const _Bell({required this.anim, required this.fallback});
   final Animation<double> anim;
+  final IconData fallback;
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: anim,
       builder: (_, _) {
-        if (anim.isDismissed) return const SizedBox.shrink();
+        if (anim.isDismissed) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: Icon(fallback, size: 15, color: cWhite),
+          );
+        }
         final v = anim.value;
         final scale = v < .2 ? (0.45 + (v / .2) * 0.55) : 1.0;
         // ±15deg, decaying to nothing.
@@ -192,8 +227,7 @@ class _Bell extends StatelessWidget {
             scale: scale,
             child: Transform.rotate(
               angle: swing,
-              child: const Icon(Icons.notifications,
-                  size: 12, color: cWhite),
+              child: Icon(fallback, size: 15, color: cWhite),
             ),
           ),
         );

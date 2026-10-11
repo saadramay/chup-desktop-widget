@@ -65,19 +65,22 @@ class _RestingBand extends StatelessWidget {
               child: switch (state) {
                 PanelState.serving => const _ServingLine(),
                 PanelState.empty => const _StatusLine(
-                  text: 'NO ONE IN THE QUEUE',
+                  text: 'No one in the queue',
                   color: cInk500,
+                  icon: Icons.check_circle_outline_rounded,
                 ),
                 PanelState.loading => const _StatusLine(
-                  text: 'READING THE QUEUE',
+                  text: 'Reading the queue…',
                   color: cInk500,
+                  icon: Icons.sync_rounded,
                 ),
                 PanelState.offline => _StatusLine(
-                  text: 'CANNOT REACH CHUP',
+                  text: "Can't reach Chup",
                   color: cRed,
+                  icon: Icons.cloud_off_rounded,
                   trailing: c.lastGoodPoll.value == null
                       ? null
-                      : 'LAST READ ${c.minutesSinceLastPoll}M AGO',
+                      : '${c.minutesSinceLastPoll}m ago',
                 ),
               },
             ),
@@ -102,7 +105,11 @@ class _ServingLine extends StatelessWidget {
       final inRoom = c.onlyServing;
       final n = c.next ?? c.serving.value;
       if (n == null) {
-        return const _StatusLine(text: 'NO ONE IN THE QUEUE', color: cInk500);
+        return const _StatusLine(
+          text: 'No one in the queue',
+          color: cInk500,
+          icon: Icons.check_circle_outline_rounded,
+        );
       }
       final called = n.isCalled;
       final over = c.leadOverLimit;
@@ -114,7 +121,7 @@ class _ServingLine extends StatelessWidget {
             child: TourRing(
               region: TourRegion.next,
               child: Padding(
-                padding: const EdgeInsets.only(left: 9),
+                padding: const EdgeInsets.only(left: 12),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -126,57 +133,53 @@ class _ServingLine extends StatelessWidget {
                             n.shortName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: t(11.5, FontWeight.w600),
+                            style: t(13, FontWeight.w600, height: 1.15),
                           ),
                         ),
                         const SizedBox(width: 4),
-                        Text(
+                        _Pill(
                           '${c.positionOf(n)}/${c.sessionTotal}',
-                          style: t(
-                            9.5,
-                            FontWeight.w800,
-                            color: cInk500,
-                            tabular: true,
-                          ),
+                          color: cInk500,
+                          background: cSurface2,
                         ),
                       ],
                     ),
                     Row(
                       children: [
                         Text(
-                          _clock(n.appointmentAt),
-                          style: t(10, FontWeight.w700, tabular: true),
+                          _clockShort(n.appointmentAt),
+                          style: t(
+                            11,
+                            FontWeight.w500,
+                            color: cInk500,
+                            tabular: true,
+                          ),
                         ),
+                        const SizedBox(width: 6),
                         const Spacer(),
                         // A failed action takes this slot for a few seconds, so
                         // it can never pass for a successful one.
                         if (c.actionError.value != null)
                           Expanded(
                             child: Text(
-                              c.actionError.value!.toUpperCase(),
+                              c.actionError.value!,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.right,
-                              style: t(
-                                9,
-                                FontWeight.w800,
-                                color: cRed,
-                                spacing: 0.4,
-                              ),
+                              style: t(11, FontWeight.w600, color: cRed),
                             ),
                           )
                         else
                           Text(
                             inRoom
-                                ? 'SERVING ${mins}M'
+                                ? 'Serving ${mins}m'
                                 : called
-                                ? 'CALLED ${mins}M'
-                                : '${mins}M WAITING',
+                                ? 'Called ${mins}m'
+                                : 'Waiting ${mins}m',
                             style: t(
-                              9,
-                              FontWeight.w800,
+                              11,
+                              FontWeight.w600,
                               color: over ? cRed : cInk500,
-                              spacing: 0.4,
                               tabular: true,
                             ),
                           ),
@@ -191,7 +194,7 @@ class _ServingLine extends StatelessWidget {
           TourRing(
             region: TourRegion.act,
             child: Padding(
-              padding: const EdgeInsets.all(2),
+              padding: const EdgeInsets.fromLTRB(0, 4, 4, 4),
               child: ActionButton(
                 action: c.displayAction,
                 onFire: () => c.act(c.action),
@@ -212,18 +215,24 @@ String _clock(DateTime? d) {
   if (d == null) return '';
   final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
   final m = d.minute.toString().padLeft(2, '0');
-  return '$h.$m ${d.hour < 12 ? 'AM' : 'PM'}';
+  return '$h:$m ${d.hour < 12 ? 'AM' : 'PM'}';
 }
 
 class _StatusLine extends StatelessWidget {
-  const _StatusLine({required this.text, required this.color, this.trailing});
+  const _StatusLine({
+    required this.text,
+    required this.color,
+    this.trailing,
+    this.icon,
+  });
   final String text;
   final Color color;
   final String? trailing;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 9),
+    padding: const EdgeInsets.symmetric(horizontal: 12),
     // Two strings have to share one line and the line's width is not theirs
     // to choose: 216 minus the shell's 1px border and this 9px on each side
     // is 196, and the offline pair needs 214 of it. Both used to be laid out
@@ -237,11 +246,15 @@ class _StatusLine extends StatelessWidget {
     // never exceed the Row, so there is no width at which this overflows.
     child: Row(
       children: [
+        if (icon != null) ...[
+          Icon(icon, size: 15, color: color),
+          const SizedBox(width: 6),
+        ],
         Text(
           text,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: t(9.5, FontWeight.w800, color: color, spacing: 0.5),
+          style: t(12, FontWeight.w600, color: color),
         ),
         if (trailing != null)
           Expanded(
@@ -252,11 +265,38 @@ class _StatusLine extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.right,
-                style: t(9, FontWeight.w800, color: cInk500, spacing: 0.4),
+                style: t(11, FontWeight.w500, color: cInk500),
               ),
             ),
           ),
       ],
+    ),
+  );
+}
+
+/// A small rounded label: positions, tokens.
+class _Pill extends StatelessWidget {
+  const _Pill(
+    this.text, {
+    required this.color,
+    required this.background,
+    this.size = 10,
+  });
+  final String text;
+  final Color color;
+  final Color background;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+    decoration: BoxDecoration(
+      color: background,
+      borderRadius: BorderRadius.circular(5),
+    ),
+    child: Text(
+      text,
+      style: t(size, FontWeight.w600, color: color, tabular: true, height: 1.2),
     ),
   );
 }
@@ -271,8 +311,9 @@ class _LeadMeter extends StatelessWidget {
     final c = Get.find<QueueController>();
     return Obx(() {
       final loading = c.state.value == PanelState.loading;
-      return SizedBox(
+      return Container(
         height: 3,
+        color: cSurface2,
         child: Align(
           alignment: Alignment.centerLeft,
           child: FractionallySizedBox(
@@ -308,7 +349,7 @@ class _QueueRows extends StatelessWidget {
               decoration: const BoxDecoration(
                 border: Border(top: BorderSide(color: cLine200)),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 9),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               // Spec order: appointment time, token, full name, minutes waiting
               // (red past the wait limit).
               child: Row(
@@ -317,30 +358,22 @@ class _QueueRows extends StatelessWidget {
                     Text(
                       _clockShort(v.appointmentAt),
                       style: t(
-                        8.5,
-                        FontWeight.w800,
+                        10.5,
+                        FontWeight.w500,
                         color: cInk500,
                         tabular: true,
                       ),
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 6),
                   ],
-                  Text(
-                    v.token,
-                    style: t(
-                      9,
-                      FontWeight.w800,
-                      color: cGreen600,
-                      tabular: true,
-                    ),
-                  ),
-                  const SizedBox(width: 5),
+                  _Pill(v.token, color: cGreen700, background: cGreen50),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       v.clientName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: t(10, FontWeight.w600),
+                      style: t(11.5, FontWeight.w500),
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -348,10 +381,10 @@ class _QueueRows extends StatelessWidget {
                     builder: (_) {
                       final m = minutesSince(v.arrivedAt, c.now.value);
                       return Text(
-                        '${m}M',
+                        '${m}m',
                         style: t(
-                          9,
-                          FontWeight.w800,
+                          10.5,
+                          FontWeight.w600,
                           color: m >= c.limits.value.wait.inMinutes
                               ? cRed
                               : cInk500,
@@ -373,8 +406,8 @@ class _QueueRows extends StatelessWidget {
                 border: Border(top: BorderSide(color: cLine200)),
               ),
               child: Text(
-                'END OF SESSION',
-                style: t(8.5, FontWeight.w800, color: cInk500, spacing: 0.8),
+                'End of list',
+                style: t(10.5, FontWeight.w500, color: cInk400),
               ),
             ),
         ],
@@ -398,18 +431,32 @@ class _Reveal extends StatelessWidget {
         decoration: const BoxDecoration(
           color: cWhite,
           border: Border(bottom: BorderSide(color: cLine200)),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(7)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(kPanelRadius - 1),
+          ),
         ),
-        padding: const EdgeInsets.fromLTRB(9, 6, 4, 6),
+        padding: const EdgeInsets.fromLTRB(12, 6, 6, 6),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
+                if (s != null) ...[
+                  // A live dot: someone is in the room right now.
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: cGreen600,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                ],
                 Text(
-                  s == null ? 'CHUP' : 'NOW',
-                  style: t(10, FontWeight.w800, color: cGreen700, spacing: 0.8),
+                  s == null ? 'Chup' : 'Now',
+                  style: t(11.5, FontWeight.w600, color: cGreen700),
                 ),
                 const Spacer(),
                 const TourRing(
@@ -435,47 +482,43 @@ class _Reveal extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: t(
-                        19,
-                        FontWeight.w700,
-                        height: 1.1,
-                        spacing: -0.19,
+                        17,
+                        FontWeight.w600,
+                        height: 1.15,
+                        spacing: -0.2,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Row(
                       children: [
-                        Text(
+                        _Pill(
                           s.token,
-                          style: t(
-                            15,
-                            FontWeight.w800,
-                            color: cGreen600,
-                            tabular: true,
-                          ),
+                          color: cGreen700,
+                          background: cGreen50,
+                          size: 11.5,
                         ),
-                        const SizedBox(width: 5),
+                        const SizedBox(width: 6),
                         Text(
                           '${c.positionOf(s)}/${c.sessionTotal}',
                           style: t(
-                            12,
-                            FontWeight.w800,
+                            11.5,
+                            FontWeight.w500,
                             color: cInk500,
                             tabular: true,
                           ),
                         ),
-                        const SizedBox(width: 5),
                         Text(
-                          '· SERVING ${c.servingMinutes}M',
+                          '  ·  Serving ${c.servingMinutes}m',
                           style: t(
-                            12,
-                            FontWeight.w800,
+                            11.5,
+                            FontWeight.w600,
                             color: c.servingOverLimit ? cRed : cInk500,
                             tabular: true,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 5),
                     _ServingMeter(),
                   ],
                 ),
@@ -483,7 +526,7 @@ class _Reveal extends StatelessWidget {
             else
               Text(
                 'No consultation in progress',
-                style: t(11.5, FontWeight.w500, color: cInk500),
+                style: t(12, FontWeight.w500, color: cInk500),
               ),
             // Shown while someone is called, and on the tour's No-Show step,
             // where act() refuses to fire.
@@ -494,10 +537,10 @@ class _Reveal extends StatelessWidget {
                 child: ActionButton(
                   action: VisitAction.noShow,
                   width: double.infinity,
-                  height: 24,
+                  height: 26,
                   holdLabel: called == null
-                      ? 'NO-SHOW'
-                      : 'NO-SHOW · ${called.shortName}',
+                      ? 'Hold for no-show'
+                      : 'Hold for no-show · ${called.shortName}',
                   onFire: () => c.act(VisitAction.noShow),
                 ),
               ),
@@ -518,13 +561,17 @@ class _ServingMeter extends StatelessWidget {
       final f = consult == 0
           ? 0.0
           : (c.servingMinutes / consult).clamp(0.0, 1.0);
-      return SizedBox(
-        height: 2,
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: FractionallySizedBox(
-            widthFactor: f,
-            child: ColoredBox(color: c.servingOverLimit ? cRed : cGreen700),
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(2),
+        child: Container(
+          height: 4,
+          color: cSurface2,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: FractionallySizedBox(
+              widthFactor: f,
+              child: ColoredBox(color: c.servingOverLimit ? cRed : cGreen600),
+            ),
           ),
         ),
       );
@@ -545,7 +592,7 @@ class _ControlCluster extends StatelessWidget {
       children: [
         // The grip is the ONLY drag handle. Nothing else on the panel drags.
         _Ctl(
-          icon: Icons.drag_indicator,
+          icon: Icons.drag_indicator_rounded,
           tooltip: 'Move',
           cursor: SystemMouseCursors.grab,
           onDragStart: () async {
@@ -554,18 +601,18 @@ class _ControlCluster extends StatelessWidget {
           },
         ),
         _Ctl(
-          icon: Icons.open_in_new,
+          icon: Icons.open_in_new_rounded,
           tooltip: 'Open in Chup',
           onTap: () => openInBrowser(webQueueUrl),
         ),
         _SizeMenu(),
         _Ctl(
-          icon: Icons.remove,
+          icon: Icons.remove_rounded,
           tooltip: 'Minimise',
           onTap: () => c.presentation.value = Presentation.minimised,
         ),
         _Ctl(
-          icon: Icons.close,
+          icon: Icons.close_rounded,
           tooltip: 'Close',
           danger: true,
           onTap: () => c.presentation.value = Presentation.closed,
@@ -601,8 +648,8 @@ class _CtlState extends State<_Ctl> {
 
   @override
   Widget build(BuildContext context) {
-    final fg = _h ? (widget.danger ? cRed : cGreen700) : cInk500;
-    final bg = _h ? (widget.danger ? cRedWash : cGreen50) : null;
+    final fg = _h ? (widget.danger ? cRed : cInk800) : cInk500;
+    final bg = _h ? (widget.danger ? cRedWash : cSurface2) : null;
     return Tooltip(
       message: widget.tooltip,
       waitDuration: const Duration(milliseconds: 500),
@@ -616,14 +663,14 @@ class _CtlState extends State<_Ctl> {
               ? null
               : (_) => widget.onDragStart!(),
           child: Container(
-            width: 20,
-            height: 20,
+            width: 22,
+            height: 22,
             margin: const EdgeInsets.only(left: 1),
             decoration: BoxDecoration(
               color: bg,
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(6),
             ),
-            child: Icon(widget.icon, size: 13, color: fg),
+            child: Icon(widget.icon, size: 15, color: fg),
           ),
         ),
       ),
@@ -640,7 +687,14 @@ class _SizeMenu extends StatelessWidget {
       padding: EdgeInsets.zero,
       splashRadius: 12,
       position: PopupMenuPosition.under,
-      constraints: const BoxConstraints(minWidth: 132),
+      constraints: const BoxConstraints(minWidth: 140),
+      color: cWhite,
+      elevation: 8,
+      shadowColor: const Color(0x33000000),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: const BorderSide(color: cLine200),
+      ),
       // Hold the reveal open for as long as the menu is up: the route's own
       // barrier is what makes the panel's MouseRegion report an exit, and
       // without this the window collapses under the menu the instant it opens.
@@ -677,10 +731,11 @@ class _SizeMenu extends StatelessWidget {
                 SizedBox(
                   width: 16,
                   child: c.size.value == s
-                      ? const Icon(Icons.check, size: 12, color: cGreen700)
+                      ? const Icon(Icons.check_rounded, size: 14, color: cGreen700)
                       : null,
                 ),
-                Text(s.label, style: t(11.5, FontWeight.w500)),
+                const SizedBox(width: 4),
+                Text(s.label, style: t(12, FontWeight.w400)),
               ],
             ),
           ),
@@ -688,25 +743,25 @@ class _SizeMenu extends StatelessWidget {
         PopupMenuItem<Object>(
           value: 'help',
           height: 30,
-          child: Text('Help', style: t(11.5, FontWeight.w500)),
+          child: Text('Help', style: t(12, FontWeight.w400)),
         ),
         PopupMenuItem<Object>(
           value: 'signout',
           height: 30,
-          child: Text('Sign out', style: t(11.5, FontWeight.w500)),
+          child: Text('Sign out', style: t(12, FontWeight.w400)),
         ),
         // Close only tucks the widget into an edge tab; this is the way out.
         PopupMenuItem<Object>(
           value: 'quit',
           height: 30,
-          child: Text('Quit', style: t(11.5, FontWeight.w500)),
+          child: Text('Quit', style: t(12, FontWeight.w400, color: cRed)),
         ),
       ],
       child: Container(
-        width: 20,
-        height: 20,
+        width: 22,
+        height: 22,
         margin: const EdgeInsets.only(left: 1),
-        child: const Icon(Icons.more_horiz, size: 13, color: cInk500),
+        child: const Icon(Icons.more_horiz_rounded, size: 15, color: cInk500),
       ),
     );
   }

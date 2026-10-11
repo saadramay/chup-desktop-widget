@@ -52,23 +52,18 @@ const segouiFontDir = 'C:\\Windows\\Fonts';
 /// (macOS, Linux) instead of failing. CI runs on Windows and still enforces them.
 final bool noSegoe = !File('$segouiFontDir\\segoeui.ttf').existsSync();
 
-/// The faces the panel's `t()` helper actually asks for. `segoeuib` is reused
-/// for w800 because Segoe UI ships no heavier weight.
+/// The faces the panel's `t()` helper actually asks for.
 final segouiFaces = <String, Map<FontWeight, String>>{
-  'Segoe UI': {
-    FontWeight.w400: 'segoeui.ttf',
-    FontWeight.w500: 'segoeuisl.ttf',
-    FontWeight.w600: 'segoeuiz.ttf',
-    FontWeight.w700: 'segoeuib.ttf',
-    FontWeight.w800: 'segoeuib.ttf',
-  },
-  'Segoe UI Variable Text': {
-    FontWeight.w400: 'segoeui.ttf',
-    FontWeight.w500: 'segoeuisl.ttf',
-    FontWeight.w600: 'segoeuiz.ttf',
-    FontWeight.w700: 'segoeuib.ttf',
-    FontWeight.w800: 'segoeuib.ttf',
-  },
+  for (final family in ['Segoe UI', 'Segoe UI Variable Text'])
+    family: {
+      // What Windows resolves each weight to: Segoe UI ships Regular,
+      // Semibold and Bold (500 falls back to Regular, 800 to Bold).
+      FontWeight.w400: 'segoeui.ttf',
+      FontWeight.w500: 'segoeui.ttf',
+      FontWeight.w600: 'seguisb.ttf',
+      FontWeight.w700: 'segoeuib.ttf',
+      FontWeight.w800: 'segoeuib.ttf',
+    },
 };
 
 /// False when Segoe UI is absent — a Windows-only widget measured on a host

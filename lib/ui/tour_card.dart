@@ -24,40 +24,40 @@ class TourCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: cWhite,
           border: Border.all(color: cLine200),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(kPanelRadius),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(children: [
-              Text(s.label.toUpperCase(),
-                  style: t(9, FontWeight.w800, color: cGreen700, spacing: 0.7)),
+              Text(s.label,
+                  style: t(10.5, FontWeight.w600, color: cGreen700)),
               const Spacer(),
               if (!s.done)
                 Text('$step / $numbered',
-                    style: t(9, FontWeight.w800, color: cInk500, tabular: true)),
+                    style: t(10.5, FontWeight.w500, color: cInk500, tabular: true)),
             ]),
             const SizedBox(height: 5),
             Text(s.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: t(13, FontWeight.w800, height: 1.2)),
+                style: t(13.5, FontWeight.w600, height: 1.2)),
             const SizedBox(height: 5),
             Expanded(
               child: Text(s.body,
                   overflow: TextOverflow.fade,
-                  style: t(10.5, FontWeight.w500, height: 1.35)),
+                  style: t(11, FontWeight.w400, height: 1.4)),
             ),
             const SizedBox(height: 6),
             Row(children: [
               if (!s.done)
-                _TextButton('LANGKAU', onTap: c.endTour),
+                _TextButton('Langkau', onTap: c.endTour),
               const Spacer(),
               if (step > 1)
-                _Button('KEMBALI',
+                _Button('Kembali',
                     primary: false, onTap: () => c.goToTourStep(step - 1)),
               const SizedBox(width: 6),
-              _Button(s.done ? 'SELESAI' : 'LANJUT',
+              _Button(s.done ? 'Selesai' : 'Lanjut',
                   onTap: () => c.goToTourStep(step + 1)),
             ]),
           ],
@@ -78,7 +78,7 @@ class _TextButton extends StatelessWidget {
         child: GestureDetector(
           onTap: onTap,
           child: Text(label,
-              style: t(9, FontWeight.w800, color: cInk500, spacing: 0.6)),
+              style: t(11, FontWeight.w500, color: cInk500)),
         ),
       );
 }
@@ -101,11 +101,11 @@ class _Button extends StatelessWidget {
             decoration: BoxDecoration(
               color: primary ? cGreen700 : cWhite,
               border: primary ? null : Border.all(color: cLine200),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(6),
             ),
             child: Text(label,
-                style: t(9.5, FontWeight.w800,
-                    color: primary ? cWhite : cInk800, spacing: 0.6)),
+                style: t(11, FontWeight.w600,
+                    color: primary ? cWhite : cInk800)),
           ),
         ),
       );
@@ -156,7 +156,7 @@ class _LandingBlinkState extends State<LandingBlink>
               border: Border.all(
                   color: cGreen700.withValues(alpha: _alpha(_a.value)),
                   width: 2),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(kPanelRadius),
             ),
           ),
         ),

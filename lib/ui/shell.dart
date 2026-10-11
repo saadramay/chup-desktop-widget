@@ -93,7 +93,7 @@ class WidgetShell extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: cWhite,
                   border: Border.all(color: cLine200),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(kPanelRadius),
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: const SliverPanel(),
@@ -136,7 +136,7 @@ class _MinimisedChip extends StatelessWidget {
             decoration: BoxDecoration(
               color: cWhite,
               border: Border.all(color: cLine200),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(kPanelRadius),
             ),
             clipBehavior: Clip.antiAlias,
             child: Column(
@@ -145,7 +145,7 @@ class _MinimisedChip extends StatelessWidget {
                   child: Center(
                     child: Text(
                       '${c.leadMinutes}',
-                      style: t(17, FontWeight.w800,
+                      style: t(16, FontWeight.w600,
                           color: over ? cRed : cGreen700, tabular: true),
                     ),
                   ),

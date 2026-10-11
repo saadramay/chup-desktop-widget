@@ -9,11 +9,18 @@ const cOrangeHover = Color(0xFFDD5717);
 const cGreen700Hover = Color(0xFF0D4728);
 const cRed = Color(0xFFE03127); // NO-SHOW, overrun red
 const cRedWash = Color(0xFFF9E9E8); // close-button hover
-const cInk800 = Color(0xFF1D1D1D); // body ink
-const cInk500 = Color(0xFF4F4F4F); // secondary text, micro labels
-const cLine200 = Color(0xFFEBEBEB); // every hairline
+const cInk800 = Color(0xFF1F2328); // body ink
+const cInk500 = Color(0xFF6B7280); // secondary text
+const cInk400 = Color(0xFF9AA0A8); // tertiary text, end-of-list
+const cLine200 = Color(0xFFECEEF0); // every hairline
 const cLine300 = Color(0xFFCFD1D4); // unchecked control borders
 const cWhite = Color(0xFFFFFFFF);
+const cSurface2 = Color(0xFFF4F6F5); // pills, tracks, control hover
+const cRedTint = Color(0xFFFDECEB); // no-show face
+
+/// Corner radii: the panel, and controls inside it.
+const kPanelRadius = 12.0;
+const kControlRadius = 8.0;
 
 /// The widget is a Windows citizen — it uses the OS UI stack, not the document
 /// faces the Chup stationery uses.
@@ -30,7 +37,7 @@ const kFontFallback = <String>['Segoe UI', 'system-ui'];
 /// SvgPicture drew nothing instead of its 28px). Measured against the real
 /// faces the card needs kSignInHeight, guarded by test/sign_in_fit_test.dart.
 const kSignInWidth = 260.0;
-const kSignInHeight = 312.0;
+const kSignInHeight = 336.0;
 
 /// Every figure ticks, so numerals must not jitter as they change width.
 const kTabular = <FontFeature>[FontFeature.tabularFigures()];

@@ -69,7 +69,7 @@ void main() {
     expect(c.isClosed, isTrue);
   });
 
-  testWidgets('a serving patient with nobody waiting still shows END VISIT',
+  testWidgets('a serving patient with nobody waiting still shows End visit',
       (tester) async {
     final original = FlutterError.onError;
     FlutterError.onError = (d) {
@@ -97,8 +97,8 @@ void main() {
     ));
     await tester.pump();
 
-    expect(find.text('END VISIT'), findsOneWidget);
-    expect(find.text('NO ONE IN THE QUEUE'), findsNothing);
-    expect(find.textContaining('SERVING'), findsOneWidget);
+    expect(find.text('End visit'), findsOneWidget);
+    expect(find.text('No one in the queue'), findsNothing);
+    expect(find.textContaining('Serving'), findsOneWidget);
   });
 }

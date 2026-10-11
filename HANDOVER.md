@@ -211,6 +211,11 @@ made in CI — Smart App Control blocks Flutter's unsigned AOT compiler locally.
   from Segoe at these sizes. The height is guarded by `test/sign_in_fit_test.dart`, which
   fails on 311 by 0.433px. **If the sign-in card should be 271 tall, that is a design
   decision to make by cutting content — not by lowering the constant back.**
+- **Modern restyle** (2026-10-11): sentence case instead of all-caps micro labels, Semibold
+  instead of Black weights, 12px panel / 8px control radii, buttons with icons ("Alert", "Start",
+  "End visit"), token and position pills, a soft red hold-to-confirm No-show, a cleaner reveal,
+  menu, sign-in card (now 336 tall) and tour card. Colours stay the Chup brand set; secondary
+  ink is a cooler grey. Geometry and behaviour are unchanged. Supersedes the spec's type rules.
 - **The panel sizes to its rows** (2026-10-11, after testing on the WorkSpace). Medium and Large
   are now maximums: a short session ends with the END OF SESSION row instead of holding the full
   height with empty paper above, and the reveal keeps its own 118px. Rows show time, token, full

@@ -117,7 +117,7 @@ class _SignInScreenState extends State<SignInScreen> {
       decoration: BoxDecoration(
         color: cWhite,
         border: Border.all(color: cLine200),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(kPanelRadius),
       ),
       clipBehavior: Clip.antiAlias,
       child: OverflowBox(
@@ -161,16 +161,16 @@ class _SignInScreenState extends State<SignInScreen> {
           ),
           SvgPicture.asset('assets/chup-logo.svg', width: 74),
           const SizedBox(height: 9),
-          Text('Chup Desktop Widget', style: t(13, FontWeight.w800)),
+          Text('Chup Desktop Widget', style: t(14, FontWeight.w600)),
           Text('Sign in to follow your queue',
-              style: t(10.5, FontWeight.w500, color: cInk500)),
+              style: t(11, FontWeight.w400, color: cInk500)),
           const SizedBox(height: 9),
-          const _Label('EMAIL'),
+          const _Label('Email'),
           _Input(controller: _email, autofocus: true),
           const SizedBox(height: 9),
           Row(
             children: [
-              const _Label('PASSWORD'),
+              const _Label('Password'),
               const Spacer(),
               _ShowHide(
                 shown: !_obscure,
@@ -190,7 +190,7 @@ class _SignInScreenState extends State<SignInScreen> {
           ),
           if (_error != null) ...[
             const SizedBox(height: 6),
-            Text(_error!, style: t(10, FontWeight.w700, color: cRed)),
+            Text(_error!, style: t(10.5, FontWeight.w600, color: cRed)),
           ],
           const SizedBox(height: 9),
           _Primary(busy: _busy, onTap: _submit),
@@ -201,7 +201,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 ? 'Opens straight to your queue when this computer starts'
                 : 'Opens when this computer starts, and asks for your password',
             textAlign: TextAlign.center,
-            style: t(8.5, FontWeight.w500, color: cInk500, height: 1.3),
+            style: t(9.5, FontWeight.w400, color: cInk500, height: 1.3),
           ),
         ],
       ),
@@ -217,7 +217,7 @@ class _Label extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(bottom: 3),
         child: Text(text,
-            style: t(8.5, FontWeight.w800, color: cInk500, spacing: 0.68)),
+            style: t(10.5, FontWeight.w500, color: cInk500)),
       );
 }
 
@@ -242,17 +242,19 @@ class _Input extends StatelessWidget {
           obscureText: obscure,
           autofocus: autofocus,
           onSubmitted: onSubmitted,
-          style: t(11.5, FontWeight.w500),
+          style: t(12, FontWeight.w400),
           decoration: InputDecoration(
             isDense: true,
+            filled: true,
+            fillColor: cSurface2,
             contentPadding: const EdgeInsets.symmetric(horizontal: 9),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(kControlRadius),
               borderSide: const BorderSide(color: cLine200),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: cGreen700),
+              borderRadius: BorderRadius.circular(kControlRadius),
+              borderSide: const BorderSide(color: cGreen700, width: 1.5),
             ),
           ),
         ),
@@ -280,8 +282,8 @@ class _ShowHideState extends State<_ShowHide> {
           onTap: widget.onTap,
           child: Padding(
             padding: const EdgeInsets.only(bottom: 3),
-            child: Text(widget.shown ? 'HIDE' : 'SHOW',
-                style: t(8.5, FontWeight.w800,
+            child: Text(widget.shown ? 'Hide' : 'Show',
+                style: t(10.5, FontWeight.w600,
                     color: _h ? cOrange : cGreen700, spacing: 0.68)),
           ),
         ),
@@ -315,7 +317,7 @@ class _StayTicked extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text('Stay signed in on this computer',
-                  style: t(10, FontWeight.w500)),
+                  style: t(11, FontWeight.w400)),
             ],
           ),
         ),
@@ -346,7 +348,7 @@ class _PrimaryState extends State<_Primary> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: _h ? cGreen700Hover : cGreen700,
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(kControlRadius),
             ),
             child: widget.busy
                 ? const SizedBox(
@@ -355,9 +357,9 @@ class _PrimaryState extends State<_Primary> {
                     child: CircularProgressIndicator(
                         strokeWidth: 2, color: cWhite),
                   )
-                : Text('SIGN IN',
+                : Text('Sign in',
                     style:
-                        t(12, FontWeight.w800, color: cWhite, spacing: 0.6)),
+                        t(13, FontWeight.w600, color: cWhite)),
           ),
         ),
       );
