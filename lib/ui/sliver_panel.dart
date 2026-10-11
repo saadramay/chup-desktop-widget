@@ -122,71 +122,62 @@ class _ServingLine extends StatelessWidget {
               region: TourRegion.next,
               child: Padding(
                 padding: const EdgeInsets.only(left: 12),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            n.shortName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: t(13, FontWeight.w600, height: 1.15),
+                // A failed action takes the whole line for a few seconds, so
+                // the reason is readable and never passes for success.
+                child: c.actionError.value != null
+                    ? _ActionError(c.actionError.value!)
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  n.shortName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: t(13, FontWeight.w600, height: 1.15),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              _Pill(
+                                '${c.positionOf(n)}/${c.sessionTotal}',
+                                color: cInk500,
+                                background: cSurface2,
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(width: 4),
-                        _Pill(
-                          '${c.positionOf(n)}/${c.sessionTotal}',
-                          color: cInk500,
-                          background: cSurface2,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          _clockShort(n.appointmentAt),
-                          style: t(
-                            11,
-                            FontWeight.w500,
-                            color: cInk500,
-                            tabular: true,
+                          Row(
+                            children: [
+                              Text(
+                                _clockShort(n.appointmentAt),
+                                style: t(
+                                  11,
+                                  FontWeight.w500,
+                                  color: cInk500,
+                                  tabular: true,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              const Spacer(),
+                              Text(
+                                inRoom
+                                    ? 'Serving ${mins}m'
+                                    : called
+                                    ? 'Called ${mins}m'
+                                    : 'Waiting ${mins}m',
+                                style: t(
+                                  11,
+                                  FontWeight.w600,
+                                  color: over ? cRed : cInk500,
+                                  tabular: true,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Spacer(),
-                        // A failed action takes this slot for a few seconds, so
-                        // it can never pass for a successful one.
-                        if (c.actionError.value != null)
-                          Expanded(
-                            child: Text(
-                              c.actionError.value!,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.right,
-                              style: t(11, FontWeight.w600, color: cRed),
-                            ),
-                          )
-                        else
-                          Text(
-                            inRoom
-                                ? 'Serving ${mins}m'
-                                : called
-                                ? 'Called ${mins}m'
-                                : 'Waiting ${mins}m',
-                            style: t(
-                              11,
-                              FontWeight.w600,
-                              color: over ? cRed : cInk500,
-                              tabular: true,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
+                        ],
+                      ),
               ),
             ),
           ),
@@ -269,6 +260,31 @@ class _StatusLine extends StatelessWidget {
               ),
             ),
           ),
+      ],
+    ),
+  );
+}
+
+/// The reason the last action failed, on up to two lines; full text on hover.
+class _ActionError extends StatelessWidget {
+  const _ActionError(this.message);
+  final String message;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: message,
+    child: Row(
+      children: [
+        const Icon(Icons.error_outline_rounded, size: 15, color: cRed),
+        const SizedBox(width: 5),
+        Expanded(
+          child: Text(
+            message,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: t(11, FontWeight.w600, color: cRed, height: 1.2),
+          ),
+        ),
       ],
     ),
   );
@@ -731,7 +747,11 @@ class _SizeMenu extends StatelessWidget {
                 SizedBox(
                   width: 16,
                   child: c.size.value == s
-                      ? const Icon(Icons.check_rounded, size: 14, color: cGreen700)
+                      ? const Icon(
+                          Icons.check_rounded,
+                          size: 14,
+                          color: cGreen700,
+                        )
                       : null,
                 ),
                 const SizedBox(width: 4),

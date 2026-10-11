@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:window_manager/window_manager.dart';
 
 import '../ui/sign_in.dart';
@@ -607,8 +609,18 @@ class QueueController extends GetxController {
       }
       _showActionError(e.message);
       await refreshNow();
-    } catch (_) {
+    } on SocketException {
       _showActionError('Cannot reach Chup');
+      await refreshNow();
+    } on http.ClientException {
+      _showActionError('Cannot reach Chup');
+      await refreshNow();
+    } on TimeoutException {
+      _showActionError('Chup took too long to answer');
+      await refreshNow();
+    } catch (_) {
+      // Not a network problem; do not blame the connection for it.
+      _showActionError('Something went wrong. Try again.');
       await refreshNow();
     } finally {
       busyAction.value = false;
