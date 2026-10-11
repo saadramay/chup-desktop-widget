@@ -28,7 +28,8 @@ const double kEdgeInset = 12;
 /// large are already at least this tall, so the value only ever bites on small.
 /// `QueueController.windowHeight` is what applies it, guarded by
 /// test/size_menu_pin_test.dart.
-const double kSizeMenuWindowHeight = 242;
+/// 272 since the version / update row joined the menu (seven rows).
+const double kSizeMenuWindowHeight = 272;
 
 /// Keeps the panel pinned to its corner while its height changes.
 ///

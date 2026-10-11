@@ -14,6 +14,7 @@ import 'api.dart';
 import 'limits.dart';
 import 'mock.dart';
 import 'tour.dart';
+import 'updater.dart';
 import 'visit.dart';
 import 'window_anchor.dart';
 
@@ -99,6 +100,12 @@ class QueueController extends GetxController {
   /// Stands in for `called_at` / `started_at` while the API does not send them.
   final Map<String, DateTime> _observed = {};
 
+  /// A newer published version, when there is one.
+  final updateVersion = RxnString();
+  Release? _release;
+  Timer? _updateTimer;
+  final updating = false.obs;
+
   /// 1-based tour step, 0 when the tour is not showing.
   final tourStep = 0.obs;
 
@@ -143,6 +150,13 @@ class QueueController extends GetxController {
       now.value = DateTime.now();
     });
     refreshNow().whenComplete(_schedulePoll);
+    if (Updater.enabled) {
+      unawaited(checkForUpdates());
+      _updateTimer = Timer.periodic(
+        const Duration(hours: 6),
+        (_) => checkForUpdates(),
+      );
+    }
   }
 
   @override
@@ -150,6 +164,7 @@ class QueueController extends GetxController {
     _poll?.cancel();
     _clock?.cancel();
     _errorTimer?.cancel();
+    _updateTimer?.cancel();
     super.onClose();
   }
 
@@ -624,6 +639,34 @@ class QueueController extends GetxController {
       await refreshNow();
     } finally {
       busyAction.value = false;
+    }
+  }
+
+  // ---------------------------------------------------------------- updates
+
+  /// Asks GitHub for a newer release. Quiet on failure: an update check must
+  /// never get in the way of the queue.
+  Future<void> checkForUpdates() async {
+    try {
+      _release = await Updater.check();
+      updateVersion.value = _release?.version;
+    } catch (_) {}
+    if (kAutoUpdate && _release != null) await installUpdate();
+  }
+
+  /// Downloads and verifies the update, hands over to the swap script, and
+  /// exits so the files can be replaced. The script restarts the widget.
+  Future<void> installUpdate() async {
+    final r = _release;
+    if (r == null || updating.value) return;
+    updating.value = true;
+    try {
+      await Updater.install(r);
+      await windowManager.destroy();
+    } catch (e) {
+      _showActionError('Update failed. Try again later.');
+    } finally {
+      updating.value = false;
     }
   }
 

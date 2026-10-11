@@ -1,0 +1,105 @@
+name: Release
+
+# Push a tag to publish:   git tag v1.2.0 && git push origin v1.2.0
+# Installed widgets find the new release on their next check (launch, then
+# every 6 hours) and offer "Update to 1.2.0" in the menu.
+#
+# Run it by hand from the Actions tab for a dry run: everything is built and
+# attached to the run as an artifact, nothing is published.
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to stamp on the dry-run build
+        default: 0.0.1
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      SIGN_CERT: ${{ secrets.WINDOWS_SIGN_CERT_PFX_BASE64 }}
+      SIGN_PASSWORD: ${{ secrets.WINDOWS_SIGN_CERT_PASSWORD }}
+      PUBLISH: ${{ github.event_name == 'push' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Version
+        shell: pwsh
+        run: |
+          $v = if ($env:GITHUB_EVENT_NAME -eq 'push') { '${{ github.ref_name }}'.TrimStart('v') } else { '${{ github.event.inputs.version }}' }
+          if ($v -notmatch '^\d+\.\d+\.\d+$') { throw "Version must be X.Y.Z, got '$v'" }
+          "VERSION=$v" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+      - name: Build
+        shell: pwsh
+        run: >
+          flutter build windows --release
+          --build-name=$env:VERSION --build-number=${{ github.run_number }}
+          --dart-define=BASE_URL=https://chup.online/api/v1/
+          --dart-define=APP_VERSION=$env:VERSION
+
+      - name: Sign the exe
+        if: env.SIGN_CERT != ''
+        shell: pwsh
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP 'sign.pfx'
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:SIGN_CERT))
+          $signtool = Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe' | Sort-Object FullName | Select-Object -Last 1
+          & $signtool.FullName sign /f $pfx /p $env:SIGN_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 build\windows\x64\runner\Release\chup_widget.exe
+          "SIGNTOOL=$($signtool.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "PFX=$pfx" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Zip and checksum
+        # The updater downloads the zip and refuses it unless its SHA-256
+        # matches the .sha256 asset.
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath dist\chup-widget-windows.zip
+          (Get-FileHash dist\chup-widget-windows.zip -Algorithm SHA256).Hash.ToLower() | Out-File -Encoding ascii -NoNewline dist\chup-widget-windows.zip.sha256
+
+      - name: Installer
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress | Out-Null
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' "/DAppVersion=$env:VERSION" "/DSourceDir=$((Resolve-Path build\windows\x64\runner\Release).Path)" installer\chup-widget.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
+
+      - name: Sign the installer
+        if: env.SIGN_CERT != ''
+        shell: pwsh
+        run: |
+          & $env:SIGNTOOL sign /f $env:PFX /p $env:SIGN_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 dist\chup-widget-setup.exe
+          Remove-Item $env:PFX
+
+      - name: Publish the release
+        if: env.PUBLISH == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create '${{ github.ref_name }}'
+          dist\chup-widget-windows.zip dist\chup-widget-windows.zip.sha256 dist\chup-widget-setup.exe
+          --title "Chup Widget $env:VERSION" --generate-notes
+
+      - name: Keep the dry-run build
+        if: env.PUBLISH != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: chup-widget-${{ env.VERSION }}-dry-run
+          path: dist
+          retention-days: 14

@@ -1,0 +1,104 @@
+name: Updater end to end
+
+# Installs 1.0.0 on a real Windows machine, serves 1.0.1 from a local feed that
+# mimics GitHub's releases/latest, and checks the widget swaps itself to 1.0.1
+# and restarts. Then serves a 1.0.2 with a wrong checksum and checks it is
+# refused and the widget keeps running. Publishes nothing.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - lib/core/updater.dart
+      - lib/core/queue_controller.dart
+      - installer/**
+      - .github/workflows/updater-e2e.yml
+
+jobs:
+  updater:
+    runs-on: windows-latest
+    env:
+      FEED: http://127.0.0.1:8765
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+
+      - name: Build 1.0.1 (the update)
+        shell: pwsh
+        run: |
+          flutter build windows --release --build-name=1.0.1 --dart-define=APP_VERSION=1.0.1 --dart-define=MOCK=true --dart-define=UPDATE_FEED=$env:FEED/latest.json --dart-define=AUTO_UPDATE=true
+          $feed = Join-Path $env:RUNNER_TEMP 'feed'
+          New-Item -ItemType Directory -Force $feed | Out-Null
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath "$feed\chup-widget-windows.zip"
+          (Get-FileHash "$feed\chup-widget-windows.zip" -Algorithm SHA256).Hash.ToLower() | Out-File -Encoding ascii -NoNewline "$feed\chup-widget-windows.zip.sha256"
+          'deadbeef' * 8 | Out-File -Encoding ascii -NoNewline "$feed\bad.sha256"
+          "FEED_DIR=$feed" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Build and install 1.0.0 (the installed widget)
+        shell: pwsh
+        run: |
+          flutter build windows --release --build-name=1.0.0 --dart-define=APP_VERSION=1.0.0 --dart-define=MOCK=true --dart-define=UPDATE_FEED=$env:FEED/latest.json --dart-define=AUTO_UPDATE=true
+          $app = Join-Path $env:LOCALAPPDATA 'Programs\Chup Widget E2E'
+          New-Item -ItemType Directory -Force $app | Out-Null
+          Copy-Item -Path build\windows\x64\runner\Release\* -Destination $app -Recurse -Force
+          "APP_DIR=$app" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "Installed: " + (Get-Item "$app\chup_widget.exe").VersionInfo.ProductVersion
+
+      - name: Serve the feed
+        shell: pwsh
+        run: |
+          function Feed($tag, $sha) {
+            @{ tag_name = $tag; draft = $false; prerelease = $false; assets = @(
+              @{ name = 'chup-widget-windows.zip'; browser_download_url = "$env:FEED/chup-widget-windows.zip" },
+              @{ name = 'chup-widget-windows.zip.sha256'; browser_download_url = "$env:FEED/$sha" }
+            ) } | ConvertTo-Json -Depth 4 | Out-File -Encoding utf8 "$env:FEED_DIR\latest.json"
+          }
+          Feed 'v1.0.1' 'chup-widget-windows.zip.sha256'
+          Start-Process python -ArgumentList '-m','http.server','8765','--bind','127.0.0.1','--directory',$env:FEED_DIR -WindowStyle Hidden
+          Start-Sleep 3
+          (Invoke-WebRequest "$env:FEED/latest.json" -UseBasicParsing).Content
+
+      - name: 1.0.0 updates itself to 1.0.1 and restarts
+        shell: pwsh
+        run: |
+          $exe = "$env:APP_DIR\chup_widget.exe"
+          $first = Start-Process $exe -PassThru
+          "Started 1.0.0 as PID $($first.Id)"
+          $deadline = (Get-Date).AddSeconds(180)
+          do {
+            Start-Sleep 5
+            $ver = (Get-Item $exe).VersionInfo.ProductVersion
+            $running = Get-Process chup_widget -ErrorAction SilentlyContinue | Where-Object { $_.Id -ne $first.Id }
+          } until (($ver -like '1.0.1*' -and $running) -or (Get-Date) -gt $deadline)
+          Get-ChildItem $env:TEMP -Directory -Filter 'chup-widget-update-*' | ForEach-Object { "--- $($_.Name)"; Get-Content (Join-Path $_.FullName 'update.log') -ErrorAction SilentlyContinue }
+          "Version on disk: $ver"
+          "Running: $(@($running).Count) new process(es); old PID gone: $(-not (Get-Process -Id $first.Id -ErrorAction SilentlyContinue))"
+          if ($ver -notlike '1.0.1*') { throw 'The files were not replaced with 1.0.1' }
+          if (-not $running) { throw 'The widget was not restarted after the update' }
+          "RESTARTED_PID=$(@($running)[0].Id)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: A download with the wrong checksum is refused
+        shell: pwsh
+        run: |
+          Stop-Process -Id $env:RESTARTED_PID -Force
+          Start-Sleep 2
+          @{ tag_name = 'v1.0.2'; draft = $false; prerelease = $false; assets = @(
+            @{ name = 'chup-widget-windows.zip'; browser_download_url = "$env:FEED/chup-widget-windows.zip" },
+            @{ name = 'chup-widget-windows.zip.sha256'; browser_download_url = "$env:FEED/bad.sha256" }
+          ) } | ConvertTo-Json -Depth 4 | Out-File -Encoding utf8 "$env:FEED_DIR\latest.json"
+          $before = @(Get-ChildItem $env:TEMP -Directory -Filter 'chup-widget-update-*').Count
+          $exe = "$env:APP_DIR\chup_widget.exe"
+          $p = Start-Process $exe -PassThru
+          Start-Sleep 45
+          $after = @(Get-ChildItem $env:TEMP -Directory -Filter 'chup-widget-update-*').Count
+          $ver = (Get-Item $exe).VersionInfo.ProductVersion
+          $alive = -not $p.HasExited
+          "Version on disk: $ver; still running: $alive; update attempts: $($after - $before)"
+          if ($after -le $before) { throw 'The widget never tried the 1.0.2 update, so the refusal was not tested' }
+          if ($ver -notlike '1.0.1*') { throw 'A download with a bad checksum was installed' }
+          if (-not $alive) { throw 'The widget exited on a refused update' }
+          Stop-Process -Id $p.Id -Force

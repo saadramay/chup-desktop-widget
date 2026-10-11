@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../core/links.dart';
+import '../core/updater.dart';
 import '../core/limits.dart';
 import '../core/queue_controller.dart';
 import '../core/visit.dart';
@@ -727,6 +728,12 @@ class _SizeMenu extends StatelessWidget {
         c.menuOpen.value = false;
         if (v is WidgetSize) {
           await c.setSize(v);
+        } else if (v == 'update') {
+          if (c.updateVersion.value != null) {
+            await c.installUpdate();
+          } else {
+            await c.checkForUpdates();
+          }
         } else if (v == 'help') {
           await c.startTour();
         } else if (v == 'signout') {
@@ -760,6 +767,32 @@ class _SizeMenu extends StatelessWidget {
             ),
           ),
         const PopupMenuDivider(height: 1),
+        // The version, or the way to the next one.
+        PopupMenuItem<Object>(
+          value: 'update',
+          height: 30,
+          child: c.updateVersion.value != null
+              ? Row(
+                  children: [
+                    const Icon(
+                      Icons.download_rounded,
+                      size: 14,
+                      color: cGreen700,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Update to ${c.updateVersion.value}',
+                      style: t(12, FontWeight.w600, color: cGreen700),
+                    ),
+                  ],
+                )
+              : Text(
+                  kAppVersion == '0.0.0'
+                      ? 'Development build'
+                      : 'Version $kAppVersion',
+                  style: t(12, FontWeight.w400, color: cInk500),
+                ),
+        ),
         PopupMenuItem<Object>(
           value: 'help',
           height: 30,
@@ -781,7 +814,28 @@ class _SizeMenu extends StatelessWidget {
         width: 22,
         height: 22,
         margin: const EdgeInsets.only(left: 1),
-        child: const Icon(Icons.more_horiz_rounded, size: 15, color: cInk500),
+        // A green dot on ⋯ says an update is waiting inside.
+        child: Obx(
+          () => Stack(
+            alignment: Alignment.center,
+            children: [
+              const Icon(Icons.more_horiz_rounded, size: 15, color: cInk500),
+              if (c.updateVersion.value != null)
+                Positioned(
+                  right: 2,
+                  top: 2,
+                  child: Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: cGreen600,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
