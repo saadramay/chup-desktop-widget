@@ -14,6 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:screen_retriever/screen_retriever.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() {
@@ -62,6 +63,38 @@ void main() {
     expect(c.revealed.value, isTrue,
         reason: 'the reveal must stay open under the menu');
     expect(tester.takeException(), isNull);
+
+    // 3. Picking Large, then Medium, from the menu: the widget must stay on
+    //    screen, visible and drawn (reported: "when I changed to large, it
+    //    disappeared").
+    for (final target in [WidgetSize.large, WidgetSize.medium]) {
+      if (find.text(target.label).evaluate().isEmpty) {
+        await tester.tap(find.byTooltip('More'));
+        await tester.pumpAndSettle(const Duration(milliseconds: 500));
+      }
+      await tester.tap(find.text(target.label).last);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await c.setRevealed(false);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      final b = await windowManager.getBounds();
+      final display = await screenRetriever.getPrimaryDisplay();
+      final area = Offset.zero & (display.visibleSize ?? display.size);
+      expect(c.size.value, target);
+      expect(await windowManager.isVisible(), isTrue, reason: '${target.label}: window hidden');
+      expect(await windowManager.isMinimized(), isFalse, reason: '${target.label}: minimised');
+      expect(area.contains(b.topLeft) && area.contains(b.bottomRight - const Offset(1, 1)), isTrue,
+          reason: '${target.label}: window $b is off the work area $area');
+      expect(b.height, c.restingHeight, reason: '${target.label}: window $b vs panel ${c.restingHeight}');
+      expect(find.byType(SliverPanel), findsOneWidget, reason: '${target.label}: panel not drawn');
+      expect(tester.takeException(), isNull);
+
+      // Reopen the reveal for the next menu.
+      await c.setRevealed(true);
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+      await tester.tap(find.byTooltip('More'));
+      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+    }
 
     await box.erase();
   });

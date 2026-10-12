@@ -76,6 +76,11 @@ class _RestingBand extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: _ActionError(c.actionError.value!),
                     )
+                  : c.notice.value != null && state != PanelState.serving
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: _ActionError(c.notice.value!, success: true),
+                    )
                   : switch (state) {
                       PanelState.serving => const _ServingLine(),
                       PanelState.empty => const _StatusLine(
@@ -140,6 +145,8 @@ class _ServingLine extends StatelessWidget {
                 // the reason is readable and never passes for success.
                 child: c.actionError.value != null
                     ? _ActionError(c.actionError.value!)
+                    : c.notice.value != null
+                    ? _ActionError(c.notice.value!, success: true)
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -279,27 +286,83 @@ class _StatusLine extends StatelessWidget {
   );
 }
 
-/// The reason the last action failed, on up to two lines; full text on hover.
+/// The reason the last action failed, or a short success line, on up to two
+/// lines; full text on hover.
 class _ActionError extends StatelessWidget {
-  const _ActionError(this.message);
+  const _ActionError(this.message, {this.success = false});
   final String message;
+  final bool success;
 
   @override
   Widget build(BuildContext context) => Tooltip(
     message: message,
     child: Row(
       children: [
-        const Icon(Icons.error_outline_rounded, size: 15, color: cRed),
+        Icon(
+          success ? Icons.check_circle_rounded : Icons.error_outline_rounded,
+          size: 15,
+          color: success ? cGreen700 : cRed,
+        ),
         const SizedBox(width: 5),
         Expanded(
           child: Text(
             message,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: t(11, FontWeight.w600, color: cRed, height: 1.2),
+            style: t(
+              11,
+              FontWeight.w600,
+              color: success ? cGreen700 : cRed,
+              height: 1.2,
+            ),
           ),
         ),
       ],
+    ),
+  );
+}
+
+/// "Move" on the patient in the room.
+class _MoveChip extends StatefulWidget {
+  const _MoveChip({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  State<_MoveChip> createState() => _MoveChipState();
+}
+
+class _MoveChipState extends State<_MoveChip> {
+  bool _h = false;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: 'Move to another service',
+    waitDuration: const Duration(milliseconds: 500),
+    child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _h = true),
+      onExit: (_) => setState(() => _h = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Container(
+          height: 16,
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          decoration: BoxDecoration(
+            color: _h ? cGreen50 : null,
+            border: Border.all(color: cGreen700),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Move',
+                style: t(10.5, FontWeight.w600, color: cGreen700, height: 1.0),
+              ),
+            ],
+          ),
+        ),
+      ),
     ),
   );
 }
@@ -528,17 +591,33 @@ class _Reveal extends StatelessWidget {
                           size: 11.5,
                         ),
                         const SizedBox(width: 6),
-                        Text(
-                          '${c.positionOf(s)}/${c.sessionTotal}',
-                          style: t(
-                            11.5,
-                            FontWeight.w500,
-                            color: cInk500,
-                            tabular: true,
+                        // The position gives way first; the minutes never do,
+                        // a cut "12." for 128 would be misread.
+                        Flexible(
+                          child: Text(
+                            '${c.positionOf(s)}/${c.sessionTotal}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: t(
+                              11.5,
+                              FontWeight.w500,
+                              color: cInk500,
+                              tabular: true,
+                            ),
                           ),
                         ),
                         Text(
-                          '  ·  Serving ${c.servingMinutes}m',
+                          ' · ',
+                          style: t(11.5, FontWeight.w500, color: cInk500),
+                        ),
+                        Icon(
+                          Icons.timer_outlined,
+                          size: 13,
+                          color: c.servingOverLimit ? cRed : cInk500,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          '${c.servingMinutes}m',
                           style: t(
                             11.5,
                             FontWeight.w600,
@@ -546,6 +625,10 @@ class _Reveal extends StatelessWidget {
                             tabular: true,
                           ),
                         ),
+                        const Spacer(),
+                        // Send the patient on to the next service, as the
+                        // web serving page's Move dialog does.
+                        _MoveChip(onTap: () => c.startMove(s)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -732,6 +815,7 @@ class _SizeMenu extends StatelessWidget {
       onOpened: () {
         c.menuOpen.value = true;
         c.applyWindowGeometry();
+        c.checkForUpdatesSoon();
       },
       onCanceled: () {
         c.menuOpen.value = false;

@@ -26,6 +26,10 @@ class Urls {
   static String undoAlert(int id) => 'user/visits/$id/undo-alert';
   static String noShow(int id) => 'user/visits/$id/no-show';
   static String served(int id) => 'user/visits/$id/served';
+  static String move(int id) => 'user/visits/$id/move';
+
+  /// Services and staff a visit can be moved to (the web Move dialog's list).
+  static const moveServices = 'user/reception/services';
   static String serving_(int id) => 'user/visits/$id/serving';
 }
 

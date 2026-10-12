@@ -31,6 +31,10 @@ const double kEdgeInset = 12;
 /// 272 since the version / update row joined the menu (seven rows).
 const double kSizeMenuWindowHeight = 272;
 
+/// The Move card, beside the panel like the tour card.
+const double kMoveCardWidth = 248;
+const double kMoveCardHeight = 300;
+
 /// Keeps the panel pinned to its corner while its height changes.
 ///
 /// The design is explicit that the bottom 38px must never move: the panel grows

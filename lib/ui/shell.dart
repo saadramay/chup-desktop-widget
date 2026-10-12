@@ -5,6 +5,7 @@ import '../core/queue_controller.dart';
 import '../core/window_anchor.dart';
 import 'sliver_panel.dart';
 import 'tokens.dart';
+import 'move_card.dart';
 import 'tour_card.dart';
 
 /// Switches between the three presentations and keeps the OS window sized to
@@ -26,6 +27,10 @@ class WidgetShell extends StatelessWidget {
       // during its own build.
       final panelMin = c.restingHeight;
       final touring = c.tourStep.value != 0;
+      final moving = c.moving.value != null;
+      // A side card (tour or Move) sets the window's height; the panel keeps
+      // its own.
+      final sideCard = touring || moving;
       final blinking = c.blinking.value;
       final panelHeight = c.panelHeight;
 
@@ -85,7 +90,7 @@ class WidgetShell extends StatelessWidget {
           alignment: Alignment.bottomRight,
           child: SizedBox(
             width: kWidgetWidth,
-            height: touring
+            height: sideCard
                 ? panelHeight.clamp(0.0, box.maxHeight)
                 : box.maxHeight,
             child: Stack(fit: StackFit.expand, children: [
@@ -104,9 +109,13 @@ class WidgetShell extends StatelessWidget {
         );
 
         return switch (p) {
-          Presentation.panel => touring
+          Presentation.panel => sideCard
               ? Stack(children: [
-                  const Positioned(left: 0, bottom: 0, child: TourCard()),
+                  Positioned(
+                    left: 0,
+                    bottom: 0,
+                    child: moving ? const MoveCard() : const TourCard(),
+                  ),
                   panel,
                 ])
               : panel,

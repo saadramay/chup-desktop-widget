@@ -13,6 +13,7 @@ import '../ui/tokens.dart';
 import 'api.dart';
 import 'limits.dart';
 import 'mock.dart';
+import 'move.dart';
 import 'tour.dart';
 import 'updater.dart';
 import 'visit.dart';
@@ -100,6 +101,19 @@ class QueueController extends GetxController {
   /// Stands in for `called_at` / `started_at` while the API does not send them.
   final Map<String, DateTime> _observed = {};
 
+  /// The visit being moved while the Move card is open.
+  final moving = Rxn<Visit>();
+  final moveServices = <MoveService>[].obs;
+  final moveLoading = false.obs;
+  final moveBusy = false.obs;
+
+  /// The Move card's own error line (the server's words).
+  final moveError = RxnString();
+
+  /// A short success line on the resting band, e.g. "Moved to Pharmacy".
+  final notice = RxnString();
+  Timer? _noticeTimer;
+
   /// A newer published version, when there is one.
   final updateVersion = RxnString();
   Release? _release;
@@ -152,8 +166,10 @@ class QueueController extends GetxController {
     refreshNow().whenComplete(_schedulePoll);
     if (Updater.enabled) {
       unawaited(checkForUpdates());
+      // Every 30 minutes, and on opening the menu (see checkForUpdatesSoon),
+      // so a new release shows up without restarting the widget.
       _updateTimer = Timer.periodic(
-        const Duration(hours: 6),
+        const Duration(minutes: 30),
         (_) => checkForUpdates(),
       );
     }
@@ -165,6 +181,7 @@ class QueueController extends GetxController {
     _clock?.cancel();
     _errorTimer?.cancel();
     _updateTimer?.cancel();
+    _noticeTimer?.cancel();
     super.onClose();
   }
 
@@ -192,10 +209,13 @@ class QueueController extends GetxController {
     await WindowAnchor.instance.setSizeKeepingBottom(windowWidth, windowHeight);
   }
 
-  /// The panel's width, plus room for the tour card to its left while the tour
-  /// runs. The right edge is anchored, so the panel itself never moves.
-  double get windowWidth =>
-      tour == null ? kWidgetWidth : kWidgetWidth + kTourGap + kTourCardWidth;
+  /// The panel's width, plus room for a side card (tour or Move) to its left.
+  /// The right edge is anchored, so the panel itself never moves.
+  double get windowWidth {
+    if (moving.value != null) return kWidgetWidth + kTourGap + kMoveCardWidth;
+    if (tour != null) return kWidgetWidth + kTourGap + kTourCardWidth;
+    return kWidgetWidth;
+  }
 
   /// Rows the list shows: the people behind the next patient, plus the END OF
   /// SESSION row when the session is shorter than the size allows. Never more
@@ -230,6 +250,7 @@ class QueueController extends GetxController {
   }
 
   Future<void> startTour() async {
+    moving.value = null;
     presentation.value = Presentation.panel;
     await goToTourStep(1);
   }
@@ -284,6 +305,7 @@ class QueueController extends GetxController {
     var h = panelHeight;
     if (menuOpen.value && h < kSizeMenuWindowHeight) h = kSizeMenuWindowHeight;
     if (tour != null && h < kTourCardHeight) h = kTourCardHeight;
+    if (moving.value != null && h < kMoveCardHeight) h = kMoveCardHeight;
     return h;
   }
 
@@ -642,11 +664,95 @@ class QueueController extends GetxController {
     }
   }
 
+  // ---------------------------------------------------------------- move
+
+  /// Opens the Move card for [v] and loads where it can go.
+  Future<void> startMove(Visit v) async {
+    if (tourStep.value != 0) return;
+    moving.value = v;
+    moveError.value = null;
+    moveServices.clear();
+    moveLoading.value = true;
+    unawaited(applyWindowGeometry());
+    try {
+      final res = kMock
+          ? Mock.moveServices()
+          : await Api.instance.get(Urls.moveServices, {
+              'for_move': '1',
+              if (v.serviceId != null) 'current_service_id': '${v.serviceId}',
+            });
+      moveServices.assignAll(parseMoveServices(res));
+      if (moveServices.isEmpty) moveError.value = 'No services to move to';
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) return endSession(expired: true);
+      moveError.value = e.message;
+    } catch (_) {
+      moveError.value = 'Cannot reach Chup';
+    } finally {
+      moveLoading.value = false;
+    }
+  }
+
+  Future<void> cancelMove() async {
+    moving.value = null;
+    moveError.value = null;
+    await applyWindowGeometry();
+  }
+
+  /// Moves the open visit to [service], to [staff] or, when null, to whoever
+  /// the service assigns. Lands at the end of that queue, as on the web.
+  Future<void> confirmMove(MoveService service, MoveStaff? staff) async {
+    final v = moving.value;
+    if (v == null || moveBusy.value) return;
+    moveBusy.value = true;
+    moveError.value = null;
+    try {
+      if (!kMock) {
+        await Api.instance.put(Urls.move(v.id), {
+          'service_id': service.id,
+          if (staff != null) 'user_id': staff.id,
+        });
+      }
+      moving.value = null;
+      _showNotice('Moved to ${staff?.name ?? service.name}');
+      await applyWindowGeometry();
+      await refreshNow();
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) return endSession(expired: true);
+      moveError.value = e.message;
+    } catch (_) {
+      moveError.value = 'Cannot reach Chup';
+    } finally {
+      moveBusy.value = false;
+    }
+  }
+
+  void _showNotice(String text) {
+    notice.value = text;
+    _noticeTimer?.cancel();
+    _noticeTimer = Timer(const Duration(seconds: 5), () => notice.value = null);
+  }
+
   // ---------------------------------------------------------------- updates
+
+  DateTime? _lastUpdateCheck;
+
+  /// A check on demand (opening the menu), at most once every 2 minutes: the
+  /// GitHub API allows 60 unauthenticated calls an hour per address.
+  void checkForUpdatesSoon() {
+    if (!Updater.enabled || updating.value) return;
+    final last = _lastUpdateCheck;
+    if (last != null &&
+        DateTime.now().difference(last) < const Duration(minutes: 2)) {
+      return;
+    }
+    unawaited(checkForUpdates());
+  }
 
   /// Asks GitHub for a newer release. Quiet on failure: an update check must
   /// never get in the way of the queue.
   Future<void> checkForUpdates() async {
+    _lastUpdateCheck = DateTime.now();
     try {
       _release = await Updater.check();
       updateVersion.value = _release?.version;

@@ -14,6 +14,7 @@ class Visit {
     required this.calledAt,
     required this.startedAt,
     required this.isEndVisit,
+    this.serviceId,
   });
 
   final int id;
@@ -39,6 +40,9 @@ class Visit {
   final DateTime? startedAt;
 
   final bool isEndVisit;
+
+  /// The service the visit is in; Move offers the services after it.
+  final int? serviceId;
 
   // ---------------------------------------------------------------- parsing
 
@@ -117,6 +121,7 @@ class Visit {
       calledAt: _time(j['called_at'] ?? j['alerted_at']),
       startedAt: _time(j['started_at'] ?? j['serving_started_at']),
       isEndVisit: _flag(j['is_end_visit'] ?? j['isEndVisit']),
+      serviceId: (j['service_id'] as num?)?.toInt(),
     );
   }
 
@@ -133,6 +138,7 @@ class Visit {
         calledAt: this.calledAt ?? calledAt,
         startedAt: this.startedAt ?? startedAt,
         isEndVisit: isEndVisit,
+        serviceId: serviceId,
       );
 
   // ---------------------------------------------------------------- state

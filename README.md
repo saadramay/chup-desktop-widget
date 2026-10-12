@@ -20,7 +20,8 @@
 > pinned · all four data states · minimised 44×44 chip · closed 5×34 edge tab · grip-only
 > dragging with position persisted per display · sign-in with "stay signed in" · sign-in to
 > corner morph · first-run landing blink and the Bahasa Malaysia tour (Help replays it) ·
-> Windows startup registration on sign-in · "Open in Chup" to the web live queue · Quit.
+> Windows startup registration on sign-in · "Open in Chup" to the web live queue · Quit ·
+> **Move** the patient in the room to another service and staff, as the web serving page does.
 >
 > ### Not built
 >

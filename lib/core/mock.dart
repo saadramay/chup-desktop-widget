@@ -31,40 +31,42 @@ class Mock {
     int? calledMinsAgo,
     int? startedMinsAgo,
     int sortIndex = 1,
-  }) =>
-      {
-        'id': id,
-        'token': token,
-        'sort_index': sortIndex,
-        // The enum integer, as the real API sends it.
-        'state': Visit.stateNames.entries
-            .firstWhere((e) => e.value == state,
-                orElse: () => const MapEntry(1, 'IN_QUEUE'))
-            .key,
-        'client': {'name': name},
-        'arrived_at': _ago(arrivedMinsAgo).toIso8601String(),
-        if (appointmentInMins != null)
-          'should_be_served_at':
-              DateTime.now().add(Duration(minutes: appointmentInMins)).toIso8601String(),
-        if (calledMinsAgo != null)
-          'called_at': _ago(calledMinsAgo).toIso8601String(),
-        if (startedMinsAgo != null)
-          'started_at': _ago(startedMinsAgo).toIso8601String(),
-        'is_end_visit': 0,
-      };
+  }) => {
+    'id': id,
+    'token': token,
+    'sort_index': sortIndex,
+    // The enum integer, as the real API sends it.
+    'state': Visit.stateNames.entries
+        .firstWhere(
+          (e) => e.value == state,
+          orElse: () => const MapEntry(1, 'IN_QUEUE'),
+        )
+        .key,
+    'client': {'name': name},
+    'arrived_at': _ago(arrivedMinsAgo).toIso8601String(),
+    if (appointmentInMins != null)
+      'should_be_served_at': DateTime.now()
+          .add(Duration(minutes: appointmentInMins))
+          .toIso8601String(),
+    if (calledMinsAgo != null)
+      'called_at': _ago(calledMinsAgo).toIso8601String(),
+    if (startedMinsAgo != null)
+      'started_at': _ago(startedMinsAgo).toIso8601String(),
+    'is_end_visit': 0,
+  };
 
   /// A Laravel paginator around [rows], matching the real response shape.
   static Map<String, dynamic> _page(List<Map<String, dynamic>> rows) => {
-        'code': 200,
-        'success': true,
-        'data': {
-          'current_page': 1,
-          'per_page': 10,
-          'total': rows.length,
-          'last_page': 1,
-          'data': rows,
-        },
-      };
+    'code': 200,
+    'success': true,
+    'data': {
+      'current_page': 1,
+      'per_page': 10,
+      'total': rows.length,
+      'last_page': 1,
+      'data': rows,
+    },
+  };
 
   static Map<String, dynamic> serving() {
     if (scenario == MockScenario.emptyQueue) return _page([]);
@@ -80,6 +82,45 @@ class Mock {
         sortIndex: 2,
       ),
     ]);
+  }
+
+  /// The Move card's service list, shaped like `reception/services?for_move=1`.
+  static Map<String, dynamic> moveServices() {
+    Map<String, dynamic> svc(
+      int id,
+      String name,
+      List<String> staff, {
+      bool any = false,
+    }) => {
+      'id': id,
+      'name': name,
+      'settings': {
+        'first_available': {
+          'first_available_state': any ? 1 : 0,
+          'first_available_for': 'live_queue',
+        },
+      },
+      'users': [
+        for (final (i, n) in staff.indexed) {'id': id * 10 + i, 'name': n},
+      ],
+    };
+    return {
+      'error': false,
+      'data': [
+        svc(2213, 'Pharmacy', [
+          'Pharmacy Counter 1',
+          'Pharmacy Counter 2',
+        ], any: true),
+        svc(2217, 'Vital Room', ['Nurse Aina']),
+        svc(2228, 'Digital X-Ray 1', ['Radiographer Lim']),
+        svc(2214, 'Consultant', [
+          'Dr Hafiz',
+          'Dr Mei Ling',
+          'Dr Rajesh Kumar a/l Subramaniam',
+        ]),
+        svc(2213 + 100, 'Billing & Payment', ['Cashier 1']),
+      ],
+    };
   }
 
   static Map<String, dynamic> visits() {
@@ -149,23 +190,23 @@ class Mock {
   /// Enough people behind the next patient to fill Large, plus a short session
   /// so END OF SESSION can be seen at Large.
   static List<Map<String, dynamic>> _tail() => [
-        for (final (i, n) in const [
-          'Fatima Ameen Hani',
-          'Jamaulddin Idris Khalifah',
-          'Nurul Adlina',
-          'Ridiana Kaidir',
-          'Mimi Sulaiman',
-          'Salah bin Ismail',
-        ].indexed)
-          _visit(
-            id: 910 + i,
-            token: 'HF 0${24 + i}',
-            name: n,
-            arrivedMinsAgo: 20 - i * 3,
-            appointmentInMins: 5 + i * 10,
-            sortIndex: 4 + i,
-          ),
-      ];
+    for (final (i, n) in const [
+      'Fatima Ameen Hani',
+      'Jamaulddin Idris Khalifah',
+      'Nurul Adlina',
+      'Ridiana Kaidir',
+      'Mimi Sulaiman',
+      'Salah bin Ismail',
+    ].indexed)
+      _visit(
+        id: 910 + i,
+        token: 'HF 0${24 + i}',
+        name: n,
+        arrivedMinsAgo: 20 - i * 3,
+        appointmentInMins: 5 + i * 10,
+        sortIndex: 4 + i,
+      ),
+  ];
 }
 
 enum MockScenario {
