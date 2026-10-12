@@ -22,7 +22,8 @@ import 'window_anchor.dart';
 /// The panel is 216px wide at every size. Only height changes, and it grows
 /// *upward* — the bottom 38px never moves, so the action target stays put under
 /// the cursor.
-const double kWidgetWidth = 216;
+/// 248 since Move joined the action band (216 in the original spec).
+const double kWidgetWidth = 248;
 
 enum WidgetSize { small, medium, large }
 
@@ -416,6 +417,13 @@ class QueueController extends GetxController {
   int get minutesSinceLastPoll => minutesSince(lastGoodPoll.value, now.value);
 
   /// The action the button offers right now. Exactly one, ever.
+  /// The patient Move acts on: the same one the action button acts on.
+  Visit? get moveSubject => switch (action) {
+    VisitAction.endVisit => serving.value,
+    VisitAction.start => called.value,
+    _ => next,
+  };
+
   /// The backend only ends a visit that is SERVING, so a called patient is
   /// started first: ALERT, then START, then END VISIT.
   VisitAction get action {

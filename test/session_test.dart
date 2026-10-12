@@ -91,7 +91,7 @@ void main() {
       home: Scaffold(
         body: Align(
           alignment: Alignment.bottomRight,
-          child: SizedBox(width: 216, height: 40, child: WidgetShell()),
+          child: SizedBox(width: kWidgetWidth, height: 40, child: WidgetShell()),
         ),
       ),
     ));
@@ -119,7 +119,7 @@ void main() {
       home: Scaffold(
         body: Align(
           alignment: Alignment.bottomRight,
-          child: SizedBox(width: 216, height: 40, child: WidgetShell()),
+          child: SizedBox(width: kWidgetWidth, height: 40, child: WidgetShell()),
         ),
       ),
     ));

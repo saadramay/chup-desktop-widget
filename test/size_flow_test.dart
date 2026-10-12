@@ -10,7 +10,7 @@ import 'panel_harness.dart';
 /// A controller whose window requests resize a fake window, so the shell is
 /// laid out the way the OS would lay it out after each request.
 class FakeWindowHost extends PanelHost {
-  final window = ValueNotifier<Size>(const Size(216, 40));
+  final window = ValueNotifier<Size>(const Size(kWidgetWidth, 40));
   final requests = <Size>[];
   @override
   Future<void> applyWindowGeometry() async {

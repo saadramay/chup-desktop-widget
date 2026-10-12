@@ -211,14 +211,16 @@ made in CI — Smart App Control blocks Flutter's unsigned AOT compiler locally.
   from Segoe at these sizes. The height is guarded by `test/sign_in_fit_test.dart`, which
   fails on 311 by 0.433px. **If the sign-in card should be 271 tall, that is a design
   decision to make by cutting content — not by lowering the constant back.**
-- **Move** (2026-10-12): a "Move" pill on the patient in the room (reveal) opens a card beside
-  the panel, like the tour card: pick a service, then a staff member or "Any available" where
+- **Move** (2026-10-12): a Move button (forward arrow) always sits beside Alert / Start / End
+  visit and acts on the same patient as that button (next, called, or in the room; the tooltip
+  names them). The panel is 248 wide for it (was 216). It opens a card beside the panel, like
+  the tour card: pick a service, then a staff member or "Any available" where
   the service hands patients to whoever is free, then confirm. Same API as the web serving
   page's Move dialog: `GET user/reception/services?for_move=1&current_service_id=…` for the
   list, `PUT user/visits/{id}/move` with `service_id` and optional `user_id`; no `sort_index`,
   so the patient joins the end of that queue as on the web. Verified against a local server:
   the served visit closes and a linked visit (`moved_from`) opens in the chosen queue with the
-  same token and billing. Moving a waiting (called) patient is not exposed yet.
+  same token and billing; the backend moves waiting and called patients the same way.
 - **Modern restyle** (2026-10-11): sentence case instead of all-caps micro labels, Semibold
   instead of Black weights, 12px panel / 8px control radii, buttons with icons ("Alert", "Start",
   "End visit"), token and position pills, a soft red hold-to-confirm No-show, a cleaner reveal,

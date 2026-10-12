@@ -203,6 +203,15 @@ class _ServingLine extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 6),
+          // Move, beside whichever action is showing, for the same patient.
+          if (c.moveSubject != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: _MoveButton(
+                name: c.moveSubject!.shortName,
+                onTap: () => c.startMove(c.moveSubject!),
+              ),
+            ),
           TourRing(
             region: TourRegion.act,
             child: Padding(
@@ -322,22 +331,28 @@ class _ActionError extends StatelessWidget {
   );
 }
 
-/// "Move" on the patient in the room.
-class _MoveChip extends StatefulWidget {
-  const _MoveChip({required this.onTap});
+/// Move, a 30x30 button beside the action: the patient goes to another
+/// service and staff, as on the web.
+class _MoveButton extends StatefulWidget {
+  const _MoveButton({required this.name, required this.onTap});
+
+  /// Who Move acts on; it can differ from the name on the line (with someone
+  /// in the room, the line names the next patient but Move, like End visit,
+  /// acts on the one being seen).
+  final String name;
   final VoidCallback onTap;
 
   @override
-  State<_MoveChip> createState() => _MoveChipState();
+  State<_MoveButton> createState() => _MoveButtonState();
 }
 
-class _MoveChipState extends State<_MoveChip> {
+class _MoveButtonState extends State<_MoveButton> {
   bool _h = false;
 
   @override
   Widget build(BuildContext context) => Tooltip(
-    message: 'Move to another service',
-    waitDuration: const Duration(milliseconds: 500),
+    message: 'Move ${widget.name} to another service',
+    waitDuration: const Duration(milliseconds: 400),
     child: MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _h = true),
@@ -345,22 +360,15 @@ class _MoveChipState extends State<_MoveChip> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: Container(
-          height: 16,
-          padding: const EdgeInsets.symmetric(horizontal: 6),
+          width: 30,
+          height: 30,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _h ? cGreen50 : null,
+            color: _h ? cGreen50 : cWhite,
             border: Border.all(color: cGreen700),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(kControlRadius),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Move',
-                style: t(10.5, FontWeight.w600, color: cGreen700, height: 1.0),
-              ),
-            ],
-          ),
+          child: const Icon(Icons.forward_rounded, size: 16, color: cGreen700),
         ),
       ),
     ),
@@ -625,10 +633,6 @@ class _Reveal extends StatelessWidget {
                             tabular: true,
                           ),
                         ),
-                        const Spacer(),
-                        // Send the patient on to the next service, as the
-                        // web serving page's Move dialog does.
-                        _MoveChip(onTap: () => c.startMove(s)),
                       ],
                     ),
                     const SizedBox(height: 5),

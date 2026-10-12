@@ -1,6 +1,7 @@
 import 'package:chup_widget/core/mock.dart';
 import 'package:chup_widget/core/move.dart';
 import 'package:chup_widget/core/queue_controller.dart';
+import 'package:chup_widget/core/visit.dart';
 import 'package:chup_widget/core/window_anchor.dart';
 import 'package:chup_widget/ui/move_card.dart';
 import 'package:chup_widget/ui/shell.dart';
@@ -136,7 +137,7 @@ void main() {
     expect(find.text('Move to Pharmacy'), findsOneWidget);
   }, skip: noSegoe);
 
-  testWidgets('the reveal row keeps 3-digit serving minutes whole beside Move',
+  testWidgets('the reveal row keeps 3-digit serving minutes whole',
       (tester) async {
     requireSegoe(segouiLoaded);
     final c = PanelHost();
@@ -159,7 +160,8 @@ void main() {
     await tester.pump();
     expect(tester.takeException(), isNull);
     expect(find.byType(SliverPanel), findsOneWidget);
-    expect(find.text('Move'), findsOneWidget);
+    expect(find.byTooltip('Move Ahmad F. to another service'), findsOneWidget,
+        reason: 'Move sits beside End visit and names who it moves');
     expect(c.servingMinutes, greaterThanOrEqualTo(100));
     final minutes = tester.renderObject<RenderParagraph>(
       find.text('${c.servingMinutes}m'),
@@ -168,4 +170,26 @@ void main() {
     expect(minutes.size.width, greaterThanOrEqualTo(minutes.getMaxIntrinsicWidth(20) - 0.5),
         reason: 'the minutes must never be cut ("12." for 128)');
   }, skip: noSegoe);
+
+  group('Move follows the action button', () {
+    test('Alert: the next patient; Start: the called one; End visit: the one in the room', () {
+      final c = PanelHost();
+      Get.put<QueueController>(c);
+
+      c.applyResponses(page([]), page([row(2, 1, 2, 'Next'), row(3, 1, 3, 'After')]));
+      expect(c.action, VisitAction.alert);
+      expect(c.moveSubject?.clientName, 'Next');
+
+      c.applyResponses(page([]), page([row(2, 2, 2, 'Called'), row(3, 1, 3, 'After')]));
+      expect(c.action, VisitAction.start);
+      expect(c.moveSubject?.clientName, 'Called');
+
+      c.applyResponses(page([row(1, 4, 1, 'In room', servingMins: 4)]), page([row(2, 1, 2, 'Next')]));
+      expect(c.action, VisitAction.endVisit);
+      expect(c.moveSubject?.clientName, 'In room');
+
+      c.applyResponses(page([]), page([]));
+      expect(c.moveSubject, isNull, reason: 'nobody to move, no button');
+    });
+  });
 }
